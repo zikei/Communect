@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./communect/Dockerfile
+    env_file: ./.env
+    environment:
+      - VIRTUAL_HOST=${API_FQDN}
+      - TZ=Asia/Tokyo
+    expose:
+      - "8080"
+    networks:
+      - communect-proxy-network
+      - communect-db-network
+
+networks:
+  communect-proxy-network:
+    name: communect_proxy_network
+    external: true
+  communect-db-network:
+    name: communect_db_network
+    external: true
