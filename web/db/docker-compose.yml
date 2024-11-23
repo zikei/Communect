@@ -1,0 +1,22 @@
+services:
+  db:
+    build: ./db
+    container_name: communect_db
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - TZ=Asia/Tokyo
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - communect-db-network
+
+volumes:
+  db-data-volume:
+    name: communect-db
+
+networks:
+  communect-db-network:
+    name: communect_db_network
