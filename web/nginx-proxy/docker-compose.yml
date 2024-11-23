@@ -1,0 +1,17 @@
+name: communect_proxy
+services:
+  communect-proxy:
+    container_name: communect-proxy
+    image: jwilder/nginx-proxy
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - communect-proxy-network
+    environment:
+      TZ: Asia/Tokyo
+
+networks:
+  communect-proxy-network:
+    name: communect_proxy_network
