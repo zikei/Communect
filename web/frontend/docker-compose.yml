@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./communect/dockerfile
+    expose:
+      - "3000"
+    volumes:
+      - type: bind
+        source: ./communect
+        target: /var/www/html/communect
+    command: sh -c "cd /var/www/html/communect && npm install && npm run dev"
+    env_file: ./.env
+    environment:
+      NODE_ENV: development
+      VIRTUAL_HOST: ${FRONT_FQDN}
+      TZ: Asia/Tokyo
+    networks:
+      - communect-proxy-network
+
+networks:
+  communect-proxy-network:
+    name: communect_proxy_network
+    external: true
