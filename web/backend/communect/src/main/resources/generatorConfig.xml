@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD
+    MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <!-- mysql connectorのパス -->
+    <classPathEntry
+            location="{mysql connector}"/>
+    <context id="MySQLTables" targetRuntime="MyBatis3Kotlin">
+        <plugin type="org.mybatis.generator.plugins.MapperAnnotationPlugin"/>
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+        <!-- dbの接続情報 -->
+        <jdbcConnection
+                driverClass="com.mysql.jdbc.Driver"
+                connectionURL="{connectionURL}"
+                userId="{user}"
+                password="{pass}">
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+        <javaTypeResolver>
+            <property name="useJSR310Types" value="true"/>
+        </javaTypeResolver>
+        <javaModelGenerator
+                targetPackage="com.example.communect.infrastructure.db.record"
+                targetProject="src/main/kotlin">
+        </javaModelGenerator>
+        <javaClientGenerator
+                targetPackage="com.example.communect.infrastructure.db.mapper"
+                targetProject="src/main/kotlin">
+        </javaClientGenerator>
+        <table tableName="%">
+            <columnOverride column="talkType" typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                            javaType="com.example.communect.domain.enums.TalkType"/>
+            <columnOverride column="role" typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                            javaType="com.example.communect.domain.enums.GroupRole"/>
+            <columnOverride column="contactType" typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                            javaType="com.example.communect.domain.enums.ContactType"/>
+            <columnOverride column="importance" typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                            javaType="com.example.communect.domain.enums.Importance"/>
+        </table>
+    </context>
+</generatorConfiguration>
