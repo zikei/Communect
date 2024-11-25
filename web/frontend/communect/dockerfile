@@ -1,5 +1,17 @@
 # 軽量なNode.js環境
-FROM node:lts-alpine3.20
+FROM node:18
 
 # 作業ディレクトリ
 WORKDIR /var/www/html/communect
+
+# ソースコードをコピー
+COPY ./communect ./
+
+# npmキャッシュをクリア
+RUN npm cache clean --force
+
+# 最新のnpmをインストール
+RUN npm install -g npm@latest
+
+# プロジェクトの依存関係をインストール
+RUN npm install

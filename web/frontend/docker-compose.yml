@@ -6,10 +6,9 @@ services:
     expose:
       - "3000"
     volumes:
-      - type: bind
-        source: ./communect
-        target: /var/www/html/communect
-    command: sh -c "cd /var/www/html/communect && npm install && npm run dev"
+      - ./communect:/var/www/html/communect
+      - node_modules_volume:/var/www/html/communect/node_modules
+    command: sh -c "cd /var/www/html/communect && npm run dev"
     env_file: ./.env
     environment:
       NODE_ENV: development
@@ -17,6 +16,10 @@ services:
       TZ: Asia/Tokyo
     networks:
       - communect-proxy-network
+
+volumes:
+  node_modules_volume:
+    name: communect-node-modules
 
 networks:
   communect-proxy-network:
