@@ -21,6 +21,9 @@ class WebSecurityConfig {
                 authorize(PathRequest.toStaticResources().atCommonLocations(), permitAll)
                 authorize(anyRequest, permitAll)
             }
+            csrf {
+                disable()
+            }
         }
         return http.build()
     }
