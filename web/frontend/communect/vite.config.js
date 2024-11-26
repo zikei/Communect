@@ -9,6 +9,7 @@ export default defineConfig({
     port: 3000
   },
   alias: {
+    'react-router-dom': 'react-router-dom',
     'granim': 'granim/dist/granim.min.js'
   }
 })

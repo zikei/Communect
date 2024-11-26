@@ -1,5 +1,5 @@
 # 軽量なNode.js環境
-FROM node:alpine
+FROM node:18
 
 # 作業ディレクトリ
 WORKDIR /var/www/html/communect
