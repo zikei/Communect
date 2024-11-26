@@ -1,9 +1,6 @@
 package com.example.communect.domain.service
 
-import com.example.communect.domain.model.Group
-import com.example.communect.domain.model.GroupIns
-import com.example.communect.domain.model.GroupUser
-import com.example.communect.domain.model.GroupUserIns
+import com.example.communect.domain.model.*
 
 /** グループ処理インターフェース */
 interface GroupService {
@@ -21,6 +18,9 @@ interface GroupService {
 
     /** グループ作成 */
     fun createGroup(group: GroupIns, loginUserId: String, userIds: List<String>?): Pair<Group, List<GroupUser>>
+
+    /** グループ更新 */
+    fun updGroup(group: GroupUpd): Group
 
     /** グループユーザ追加 */
     fun addGroupUser(user: GroupUserIns): GroupUser

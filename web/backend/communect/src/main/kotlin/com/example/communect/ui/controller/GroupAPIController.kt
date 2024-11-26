@@ -2,6 +2,7 @@ package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.GroupIns
+import com.example.communect.domain.model.GroupUpd
 import com.example.communect.domain.service.GroupService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -35,19 +36,29 @@ class GroupAPIController(
 
     /** グループ作成 */
     @PostMapping
-    fun getGroup(
+    fun createGroup(
         @Validated @RequestBody req: CreateGroupRequest,
         bindingResult: BindingResult
     ): CreateGroupResponse {
-        if (bindingResult.hasErrors()){
-            println(MockTestData.userList)
-            println(bindingResult.allErrors)
-            throw BadRequestException()
-        }
+        if (bindingResult.hasErrors()) throw BadRequestException()
         val insGroup = GroupIns(req.name, req.above)
         val userIds = req.users
 
         val (group, groupUsers) = groupService.createGroup(insGroup, MockTestData.user1.userId, userIds)
         return CreateGroupResponse(GroupInfo(group), groupUsers.map { GroupUserInfo(it) })
+    }
+
+    /** グループ更新 */
+    @PutMapping("/{groupId}")
+    fun updGroup(
+        @PathVariable("groupId") groupId: String,
+        @Validated @RequestBody req: UpdGroupRequest,
+        bindingResult: BindingResult
+    ): UpdGroupResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val updGroup = GroupUpd(groupId, req.name, req.above)
+
+        val group = groupService.updGroup(updGroup)
+        return UpdGroupResponse(GroupInfo(group))
     }
 }

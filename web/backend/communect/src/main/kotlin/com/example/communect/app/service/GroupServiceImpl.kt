@@ -2,10 +2,7 @@ package com.example.communect.app.service
 
 import com.example.communect.app.service.MockTestData.user1
 import com.example.communect.domain.enums.GroupRole
-import com.example.communect.domain.model.Group
-import com.example.communect.domain.model.GroupIns
-import com.example.communect.domain.model.GroupUser
-import com.example.communect.domain.model.GroupUserIns
+import com.example.communect.domain.model.*
 import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
@@ -92,6 +89,24 @@ class GroupServiceImpl(): GroupService {
         MockTestData.groupUserList.addAll(insUsers)
 
         return Pair(insGroup, getGroupUsers(insGroup.groupId))
+    }
+
+    /**
+     *  グループ更新
+     *  @param group 更新情報
+     *  @return 更新グループ
+     */
+    override fun updGroup(group: GroupUpd): Group {
+        val index = MockTestData.groupList.indexOfFirst { it.groupId == group.groupId }
+        val groupName = group.groupName ?: MockTestData.groupList[index].groupName
+        val aboveId = if(group.aboveId == ""){
+            null
+        }else{
+            group.aboveId ?: MockTestData.groupList[index].aboveId
+        }
+        MockTestData.groupList[index] = Group(group.groupId, groupName, aboveId)
+
+        return MockTestData.groupList[index]
     }
 
     /**

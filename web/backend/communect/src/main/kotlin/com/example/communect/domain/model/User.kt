@@ -1,7 +1,5 @@
 package com.example.communect.domain.model
 
-import com.example.communect.domain.enums.GroupRole
-
 /** ユーザエンティティ */
 data class User(
     /** ユーザID */
@@ -40,5 +38,4 @@ data class UserUpd(
     var password: String,
     /** メールアドレス */
     var email: String
-
 )
