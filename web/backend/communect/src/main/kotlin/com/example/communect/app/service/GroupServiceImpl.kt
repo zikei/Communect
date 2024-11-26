@@ -110,6 +110,18 @@ class GroupServiceImpl(): GroupService {
     }
 
     /**
+     *  グループ削除
+     *  @param groupId 削除対象グループID
+     */
+    override fun deleteGroup(groupId: String) {
+        MockTestData.groupList.filter { it.aboveId == groupId }.forEach {
+            deleteGroup(it.groupId)
+        }
+        MockTestData.groupList.removeAll { it.groupId == groupId }
+        MockTestData.groupUserList.removeAll { it.groupId == groupId }
+    }
+
+    /**
      *  グループユーザ追加
      *  @param user 登録ユーザ情報
      *  @return 登録ユーザ

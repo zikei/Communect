@@ -4,7 +4,6 @@ import com.example.communect.domain.model.Group
 import com.example.communect.ui.validator.NullOrNotBlank
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.Null
 import jakarta.validation.constraints.Size
 
 /** グループリスト返却 */

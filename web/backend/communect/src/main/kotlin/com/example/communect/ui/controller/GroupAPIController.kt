@@ -61,4 +61,12 @@ class GroupAPIController(
         val group = groupService.updGroup(updGroup)
         return UpdGroupResponse(GroupInfo(group))
     }
+
+    /** グループ削除 */
+    @DeleteMapping("/{groupId}")
+    fun deleteGroup(
+        @PathVariable("groupId") groupId: String
+    ) {
+        groupService.deleteGroup(groupId)
+    }
 }

@@ -22,6 +22,9 @@ interface GroupService {
     /** グループ更新 */
     fun updGroup(group: GroupUpd): Group
 
+    /** グループ削除 */
+    fun deleteGroup(groupId: String)
+
     /** グループユーザ追加 */
     fun addGroupUser(user: GroupUserIns): GroupUser
 }
