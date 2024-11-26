@@ -1,5 +1,5 @@
 # 軽量なNode.js環境
-FROM node:18
+FROM node:alpine
 
 # 作業ディレクトリ
 WORKDIR /var/www/html/communect
@@ -14,4 +14,4 @@ RUN npm cache clean --force
 RUN npm install -g npm@latest
 
 # プロジェクトの依存関係をインストール
-RUN npm install
+RUN npm install --nocache
