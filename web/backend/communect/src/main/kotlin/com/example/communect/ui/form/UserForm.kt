@@ -41,6 +41,9 @@ data class GroupUserInfo(
 /** グループユーザ追加リクエスト */
 data class AddGroupUserRequest(val userId: String)
 
+/** グループユーザ削除リクエスト */
+data class DeleteGroupUserRequest(val groupUserId: String)
+
 /** グループユーザ更新リクエスト */
 data class UpdGroupUserRequest(
     /** グループユーザID */

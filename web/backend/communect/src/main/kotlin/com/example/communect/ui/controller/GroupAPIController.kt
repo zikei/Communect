@@ -94,10 +94,17 @@ class GroupAPIController(
     /** グループユーザ一更新 */
     @PutMapping("/{groupId}/user")
     fun updGroupUser(
-        @PathVariable("groupId") groupId: String,
         @RequestBody req: UpdGroupUserRequest
     ): GroupUserResponse{
         val user = groupService.updGroupUser(GroupUserUpd(req.groupUserId, req.nickName, req.role, req.isAdmin, req.isSubGroupCreate))
         return GroupUserResponse(GroupUserInfo(user))
+    }
+
+    /** グループユーザ一削除 */
+    @DeleteMapping("/{groupId}/user")
+    fun deleteGroupUser(
+        @RequestBody req: DeleteGroupUserRequest
+    ){
+       groupService.deleteGroupUser(req.groupUserId)
     }
 }

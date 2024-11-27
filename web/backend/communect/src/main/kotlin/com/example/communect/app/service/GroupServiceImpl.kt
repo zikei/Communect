@@ -158,4 +158,21 @@ class GroupServiceImpl(): GroupService {
 
         return MockTestData.groupUserList[index]
     }
+
+    /**
+     *  グループユーザ削除
+     *  @param groupUserId 削除グループユーザID
+     */
+    override fun deleteGroupUser(groupUserId: String) {
+        val groupUser = MockTestData.groupUserList.find { it.groupUserId == groupUserId } ?: throw BadRequestException()
+        val group = MockTestData.groupList.find { it.groupId == groupUser.groupId } ?: throw BadRequestException()
+
+        MockTestData.groupList.filter { it.aboveId == group.groupId }.forEach { subGroup ->
+            getGroupUsers(subGroup.groupId).find { it.userId == groupUser.userId }?.let {
+                deleteGroupUser(it.groupUserId)
+            }
+        }
+
+        MockTestData.groupUserList.removeAll { it.groupUserId == groupUserId }
+    }
 }

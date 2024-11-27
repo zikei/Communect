@@ -30,4 +30,7 @@ interface GroupService {
 
     /** グループユーザ更新 */
     fun updGroupUser(user: GroupUserUpd): GroupUser
+
+    /** グループユーザ削除 */
+    fun deleteGroupUser(groupUserId: String)
 }
