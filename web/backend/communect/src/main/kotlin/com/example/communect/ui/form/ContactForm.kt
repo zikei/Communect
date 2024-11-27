@@ -5,6 +5,7 @@ import com.example.communect.domain.enums.Importance
 import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Contact
 import com.example.communect.domain.model.Reaction
+import com.example.communect.ui.validator.NullOrNotBlank
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
@@ -94,7 +95,7 @@ data class ReactionInfo(
     )
 }
 
-/** 連絡情報情報 */
+/** 連絡投稿リクエスト */
 data class ContactPostRequest(
     /** メッセージ */
     @get:NotBlank
@@ -107,6 +108,20 @@ data class ContactPostRequest(
     val importance: Importance,
     /** グループID */
     val groupId: String,
+    /** 選択肢リスト */
+    val choices: List<String>? = null
+)
+
+/** 連絡更新リクエスト */
+data class UpdContactRequest(
+    /** メッセージ */
+    @get:NullOrNotBlank
+    @get:Size(max = 450)
+    val message: String? = null,
+    /** 連絡種別 */
+    val contactType: ContactType? = null,
+    /** 重要度 */
+    val importance: Importance? = null,
     /** 選択肢リスト */
     val choices: List<String>? = null
 )

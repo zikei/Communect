@@ -62,7 +62,7 @@ object MockTestData {
     private val choice3 = Choice(UUID.randomUUID().toString(), contact3Id, "コロナ ボーリング")
     private val choiceList = mutableListOf(choice1, choice2, choice3)
 
-    private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, "クラスレク", ContactType.CONFIRM, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
+    private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, "クラスレク", ContactType.CHOICE, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
 
     private val reaction1 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,21, 50), null, user1.userId, user1.userName, user1.nickName)
     private val reaction2 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,22, 30), null, user2.userId, user2.userName, user2.nickName)

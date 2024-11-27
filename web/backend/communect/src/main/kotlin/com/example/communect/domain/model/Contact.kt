@@ -48,6 +48,6 @@ data class ContactUpd(
     val contactType: ContactType?,
     /** 重要度 */
     val importance: Importance?,
-    /** 作成日時 */
-    val createTime: LocalDateTime?
+    /** 選択肢 */
+    val choices: List<String>?
 )

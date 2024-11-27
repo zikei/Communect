@@ -1,9 +1,8 @@
 package com.example.communect.ui.controller
 
 import com.example.communect.domain.enums.ContactType
-import com.example.communect.domain.model.Choice
-import com.example.communect.domain.model.ChoiceIns
 import com.example.communect.domain.model.ContactIns
+import com.example.communect.domain.model.ContactUpd
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -42,6 +41,20 @@ class ContactAPIController(
 
         val postContact = ContactIns(req.groupId, req.message, req.contactType, req.importance, req.choices)
         val contact = contactService.addContact(postContact)
+        return ContactResponse(ContactInfo(contact))
+    }
+
+    /** 連絡投稿 */
+    @PutMapping("/{contactId}")
+    fun updContact(
+        @PathVariable("contactId") contactId: String,
+        @Validated @RequestBody req: UpdContactRequest,
+        bindingResult: BindingResult
+    ): ContactResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+
+        val updContact = ContactUpd(contactId, req.message, req.contactType, req.importance, req.choices)
+        val contact = contactService.updContact(updContact)
         return ContactResponse(ContactInfo(contact))
     }
 }
