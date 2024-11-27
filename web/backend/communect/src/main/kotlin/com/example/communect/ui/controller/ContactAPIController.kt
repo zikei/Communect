@@ -1,16 +1,16 @@
 package com.example.communect.ui.controller
 
 import com.example.communect.domain.enums.ContactType
+import com.example.communect.domain.model.Choice
+import com.example.communect.domain.model.ChoiceIns
+import com.example.communect.domain.model.ContactIns
 import com.example.communect.domain.service.ContactService
-import com.example.communect.ui.form.ContactInfo
-import com.example.communect.ui.form.ContactResponse
-import com.example.communect.ui.form.ReactionInfo
+import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.validation.BindingResult
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.*
 
 /** 連絡APIコントローラ */
 @RestController
@@ -20,15 +20,28 @@ class ContactAPIController(
 ) {
     /** 連絡詳細取得 */
     @GetMapping("/{contactId}")
-    fun getGroup(
+    fun getContact(
         @PathVariable("contactId") contactId: String
-    ): ContactResponse {
+    ): ContactAndReactionsResponse {
         val contact = contactService.getContact(contactId) ?: throw BadRequestException()
         val reactions = if(contact.contactType == ContactType.INFORM){
             null
         }else{
             contactService.getReactions(contactId)
         }
-        return ContactResponse(ContactInfo(contact), reactions?.map { ReactionInfo(it) })
+        return ContactAndReactionsResponse(ContactInfo(contact), reactions?.map { ReactionInfo(it) })
+    }
+
+    /** 連絡投稿 */
+    @PostMapping
+    fun contactPost(
+        @Validated @RequestBody req: ContactPostRequest,
+        bindingResult: BindingResult
+    ): ContactResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+
+        val postContact = ContactIns(req.groupId, req.message, req.contactType, req.importance, req.choices)
+        val contact = contactService.addContact(postContact)
+        return ContactResponse(ContactInfo(contact))
     }
 }

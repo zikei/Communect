@@ -1,6 +1,7 @@
 package com.example.communect.domain.service
 
 import com.example.communect.domain.model.Contact
+import com.example.communect.domain.model.ContactIns
 import com.example.communect.domain.model.Reaction
 
 /** 連絡処理インターフェース */
@@ -11,4 +12,6 @@ interface ContactService {
     fun getContact(contactId: String): Contact?
     /** リアクション取得 */
     fun getReactions(contactId: String): List<Reaction>
+    /** 連絡投稿 */
+    fun addContact(contact: ContactIns): Contact
 }

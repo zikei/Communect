@@ -33,7 +33,9 @@ data class ContactIns(
     /** 連絡種別 */
     val contactType: ContactType,
     /** 重要度 */
-    val importance: Importance
+    val importance: Importance,
+    /** 選択肢 */
+    val choices: List<String>?
 )
 
 /** 更新用連絡エンティティ */

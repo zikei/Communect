@@ -5,13 +5,19 @@ import com.example.communect.domain.enums.Importance
 import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Contact
 import com.example.communect.domain.model.Reaction
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
 /** 連絡リスト返却 */
 data class ContactsResponse(val contacts: List<ContactInfo>)
 
 /** 連絡詳細返却 */
-data class ContactResponse(val contact: ContactInfo, val reactions: List<ReactionInfo>?)
+data class ContactAndReactionsResponse(val contact: ContactInfo, val reactions: List<ReactionInfo>?)
+
+/** 連絡作成返却 */
+data class ContactResponse(val contact: ContactInfo)
 
 /** 連絡情報情報 */
 data class ContactInfo(
@@ -87,3 +93,20 @@ data class ReactionInfo(
         reaction.userNickName
     )
 }
+
+/** 連絡情報情報 */
+data class ContactPostRequest(
+    /** メッセージ */
+    @get:NotBlank
+    @get:NotEmpty
+    @get:Size(max = 450)
+    val message: String,
+    /** 連絡種別 */
+    val contactType: ContactType,
+    /** 重要度 */
+    val importance: Importance,
+    /** グループID */
+    val groupId: String,
+    /** 選択肢リスト */
+    val choices: List<String>? = null
+)
