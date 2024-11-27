@@ -7,6 +7,9 @@ import com.example.communect.domain.model.GroupUser
 /** グループユーザリスト返却 */
 data class GroupUsersResponse(val users: List<GroupUserInfo>)
 
+/** グループユーザ返却 */
+data class GroupUserResponse(val user: GroupUserInfo)
+
 /** グループユーザ情報 */
 data class GroupUserInfo(
     /** グループユーザID */
@@ -34,3 +37,6 @@ data class GroupUserInfo(
         groupUser.isSubGroupCreate
     )
 }
+
+/** グループユーザ追加リクエスト */
+data class AddGroupUserRequest(val userId: String)

@@ -27,15 +27,7 @@ data class GroupUserIns(
     /** グループID */
     val groupId: String,
     /** ユーザID */
-    val userId: String,
-    /** 表示名 */
-    val nickName: String?,
-    /** 連絡権限 */
-    val role: GroupRole,
-    /** 管理者権限 */
-    val isAdmin: Boolean,
-    /** 下位グループ作成権限ID */
-    val isSubGroupCreate: Boolean
+    val userId: String
 )
 
 /** 更新用グループユーザエンティティ */

@@ -3,6 +3,7 @@ package com.example.communect.ui.controller
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.GroupIns
 import com.example.communect.domain.model.GroupUpd
+import com.example.communect.domain.model.GroupUserIns
 import com.example.communect.domain.service.GroupService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -77,5 +78,15 @@ class GroupAPIController(
     ): GroupUsersResponse{
         val users = groupService.getGroupUsers(groupId)
         return GroupUsersResponse(users.map { GroupUserInfo(it) })
+    }
+
+    /** グループユーザ一追加 */
+    @PostMapping("/{groupId}/user")
+    fun addGroupUser(
+        @PathVariable("groupId") groupId: String,
+        @RequestBody req: AddGroupUserRequest
+    ): GroupUserResponse{
+        val user = groupService.addGroupUser(GroupUserIns(groupId, req.userId))
+        return GroupUserResponse(GroupUserInfo(user))
     }
 }
