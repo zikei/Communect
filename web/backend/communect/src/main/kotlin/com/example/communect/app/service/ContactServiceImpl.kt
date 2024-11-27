@@ -91,4 +91,13 @@ class ContactServiceImpl(
         MockTestData.contactList[index] = updContact
         return MockTestData.contactList[index]
     }
+
+    /**
+     *  連絡削除
+     *  @param contactId 削除対象連絡ID
+     */
+    override fun deleteContact(contactId: String) {
+        MockTestData.contactList.removeAll { it.contactId == contactId }
+        MockTestData.reactionList.removeAll { it.contactId == contactId }
+    }
 }

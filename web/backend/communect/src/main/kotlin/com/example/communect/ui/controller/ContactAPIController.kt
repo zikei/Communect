@@ -6,6 +6,7 @@ import com.example.communect.domain.model.ContactUpd
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
+import org.apache.ibatis.annotations.Delete
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -56,5 +57,13 @@ class ContactAPIController(
         val updContact = ContactUpd(contactId, req.message, req.contactType, req.importance, req.choices)
         val contact = contactService.updContact(updContact)
         return ContactResponse(ContactInfo(contact))
+    }
+
+    /** 連絡削除 */
+    @DeleteMapping("/{contactId}")
+    fun deleteContact(
+        @PathVariable("contactId") contactId: String
+    ) {
+        contactService.deleteContact(contactId)
     }
 }

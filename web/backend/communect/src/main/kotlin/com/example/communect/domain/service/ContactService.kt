@@ -17,4 +17,6 @@ interface ContactService {
     fun addContact(contact: ContactIns): Contact
     /** 連絡更新 */
     fun updContact(contact: ContactUpd): Contact
+    /** 連絡削除 */
+    fun deleteContact(contactId: String)
 }
