@@ -175,13 +175,4 @@ class GroupServiceImpl(): GroupService {
 
         MockTestData.groupUserList.removeAll { it.groupUserId == groupUserId }
     }
-
-    /**
-     *  グループトーク一覧取得
-     *  @param groupId 検索対象グループID
-     *  @return トークリスト
-     */
-    override fun getGroupTalks(groupId: String): List<GroupTalk> {
-        return MockTestData.groupTalkList.filter { it.groupId == groupId }
-    }
 }

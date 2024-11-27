@@ -1,11 +1,9 @@
 package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
-import com.example.communect.domain.model.GroupIns
-import com.example.communect.domain.model.GroupUpd
-import com.example.communect.domain.model.GroupUserIns
-import com.example.communect.domain.model.GroupUserUpd
+import com.example.communect.domain.model.*
 import com.example.communect.domain.service.GroupService
+import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +15,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/group")
 class GroupAPIController(
-    @Autowired val groupService: GroupService
+    @Autowired val groupService: GroupService,
+    @Autowired val talkService: TalkService
 ) {
     /** グループ一覧取得 */
     @GetMapping
@@ -113,7 +112,21 @@ class GroupAPIController(
     fun getGroupTalks(
         @PathVariable("groupId") groupId: String
     ): TalksResponse{
-        val talks = groupService.getGroupTalks(groupId)
+        val talks = talkService.getGroupTalks(groupId)
         return TalksResponse(talks.map { TalkInfo(it) })
+    }
+
+    /** グループトーク追加 */
+    @PostMapping("/{groupId}/talk")
+    fun addGroupTalk(
+        @PathVariable("groupId") groupId: String,
+        @Validated @RequestBody req: AddGroupTalkRequest,
+        bindingResult: BindingResult
+    ): TalkResponse{
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val insGroupTalk = GroupTalkIns(req.talkName, groupId)
+
+        val talk = talkService.addGroupTalk(insGroupTalk)
+        return TalkResponse(TalkInfo(talk))
     }
 }
