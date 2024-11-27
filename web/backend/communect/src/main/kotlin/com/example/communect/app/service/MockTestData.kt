@@ -2,6 +2,7 @@ package com.example.communect.app.service
 
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.Group
+import com.example.communect.domain.model.GroupTalk
 import com.example.communect.domain.model.GroupUser
 import com.example.communect.domain.model.User
 import java.util.*
@@ -42,7 +43,17 @@ object MockTestData {
     private val groupUser15 = GroupUser(UUID.randomUUID().toString(), group9.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
     private val groupUser16 = GroupUser(UUID.randomUUID().toString(), group10.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
 
+    private val groupTalk1 = GroupTalk(UUID.randomUUID().toString(), "全体チャット", group1.groupId)
+    private val groupTalk2 = GroupTalk(UUID.randomUUID().toString(), "プロデュースのコツ", group3.groupId)
+    private val groupTalk3 = GroupTalk(UUID.randomUUID().toString(), "相談", group3.groupId)
+    private val groupTalk4 = GroupTalk(UUID.randomUUID().toString(), "Python", group8.groupId)
+    private val groupTalk5 = GroupTalk(UUID.randomUUID().toString(), "卒業論文面接", group8.groupId)
+    private val groupTalk6 = GroupTalk(UUID.randomUUID().toString(), "奨学金", group8.groupId)
+    private val groupTalk7 = GroupTalk(UUID.randomUUID().toString(), "学園祭", group8.groupId)
+    private val groupTalk8 = GroupTalk(UUID.randomUUID().toString(), "就職", group8.groupId)
+
     val userList = mutableListOf(user1, user2, user3, user4, user5)
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
+    val groupTalkList = mutableListOf(groupTalk1, groupTalk2, groupTalk3, groupTalk4, groupTalk5, groupTalk6, groupTalk7, groupTalk8)
 }

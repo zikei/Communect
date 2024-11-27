@@ -14,8 +14,6 @@ data class User(
 
 /** 追加用ユーザエンティティ */
 data class UserIns(
-    /** ユーザID */
-    val userId: String,
     /** ユーザ名 */
     val userName: String,
     /** 表示名 */

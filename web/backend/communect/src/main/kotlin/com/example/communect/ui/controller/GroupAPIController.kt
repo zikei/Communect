@@ -107,4 +107,13 @@ class GroupAPIController(
     ){
        groupService.deleteGroupUser(req.groupUserId)
     }
+
+    /** グループトーク一覧取得 */
+    @GetMapping("/{groupId}/talk")
+    fun getGroupTalks(
+        @PathVariable("groupId") groupId: String
+    ): TalksResponse{
+        val talks = groupService.getGroupTalks(groupId)
+        return TalksResponse(talks.map { TalkInfo(it) })
+    }
 }

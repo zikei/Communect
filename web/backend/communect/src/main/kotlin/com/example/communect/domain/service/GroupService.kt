@@ -33,4 +33,7 @@ interface GroupService {
 
     /** グループユーザ削除 */
     fun deleteGroupUser(groupUserId: String)
+
+    /** グループトーク一覧取得 */
+    fun getGroupTalks(groupId: String): List<GroupTalk>
 }
