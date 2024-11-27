@@ -1,10 +1,10 @@
 package com.example.communect.app.service
 
+import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.enums.GroupRole
-import com.example.communect.domain.model.Group
-import com.example.communect.domain.model.GroupTalk
-import com.example.communect.domain.model.GroupUser
-import com.example.communect.domain.model.User
+import com.example.communect.domain.enums.Importance
+import com.example.communect.domain.model.*
+import java.time.LocalDateTime
 import java.util.*
 
 object MockTestData {
@@ -52,8 +52,21 @@ object MockTestData {
     private val groupTalk7 = GroupTalk(UUID.randomUUID().toString(), "学園祭", group8.groupId)
     private val groupTalk8 = GroupTalk(UUID.randomUUID().toString(), "就職", group8.groupId)
 
+    private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group6.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
+    private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
+
+    private val contact3Id = UUID.randomUUID().toString()
+
+    private val choice1 = Choice(UUID.randomUUID().toString(), contact3Id, "スポッチャ")
+    private val choice2 = Choice(UUID.randomUUID().toString(), contact3Id, "スペースラボ")
+    private val choice3 = Choice(UUID.randomUUID().toString(), contact3Id, "コロナ ボーリング")
+    private val choiceList = mutableListOf(choice1, choice2, choice3)
+
+    private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, "クラスレク", ContactType.CONFIRM, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
+
     val userList = mutableListOf(user1, user2, user3, user4, user5)
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
     val groupTalkList = mutableListOf(groupTalk1, groupTalk2, groupTalk3, groupTalk4, groupTalk5, groupTalk6, groupTalk7, groupTalk8)
+    val contactList = mutableListOf(contact1, contact2, contact3)
 }

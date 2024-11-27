@@ -2,6 +2,7 @@ package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.*
+import com.example.communect.domain.service.ContactService
 import com.example.communect.domain.service.GroupService
 import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/group")
 class GroupAPIController(
     @Autowired val groupService: GroupService,
-    @Autowired val talkService: TalkService
+    @Autowired val talkService: TalkService,
+    @Autowired val contactService: ContactService
 ) {
     /** グループ一覧取得 */
     @GetMapping
@@ -128,5 +130,15 @@ class GroupAPIController(
 
         val talk = talkService.addGroupTalk(insGroupTalk)
         return TalkResponse(TalkInfo(talk))
+    }
+
+    /** 連絡一覧取得 */
+    @GetMapping("/{groupId}/contact")
+    fun getContacts(
+        @PathVariable("groupId") groupId: String,
+        contactId: String? = null
+    ): ContactsResponse{
+        val contacts = contactService.getContactsByGroupId(groupId, contactId)
+        return ContactsResponse(contacts.map { ContactInfo(it) })
     }
 }
