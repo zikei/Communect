@@ -100,4 +100,19 @@ class ContactServiceImpl(
         MockTestData.contactList.removeAll { it.contactId == contactId }
         MockTestData.reactionList.removeAll { it.contactId == contactId }
     }
+
+    /**
+     *  リアクション
+     *  @param reaction 追加リアクション情報
+     */
+    override fun addReaction(reaction: ReactionIns) {
+        val contact = MockTestData.contactList.find { it.contactId == reaction.contactId } ?: throw BadRequestException()
+        val user = MockTestData.userList.find { it.userId == reaction.userId } ?: throw BadRequestException()
+        val insChoice = if(contact.contactType == ContactType.CHOICE){
+            reaction.choiceId?.let { contact.choices?.find { choice -> choice.choiceId == it } } ?: throw BadRequestException()
+        }else{
+            null
+        }
+        MockTestData.reactionList.add(Reaction(UUID.randomUUID().toString(), reaction.contactId, LocalDateTime.now(), insChoice, reaction.userId, user.userName, user.nickName))
+    }
 }

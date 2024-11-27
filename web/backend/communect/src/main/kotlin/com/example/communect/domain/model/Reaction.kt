@@ -22,12 +22,10 @@ data class Reaction(
 
 /** 追加用リアクションエンティティ */
 data class ReactionIns(
-    /** リアクションID */
-    val reactionId: String,
     /** 連絡ID */
     val contactId: String,
     /** 選択肢 */
-    val choice: Choice?,
+    val choiceId: String?,
     /** リアクションユーザId */
     val userId: String
 )

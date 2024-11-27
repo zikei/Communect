@@ -1,9 +1,6 @@
 package com.example.communect.domain.service
 
-import com.example.communect.domain.model.Contact
-import com.example.communect.domain.model.ContactIns
-import com.example.communect.domain.model.ContactUpd
-import com.example.communect.domain.model.Reaction
+import com.example.communect.domain.model.*
 
 /** 連絡処理インターフェース */
 interface ContactService {
@@ -19,4 +16,6 @@ interface ContactService {
     fun updContact(contact: ContactUpd): Contact
     /** 連絡削除 */
     fun deleteContact(contactId: String)
+    /** リアクション */
+    fun addReaction(reaction: ReactionIns)
 }

@@ -1,8 +1,10 @@
 package com.example.communect.ui.controller
 
+import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.ContactIns
 import com.example.communect.domain.model.ContactUpd
+import com.example.communect.domain.model.ReactionIns
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -65,5 +67,14 @@ class ContactAPIController(
         @PathVariable("contactId") contactId: String
     ) {
         contactService.deleteContact(contactId)
+    }
+
+    /** リアクション */
+    @PostMapping("/{contactId}/reaction")
+    fun addReaction(
+        @PathVariable("contactId") contactId: String,
+        @RequestBody req: AddReactionRequest
+    ) {
+        contactService.addReaction(ReactionIns(contactId, req.choiceId, MockTestData.user1.userId))
     }
 }

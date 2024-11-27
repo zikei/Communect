@@ -125,3 +125,9 @@ data class UpdContactRequest(
     /** 選択肢リスト */
     val choices: List<String>? = null
 )
+
+/** リアクションリクエスト */
+data class AddReactionRequest(
+    /** 選択肢ID */
+    val choiceId: String? = null
+)
