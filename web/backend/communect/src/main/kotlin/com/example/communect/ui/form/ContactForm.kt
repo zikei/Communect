@@ -4,10 +4,14 @@ import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.enums.Importance
 import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Contact
+import com.example.communect.domain.model.Reaction
 import java.time.LocalDateTime
 
 /** 連絡リスト返却 */
 data class ContactsResponse(val contacts: List<ContactInfo>)
+
+/** 連絡詳細返却 */
+data class ContactResponse(val contact: ContactInfo, val reactions: List<ReactionInfo>?)
 
 /** 連絡情報情報 */
 data class ContactInfo(
@@ -40,7 +44,7 @@ data class ContactInfo(
     )
 }
 
-/** 連絡情報情報 */
+/** 連絡情報 */
 data class ChoiceInfo(
     /** 連絡ID */
     val contactId: String,
@@ -53,5 +57,33 @@ data class ChoiceInfo(
         choice.contactId,
         choice.choiceId,
         choice.choice
+    )
+}
+
+/** リアクション情報 */
+data class ReactionInfo(
+    /** 連絡ID */
+    val contactId: String,
+    /** リアクションID */
+    val reactionId: String,
+    /** リアクション日時 */
+    val reactionTime: LocalDateTime,
+    /** 選択肢 */
+    val choice: ChoiceInfo?,
+    /** リアクションユーザId */
+    val userId: String,
+    /** ユーザ名 */
+    val userName: String,
+    /** 表示名 */
+    val nickName: String
+){
+    constructor(reaction: Reaction): this(
+        reaction.contactId,
+        reaction.reactionId,
+        reaction.reactionTime,
+        reaction.choice?.let { ChoiceInfo(it) },
+        reaction.userId,
+        reaction.userName,
+        reaction.userNickName
     )
 }

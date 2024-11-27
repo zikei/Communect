@@ -52,7 +52,7 @@ object MockTestData {
     private val groupTalk7 = GroupTalk(UUID.randomUUID().toString(), "学園祭", group8.groupId)
     private val groupTalk8 = GroupTalk(UUID.randomUUID().toString(), "就職", group8.groupId)
 
-    private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group6.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
+    private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group1.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
     private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
 
     private val contact3Id = UUID.randomUUID().toString()
@@ -64,9 +64,16 @@ object MockTestData {
 
     private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, "クラスレク", ContactType.CONFIRM, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
 
+    private val reaction1 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,21, 50), null, user1.userId, user1.userName, user1.nickName)
+    private val reaction2 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,22, 30), null, user2.userId, user2.userName, user2.nickName)
+    private val reaction3 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,25, 20), null, user3.userId, user3.userName, user3.nickName)
+    private val reaction4 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,30, 50), null, user4.userId, user4.userName, user4.nickName)
+    private val reaction5 = Reaction(UUID.randomUUID().toString(), contact3.contactId, LocalDateTime.of(2024,11, 21,8,19, 20), choice1, user1.userId, user1.userName, user1.nickName)
+
     val userList = mutableListOf(user1, user2, user3, user4, user5)
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
     val groupTalkList = mutableListOf(groupTalk1, groupTalk2, groupTalk3, groupTalk4, groupTalk5, groupTalk6, groupTalk7, groupTalk8)
     val contactList = mutableListOf(contact1, contact2, contact3)
+    val reactionList = mutableListOf(reaction1, reaction2, reaction3, reaction4, reaction5)
 }
