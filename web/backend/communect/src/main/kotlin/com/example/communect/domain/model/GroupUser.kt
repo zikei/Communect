@@ -16,9 +16,16 @@ data class GroupUser(
     val nickName: String,
     /** 連絡権限 */
     val role: GroupRole,
-    /** 管理者権限 */
+    /**
+     * 管理者権限
+     * グループの編集、削除
+     * ユーザの追加、編集、削除
+     */
     val isAdmin: Boolean,
-    /** 下位グループ作成権限ID */
+    /**
+     * 下位グループ作成権限ID
+     * そのグループを親とするサブグループの作成権限
+     */
     val isSubGroupCreate: Boolean
 )
 
