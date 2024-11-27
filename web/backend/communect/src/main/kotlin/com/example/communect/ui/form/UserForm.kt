@@ -4,6 +4,9 @@ import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.GroupUser
 
 
+/** グループユーザリスト返却 */
+data class GroupUsersResponse(val users: List<GroupUserInfo>)
+
 /** グループユーザ情報 */
 data class GroupUserInfo(
     /** グループユーザID */

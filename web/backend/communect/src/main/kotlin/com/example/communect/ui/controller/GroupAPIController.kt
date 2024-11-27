@@ -69,4 +69,13 @@ class GroupAPIController(
     ) {
         groupService.deleteGroup(groupId)
     }
+
+    /** グループユーザ一覧取得 */
+    @GetMapping("/{groupId}/user")
+    fun getGroupUsers(
+        @PathVariable("groupId") groupId: String
+    ): GroupUsersResponse{
+        val users = groupService.getGroupUsers(groupId)
+        return GroupUsersResponse(users.map { GroupUserInfo(it) })
+    }
 }
