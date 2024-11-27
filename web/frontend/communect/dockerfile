@@ -10,8 +10,10 @@ COPY ./communect ./
 # npmキャッシュをクリア
 RUN npm cache clean --force
 
-# 最新のnpmをインストール
-RUN npm install -g npm@latest
+# npmをインストール
+RUN npm install -g npm
 
 # プロジェクトの依存関係をインストール
 RUN npm install --nocache
+
+RUN npm install react-router-domm
