@@ -40,3 +40,17 @@ data class GroupUserInfo(
 
 /** グループユーザ追加リクエスト */
 data class AddGroupUserRequest(val userId: String)
+
+/** グループユーザ更新リクエスト */
+data class UpdGroupUserRequest(
+    /** グループユーザID */
+    val groupUserId: String,
+    /** 表示名 */
+    val nickName: String? = null,
+    /** 連絡権限 */
+    val role: GroupRole? = null,
+    /** 管理者権限 */
+    val isAdmin: Boolean? = null,
+    /** 下位グループ作成権限ID */
+    val isSubGroupCreate: Boolean? = null
+)

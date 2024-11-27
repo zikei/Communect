@@ -4,6 +4,7 @@ import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.GroupIns
 import com.example.communect.domain.model.GroupUpd
 import com.example.communect.domain.model.GroupUserIns
+import com.example.communect.domain.model.GroupUserUpd
 import com.example.communect.domain.service.GroupService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -87,6 +88,16 @@ class GroupAPIController(
         @RequestBody req: AddGroupUserRequest
     ): GroupUserResponse{
         val user = groupService.addGroupUser(GroupUserIns(groupId, req.userId))
+        return GroupUserResponse(GroupUserInfo(user))
+    }
+
+    /** グループユーザ一更新 */
+    @PutMapping("/{groupId}/user")
+    fun updGroupUser(
+        @PathVariable("groupId") groupId: String,
+        @RequestBody req: UpdGroupUserRequest
+    ): GroupUserResponse{
+        val user = groupService.updGroupUser(GroupUserUpd(req.groupUserId, req.nickName, req.role, req.isAdmin, req.isSubGroupCreate))
         return GroupUserResponse(GroupUserInfo(user))
     }
 }

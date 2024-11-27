@@ -27,4 +27,7 @@ interface GroupService {
 
     /** グループユーザ追加 */
     fun addGroupUser(user: GroupUserIns): GroupUser
+
+    /** グループユーザ更新 */
+    fun updGroupUser(user: GroupUserUpd): GroupUser
 }

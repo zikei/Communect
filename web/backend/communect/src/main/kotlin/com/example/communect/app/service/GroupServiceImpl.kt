@@ -98,6 +98,7 @@ class GroupServiceImpl(): GroupService {
      */
     override fun updGroup(group: GroupUpd): Group {
         val index = MockTestData.groupList.indexOfFirst { it.groupId == group.groupId }
+        if(index == -1) throw BadRequestException()
         val groupName = group.groupName ?: MockTestData.groupList[index].groupName
         val aboveId = if(group.aboveId == ""){
             null
@@ -138,5 +139,23 @@ class GroupServiceImpl(): GroupService {
         MockTestData.groupUserList.add(insUser)
 
         return insUser
+    }
+
+    /**
+     *  グループユーザ更新
+     *  @param user 更新ユーザ情報
+     *  @return 更新ユーザ
+     */
+    override fun updGroupUser(user: GroupUserUpd): GroupUser {
+        val index = MockTestData.groupUserList.indexOfFirst { it.groupUserId == user.groupUserId }
+        if(index == -1) throw BadRequestException()
+
+        val nickName = user.nickName ?: MockTestData.groupUserList[index].nickName
+        val role = user.role ?: MockTestData.groupUserList[index].role
+        val isAdmin = user.isAdmin ?: MockTestData.groupUserList[index].isAdmin
+        val isSubGroupCreate = user.isSubGroupCreate ?: MockTestData.groupUserList[index].isSubGroupCreate
+        MockTestData.groupUserList[index] = GroupUser(user.groupUserId, MockTestData.groupUserList[index].groupId, MockTestData.groupUserList[index].userId, MockTestData.groupUserList[index].userName, nickName, role, isAdmin, isSubGroupCreate)
+
+        return MockTestData.groupUserList[index]
     }
 }
