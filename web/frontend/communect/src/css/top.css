@@ -110,7 +110,7 @@ html,body {
   }
   
   .btn:hover {
-    -webkit-text-fill-color: #fff;
+    -webkit-text-fill-color: #b3b3b3;
     animation: 1s backgroundAnime;
   }
   

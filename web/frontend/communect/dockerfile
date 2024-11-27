@@ -7,13 +7,7 @@ WORKDIR /var/www/html/communect
 # ソースコードをコピー
 COPY ./communect ./
 
-# npmキャッシュをクリア
 RUN npm cache clean --force
-
-# npmをインストール
 RUN npm install -g npm
-
-# プロジェクトの依存関係をインストール
 RUN npm install --nocache
-
-RUN npm install react-router-domm
+RUN npm install react-router-dom
