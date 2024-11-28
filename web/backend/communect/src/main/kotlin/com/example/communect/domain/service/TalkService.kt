@@ -10,6 +10,9 @@ interface TalkService {
     /** 個人トーク一覧取得 */
     fun getIndividualTalks(userId: String): List<Talk>
 
+    /** トーク取得 */
+    fun getTalk(talkId: String): Talk?
+
     /** グループトーク作成 */
     fun addGroupTalk(group: GroupTalkIns): Talk
 }

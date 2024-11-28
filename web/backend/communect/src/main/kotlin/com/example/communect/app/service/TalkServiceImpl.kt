@@ -30,13 +30,25 @@ class TalkServiceImpl(): TalkService {
     }
 
     /**
+     *  トーク取得
+     *  @param talkId 検索対象トークID
+     *  @return トーク
+     */
+    override fun getTalk(talkId: String): Talk? {
+        return MockTestData.talkList.find { it.talkId == talkId }
+    }
+
+    /**
      *  グループトーク作成
      *  @param group 作成グループ情報
      *  @return 作成トーク
      */
     override fun addGroupTalk(group: GroupTalkIns): Talk {
         val insGroupTalk = GroupTalk(UUID.randomUUID().toString(), group.talkName, group.groupId)
+        val insTalk = Talk(insGroupTalk.talkId, insGroupTalk.talkName, TalkType.GROUP)
+        MockTestData.talkList.add(insTalk)
         MockTestData.groupTalkList.add(insGroupTalk)
-        return Talk(insGroupTalk.talkId, insGroupTalk.talkName, TalkType.GROUP)
+
+        return insTalk
     }
 }

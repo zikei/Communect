@@ -3,6 +3,7 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.enums.Importance
+import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
 import java.time.LocalDateTime
 import java.util.*
@@ -43,16 +44,26 @@ object MockTestData {
     private val groupUser15 = GroupUser(UUID.randomUUID().toString(), group9.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
     private val groupUser16 = GroupUser(UUID.randomUUID().toString(), group10.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
 
-    private val groupTalk1 = GroupTalk(UUID.randomUUID().toString(), "全体チャット", group1.groupId)
-    private val groupTalk2 = GroupTalk(UUID.randomUUID().toString(), "プロデュースのコツ", group3.groupId)
-    private val groupTalk3 = GroupTalk(UUID.randomUUID().toString(), "相談", group3.groupId)
-    private val groupTalk4 = GroupTalk(UUID.randomUUID().toString(), "Python", group8.groupId)
-    private val groupTalk5 = GroupTalk(UUID.randomUUID().toString(), "卒業論文面接", group8.groupId)
-    private val groupTalk6 = GroupTalk(UUID.randomUUID().toString(), "奨学金", group8.groupId)
-    private val groupTalk7 = GroupTalk(UUID.randomUUID().toString(), "学園祭", group8.groupId)
-    private val groupTalk8 = GroupTalk(UUID.randomUUID().toString(), "就職", group8.groupId)
+    private val talk1 = Talk(UUID.randomUUID().toString(), "全体チャット", TalkType.GROUP)
+    private val talk2 = Talk(UUID.randomUUID().toString(), "プロデュースのコツ", TalkType.GROUP)
+    private val talk3 = Talk(UUID.randomUUID().toString(), "相談", TalkType.GROUP)
+    private val talk4 = Talk(UUID.randomUUID().toString(), "Python", TalkType.GROUP)
+    private val talk5 = Talk(UUID.randomUUID().toString(), "卒業論文面接", TalkType.GROUP)
+    private val talk6 = Talk(UUID.randomUUID().toString(), "奨学金", TalkType.GROUP)
+    private val talk7 = Talk(UUID.randomUUID().toString(), "学園祭", TalkType.GROUP)
+    private val talk8 = Talk(UUID.randomUUID().toString(), "就職", TalkType.GROUP)
+    private val talk9 = Talk(UUID.randomUUID().toString(), "プロデューサー,根緒亜紗里", TalkType.INDIVIDUAL)
 
-    private val individualTalk1 = IndividualTalk(UUID.randomUUID().toString(), "プロデューサー,根緒亜紗里", listOf(user1, user2))
+    private val groupTalk1 = GroupTalk(talk1.talkId, talk1.talkName, group1.groupId)
+    private val groupTalk2 = GroupTalk(talk2.talkId, talk2.talkName, group3.groupId)
+    private val groupTalk3 = GroupTalk(talk3.talkId, talk3.talkName, group3.groupId)
+    private val groupTalk4 = GroupTalk(talk4.talkId, talk4.talkName, group8.groupId)
+    private val groupTalk5 = GroupTalk(talk5.talkId, talk5.talkName, group8.groupId)
+    private val groupTalk6 = GroupTalk(talk6.talkId, talk6.talkName, group8.groupId)
+    private val groupTalk7 = GroupTalk(talk7.talkId, talk7.talkName, group8.groupId)
+    private val groupTalk8 = GroupTalk(talk8.talkId, talk8.talkName, group8.groupId)
+
+    private val individualTalk1 = IndividualTalk(talk9.talkId, talk9.talkName, listOf(user1, user2))
 
     private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group1.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
     private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
@@ -75,6 +86,7 @@ object MockTestData {
     val userList = mutableListOf(user1, user2, user3, user4, user5)
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
+    val talkList = mutableListOf(talk1, talk2, talk3, talk4, talk5, talk6, talk7, talk8, talk9)
     val groupTalkList = mutableListOf(groupTalk1, groupTalk2, groupTalk3, groupTalk4, groupTalk5, groupTalk6, groupTalk7, groupTalk8)
     val individualTalkList = mutableListOf(individualTalk1)
     val contactList = mutableListOf(contact1, contact2, contact3)
