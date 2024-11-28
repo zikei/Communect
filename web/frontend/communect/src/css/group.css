@@ -1,0 +1,49 @@
+.list-group,
+.list-unstyled {
+  display: block;
+  padding-left: 20px;
+  text-align: left;
+}
+
+/* 各リストアイテムのデフォルト設定 */
+.list-group-item {
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  border: none;
+}
+
+/* 子リストの余計な中央配置を防ぐ */
+.list-group-item > ul {
+  margin-left: 20px; /* 必要に応じて固定インデント */
+  padding-left: 0;
+  text-align: left;
+}
+
+.group-toggle-btn {
+  border: none;
+  background-color: transparent;
+  font-size: 20px;
+  margin-left: auto; /* ボタンを右端に配置 */
+}
+
+.rotate-icon {
+  display: inline-block; /* 回転を適用可能にする */
+  transition: transform 0.2s ease;
+}
+
+.rotated {
+  transform: rotate(90deg); /* 折りたたみ表示 */
+}
+
+/* サイドバー開閉アイコン */
+.sidebar-toggle-icon {
+  background-color: #007bff;
+  color: white;
+  padding: 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-toggle-icon:hover {
+  background-color: #0056b3;
+} 

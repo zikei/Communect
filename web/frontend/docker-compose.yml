@@ -12,7 +12,7 @@ services:
     env_file: ./.env
     environment:
       NODE_ENV: development
-      VIRTUAL_HOST: communect.localhost
+      VIRTUAL_HOST: ${FRONT_FQDN}
       TZ: Asia/Tokyo
     networks:
       - communect-proxy-network

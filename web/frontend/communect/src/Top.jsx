@@ -23,11 +23,11 @@ function Top() {
     <div className="container">
       {/* 背景用のCanvas */}
       <canvas id="canvas-basic"></canvas>
-      <div className='logo_area'>
+      <div className="logo_area">
         <img src='./logo.png' width={700} alt="logo" />
       </div>
-      <p>ストレスフリーなコミュニケーションツール</p>
-      <a href='/login' className='btn'>ここから始める</a>
+      <p className="p-design">ストレスフリーなコミュニケーションツール</p>
+      <a href='/login' className='btn1'>ここから始める</a>
     </div>
   );
 }
