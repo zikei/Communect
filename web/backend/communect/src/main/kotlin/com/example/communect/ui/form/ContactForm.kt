@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
 /** 連絡リスト返却 */
-data class ContactsResponse(val contacts: List<ContactInfo>)
+data class ContactsResponse(val contacts: List<ContactInfo>?)
 
 /** 連絡詳細返却 */
 data class ContactAndReactionsResponse(val contact: ContactInfo, val reactions: List<ReactionInfo>?)

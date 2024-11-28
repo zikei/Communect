@@ -139,6 +139,6 @@ class GroupAPIController(
         contactId: String? = null
     ): ContactsResponse{
         val contacts = contactService.getContactsByGroupId(groupId, contactId)
-        return ContactsResponse(contacts.map { ContactInfo(it) })
+        return ContactsResponse(contacts?.map { ContactInfo(it) })
     }
 }

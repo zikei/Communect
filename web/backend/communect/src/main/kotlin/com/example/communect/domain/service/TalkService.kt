@@ -13,6 +13,9 @@ interface TalkService {
     /** トーク取得 */
     fun getTalk(talkId: String): Talk?
 
+    /** メッセージ取得 */
+    fun getMessages(talkId: String, lastMessageId: String?): List<Message>?
+
     /** グループトーク作成 */
     fun addGroupTalk(group: GroupTalkIns): Talk
 }

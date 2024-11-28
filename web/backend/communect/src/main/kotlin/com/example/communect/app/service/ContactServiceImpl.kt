@@ -20,7 +20,7 @@ class ContactServiceImpl(
      *  @param lastContactId 取得済み最古連絡ID
      *  @return 連絡リスト
      */
-    override fun getContactsByGroupId(groupId: String, lastContactId: String?): List<Contact> {
+    override fun getContactsByGroupId(groupId: String, lastContactId: String?): List<Contact>? {
         val contact = lastContactId?.let {id -> MockTestData.contactList.find { it.contactId ==  id} }
         val contacts = MockTestData.contactList.filter {
             it.groupId == groupId && ( contact == null || it.createTime.isBefore(contact.createTime) )
