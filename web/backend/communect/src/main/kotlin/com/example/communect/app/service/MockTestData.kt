@@ -52,6 +52,8 @@ object MockTestData {
     private val groupTalk7 = GroupTalk(UUID.randomUUID().toString(), "学園祭", group8.groupId)
     private val groupTalk8 = GroupTalk(UUID.randomUUID().toString(), "就職", group8.groupId)
 
+    private val individualTalk1 = IndividualTalk(UUID.randomUUID().toString(), "プロデューサー,根緒亜紗里", listOf(user1, user2))
+
     private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group1.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
     private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
 
@@ -74,6 +76,7 @@ object MockTestData {
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
     val groupTalkList = mutableListOf(groupTalk1, groupTalk2, groupTalk3, groupTalk4, groupTalk5, groupTalk6, groupTalk7, groupTalk8)
+    val individualTalkList = mutableListOf(individualTalk1)
     val contactList = mutableListOf(contact1, contact2, contact3)
     val reactionList = mutableListOf(reaction1, reaction2, reaction3, reaction4, reaction5)
 }

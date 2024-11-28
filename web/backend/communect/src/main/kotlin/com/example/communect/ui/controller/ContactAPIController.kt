@@ -8,7 +8,6 @@ import com.example.communect.domain.model.ReactionIns
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
-import org.apache.ibatis.annotations.Delete
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated

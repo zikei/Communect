@@ -21,6 +21,15 @@ class TalkServiceImpl(): TalkService {
     }
 
     /**
+     *  グループトーク一覧取得
+     *  @param userId 検索対象ユーザID
+     *  @return トークリスト
+     */
+    override fun getIndividualTalks(userId: String): List<Talk> {
+        return MockTestData.individualTalkList.filter { it.users.any { user -> user.userId == userId } }.map { Talk(it.talkId, it.talkName, TalkType.GROUP) }
+    }
+
+    /**
      *  グループトーク作成
      *  @param group 作成グループ情報
      *  @return 作成トーク
