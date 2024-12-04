@@ -43,6 +43,7 @@ class TalkAPIController(
         return MessagesResponse(messages?.map { MessageInfo(it) })
     }
 
+    /** 個人トーク追加 */
     @PostMapping
     fun addIndividualTalk(
         @Validated @RequestBody req: AddIndividualTalkRequest,
@@ -55,6 +56,7 @@ class TalkAPIController(
         return TalkResponse(TalkInfo(talk))
     }
 
+    /** トーク更新 */
     @PutMapping("/{talkId}")
     fun updTalk(
         @PathVariable("talkId") talkId: String,
@@ -66,5 +68,13 @@ class TalkAPIController(
 
         val talk = talkService.updTalk(updTalk)
         return TalkResponse(TalkInfo(talk))
+    }
+
+    /** トーク削除 */
+    @DeleteMapping("/{talkId}")
+    fun deleteTalk(
+        @PathVariable("talkId") talkId: String
+    ) {
+        talkService.deleteTalk(talkId)
     }
 }

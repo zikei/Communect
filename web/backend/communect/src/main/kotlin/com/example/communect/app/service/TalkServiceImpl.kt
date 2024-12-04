@@ -1,6 +1,5 @@
 package com.example.communect.app.service
 
-import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.TalkService
@@ -87,9 +86,9 @@ class TalkServiceImpl(
     }
 
     /**
-     *  個人トーク作成
-     *  @param talk 作成個人トーク情報
-     *  @return 作成トーク
+     *  トーク更新
+     *  @param talk 更新トーク情報
+     *  @return 更新トーク
      */
     override fun updTalk(talk: TalkUpd): Talk {
         val index = MockTestData.talkList.indexOfFirst { it.talkId == talk.talkId }
@@ -109,5 +108,19 @@ class TalkServiceImpl(
         }
 
         return MockTestData.talkList[index]
+    }
+
+    /**
+     *  トーク削除
+     *  @param talkId 削除対象トークID
+     */
+    override fun deleteTalk(talkId: String) {
+        val talk = MockTestData.talkList.find { it.talkId == talkId } ?: throw BadRequestException()
+        MockTestData.talkList.removeAll { it.talkId == talkId }
+        if(talk.talkType == TalkType.GROUP){
+            MockTestData.groupTalkList.removeAll { it.talkId == talkId }
+        }else if(talk.talkType == TalkType.INDIVIDUAL){
+            MockTestData.individualTalkList.removeAll { it.talkId == talkId }
+        }
     }
 }

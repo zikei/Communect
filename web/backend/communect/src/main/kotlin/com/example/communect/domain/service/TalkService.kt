@@ -24,4 +24,7 @@ interface TalkService {
 
     /** トーク更新 */
     fun updTalk(talk: TalkUpd): Talk
+
+    /** トーク削除 */
+    fun deleteTalk(talkId: String)
 }
