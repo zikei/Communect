@@ -128,3 +128,21 @@ data class AddUserRequest(
     /** メールアドレス */
     var email: String
 )
+
+/** ユーザ更新リクエスト */
+data class UpdUserRequest(
+    /** ユーザ名 */
+    @get:NullOrNotBlank
+    @get:Pattern(regexp="^[a-zA-Z0-9]+$")
+    @get:Size(max = 20)
+    val userName: String? = null,
+    /** 表示名 */
+    @get:NullOrNotBlank
+    @get:Size(max = 20)
+    val nickName: String? = null,
+    /** パスワード */
+    @get:Pattern(regexp="^[!-~]+$")
+    var password: String? = null,
+    /** メールアドレス */
+    var email: String? = null
+)

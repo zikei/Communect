@@ -12,4 +12,7 @@ interface UserService {
 
     /** ユーザ登録 */
     fun addUser(user: UserIns): User
+
+    /** ユーザ更新 */
+    fun updUser(user: UserUpd): User
 }

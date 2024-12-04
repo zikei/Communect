@@ -2,6 +2,7 @@ package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.UserIns
+import com.example.communect.domain.model.UserUpd
 import com.example.communect.domain.service.UserService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -42,6 +43,18 @@ class UserAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insUser = UserIns(req.userName, req.nickName, req.password, req.email)
         val user = userService.addUser(insUser)
+        return MyUserInfoResponse(MyUserInfo(user))
+    }
+
+    /** ユーザ更新 */
+    @PutMapping
+    fun updUser(
+        @Validated @RequestBody req: UpdUserRequest,
+        bindingResult: BindingResult
+    ): MyUserInfoResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val updUser = UserUpd(MockTestData.user1.userId, req.userName, req.nickName, req.password, req.email)
+        val user = userService.updUser(updUser)
         return MyUserInfoResponse(MyUserInfo(user))
     }
 }

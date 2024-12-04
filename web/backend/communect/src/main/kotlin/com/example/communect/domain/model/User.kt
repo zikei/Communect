@@ -33,7 +33,7 @@ data class UserUpd(
     /** 表示名 */
     val nickName: String?,
     /** パスワード */
-    var password: String,
+    var password: String?,
     /** メールアドレス */
-    var email: String
+    var email: String?
 )

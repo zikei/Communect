@@ -1,7 +1,7 @@
 package com.example.communect.app.service
 
-import com.example.communect.domain.model.User
-import com.example.communect.domain.model.UserIns
+import com.example.communect.domain.enums.TalkType
+import com.example.communect.domain.model.*
 import com.example.communect.domain.service.UserService
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
@@ -39,5 +39,41 @@ class UserServiceImpl(
         val insUser = User(UUID.randomUUID().toString(), user.userName, user.nickName, user.email)
         MockTestData.userList.add(insUser)
         return insUser
+    }
+
+    /**
+     *  ユーザ更新
+     *  @param user 更新ユーザ情報
+     *  @return 更新ユーザ
+     */
+    override fun updUser(user: UserUpd): User {
+        if(MockTestData.userList.any { it.userName == user.userName }) throw BadRequestException()
+        val index = MockTestData.userList.indexOfFirst { it.userId == user.userId }
+        if(index == -1) throw BadRequestException()
+
+        val updUser = User(user.userId, user.userName ?: MockTestData.userList[index].userName,
+            user.nickName ?: MockTestData.userList[index].nickName, user.email ?: MockTestData.userList[index].email)
+
+        MockTestData.userList[index] = updUser
+        MockTestData.groupUserList.forEachIndexed { i, groupUser ->
+            if(groupUser.userId == user.userId){
+                MockTestData.groupUserList[i] = GroupUser(groupUser.groupUserId, groupUser.groupId, groupUser.userId,
+                    updUser.userName, groupUser.nickName, groupUser.role, groupUser.isAdmin, groupUser.isSubGroupCreate)
+            }
+        }
+        MockTestData.messageList.forEachIndexed { i, message ->
+            if(message.userId == user.userId){
+                MockTestData.messageList[i] = Message(message.messageId, message.message, message.createTime,
+                    message.talkId, updUser.userId, updUser.userName, updUser.nickName)
+            }
+        }
+        MockTestData.reactionList.forEachIndexed { i, reaction ->
+            if(reaction.userId == user.userId){
+                MockTestData.reactionList[i] = Reaction(reaction.reactionId, reaction.contactId, reaction.reactionTime,
+                    reaction.choice, updUser.userId, updUser.userName, updUser.nickName)
+            }
+        }
+
+        return MockTestData.userList[index]
     }
 }
