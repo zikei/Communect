@@ -18,4 +18,7 @@ interface TalkService {
 
     /** グループトーク作成 */
     fun addGroupTalk(group: GroupTalkIns): Talk
+
+    /** 個人トーク作成 */
+    fun addIndividualTalk(talk: IndividualTalkIns): Talk
 }

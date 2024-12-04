@@ -1,11 +1,9 @@
 package com.example.communect.app.service
 
 import com.example.communect.domain.enums.TalkType
-import com.example.communect.domain.model.GroupTalk
-import com.example.communect.domain.model.GroupTalkIns
-import com.example.communect.domain.model.Message
-import com.example.communect.domain.model.Talk
+import com.example.communect.domain.model.*
 import com.example.communect.domain.service.TalkService
+import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -66,6 +64,23 @@ class TalkServiceImpl(
         val insTalk = Talk(insGroupTalk.talkId, insGroupTalk.talkName, TalkType.GROUP)
         MockTestData.talkList.add(insTalk)
         MockTestData.groupTalkList.add(insGroupTalk)
+
+        return insTalk
+    }
+
+    /**
+     *  個人トーク作成
+     *  @param talk 作成個人トーク情報
+     *  @return 作成トーク
+     */
+    override fun addIndividualTalk(talk: IndividualTalkIns): Talk {
+        val talkUsers = talk.userIds.map { id ->
+            MockTestData.userList.find { it.userId == id } ?: throw BadRequestException()
+        }
+        val insIndividualTalk = IndividualTalk(UUID.randomUUID().toString(), talk.talkName, talkUsers)
+        val insTalk = Talk(insIndividualTalk.talkId, insIndividualTalk.talkName, TalkType.INDIVIDUAL)
+        MockTestData.talkList.add(insTalk)
+        MockTestData.individualTalkList.add(insIndividualTalk)
 
         return insTalk
     }

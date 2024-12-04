@@ -62,3 +62,14 @@ data class AddGroupTalkRequest(
     @get:Size(max = 20)
     val talkName: String
 )
+
+/** 個人グループ作成リクエスト */
+data class AddIndividualTalkRequest(
+    /** トーク名 */
+    @get:NotBlank
+    @get:NotEmpty
+    @get:Size(max = 20)
+    val talkName: String,
+    /** ユーザID */
+    val userId: String
+)

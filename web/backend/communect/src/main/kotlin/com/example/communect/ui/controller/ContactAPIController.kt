@@ -46,7 +46,7 @@ class ContactAPIController(
         return ContactResponse(ContactInfo(contact))
     }
 
-    /** 連絡投稿 */
+    /** 連絡更新 */
     @PutMapping("/{contactId}")
     fun updContact(
         @PathVariable("contactId") contactId: String,

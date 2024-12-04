@@ -1,14 +1,15 @@
 package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
+import com.example.communect.domain.model.GroupTalkIns
+import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.validation.BindingResult
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.*
 
 /** トークAPIコントローラ */
 @RestController
@@ -40,5 +41,17 @@ class TalkAPIController(
     ): MessagesResponse {
         val messages = talkService.getMessages(talkId, messageId)
         return MessagesResponse(messages?.map { MessageInfo(it) })
+    }
+
+    @PostMapping
+    fun addIndividualTalk(
+        @Validated @RequestBody req: AddIndividualTalkRequest,
+        bindingResult: BindingResult
+    ): TalkResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val insTalk = IndividualTalkIns(req.talkName, listOf(MockTestData.user1.userId, req.userId))
+
+        val talk = talkService.addIndividualTalk(insTalk)
+        return TalkResponse(TalkInfo(talk))
     }
 }
