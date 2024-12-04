@@ -1,5 +1,6 @@
 package com.example.communect.app.service
 
+import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.TalkService
@@ -83,5 +84,30 @@ class TalkServiceImpl(
         MockTestData.individualTalkList.add(insIndividualTalk)
 
         return insTalk
+    }
+
+    /**
+     *  個人トーク作成
+     *  @param talk 作成個人トーク情報
+     *  @return 作成トーク
+     */
+    override fun updTalk(talk: TalkUpd): Talk {
+        val index = MockTestData.talkList.indexOfFirst { it.talkId == talk.talkId }
+        if(index == -1) throw BadRequestException()
+
+        val talkType = MockTestData.talkList[index].talkType
+        val updTalk = Talk(talk.talkId, talk.talkName ?: MockTestData.talkList[index].talkName, talkType)
+
+        MockTestData.talkList[index] = updTalk
+
+        if(talkType == TalkType.GROUP){
+            val groupTalkIndex = MockTestData.groupTalkList.indexOfFirst { it.talkId == talk.talkId }
+            MockTestData.groupTalkList[groupTalkIndex] = GroupTalk(updTalk.talkId, updTalk.talkName, MockTestData.groupTalkList[groupTalkIndex].groupId)
+        }else if(talkType == TalkType.INDIVIDUAL){
+            val individualTalkIndex = MockTestData.individualTalkList.indexOfFirst { it.talkId == talk.talkId }
+            MockTestData.individualTalkList[individualTalkIndex] = IndividualTalk(updTalk.talkId, updTalk.talkName, MockTestData.individualTalkList[individualTalkIndex].users)
+        }
+
+        return MockTestData.talkList[index]
     }
 }

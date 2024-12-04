@@ -21,4 +21,7 @@ interface TalkService {
 
     /** 個人トーク作成 */
     fun addIndividualTalk(talk: IndividualTalkIns): Talk
+
+    /** トーク更新 */
+    fun updTalk(talk: TalkUpd): Talk
 }

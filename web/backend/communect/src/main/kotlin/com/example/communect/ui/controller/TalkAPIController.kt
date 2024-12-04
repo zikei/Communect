@@ -1,8 +1,8 @@
 package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
-import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.IndividualTalkIns
+import com.example.communect.domain.model.TalkUpd
 import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -52,6 +52,19 @@ class TalkAPIController(
         val insTalk = IndividualTalkIns(req.talkName, listOf(MockTestData.user1.userId, req.userId))
 
         val talk = talkService.addIndividualTalk(insTalk)
+        return TalkResponse(TalkInfo(talk))
+    }
+
+    @PutMapping("/{talkId}")
+    fun updTalk(
+        @PathVariable("talkId") talkId: String,
+        @Validated @RequestBody req: UpdTalkRequest,
+        bindingResult: BindingResult
+    ): TalkResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val updTalk = TalkUpd(talkId, req.talkName)
+
+        val talk = talkService.updTalk(updTalk)
         return TalkResponse(TalkInfo(talk))
     }
 }
