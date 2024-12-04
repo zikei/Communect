@@ -96,6 +96,16 @@ class UserServiceImpl(
         return MockTestData.apikeys[userId]
     }
 
+    /**
+     *  apikey更新
+     *  @param userId 更新ユーザID
+     *  @return apikey
+     */
+    override fun updApikey(userId: String): String? {
+        MockTestData.apikeys[userId] = apikeyService.generateApiKey()
+        return MockTestData.apikeys[userId]
+    }
+
     /** apikey生成クラス */
     private class ApikeyService{
         private val secureRandom = SecureRandom()

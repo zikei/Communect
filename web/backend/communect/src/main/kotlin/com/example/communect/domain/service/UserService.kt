@@ -21,4 +21,7 @@ interface UserService {
 
     /** APIキー取得 */
     fun getApikey(userId: String): String?
+
+    /** APIキー更新 */
+    fun updApikey(userId: String): String?
 }

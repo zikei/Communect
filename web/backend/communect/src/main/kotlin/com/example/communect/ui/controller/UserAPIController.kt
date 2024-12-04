@@ -72,4 +72,12 @@ class UserAPIController(
         val apikey = userService.getApikey(MockTestData.user1.userId) ?: throw BadRequestException()
         return ApikeyResponse(apikey)
     }
+
+    /** APIキー更新 */
+    @PutMapping("/apikey")
+    fun updApikey(
+    ): ApikeyResponse {
+        val apikey = userService.updApikey(MockTestData.user1.userId) ?: throw BadRequestException()
+        return ApikeyResponse(apikey)
+    }
 }
