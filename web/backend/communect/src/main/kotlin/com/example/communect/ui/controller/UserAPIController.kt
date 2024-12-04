@@ -57,4 +57,11 @@ class UserAPIController(
         val user = userService.updUser(updUser)
         return MyUserInfoResponse(MyUserInfo(user))
     }
+
+    /** ユーザ削除 */
+    @DeleteMapping
+    fun deleteUser(
+    ) {
+        userService.deleteUser(MockTestData.user1.userId)
+    }
 }

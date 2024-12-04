@@ -1,11 +1,10 @@
 package com.example.communect.app.service
 
-import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.UserService
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 /** ユーザ処理実装クラス */
 @Service
@@ -75,5 +74,13 @@ class UserServiceImpl(
         }
 
         return MockTestData.userList[index]
+    }
+
+    /**
+     *  ユーザ削除
+     *  @param userId 退会ユーザID
+     */
+    override fun deleteUser(userId: String) {
+        MockTestData.userList.removeAll { it.userId == userId }
     }
 }

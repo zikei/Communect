@@ -15,4 +15,7 @@ interface UserService {
 
     /** ユーザ更新 */
     fun updUser(user: UserUpd): User
+
+    /** ユーザ退会 */
+    fun deleteUser(userId: String)
 }
