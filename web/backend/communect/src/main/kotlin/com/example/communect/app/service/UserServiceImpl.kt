@@ -4,12 +4,14 @@ import com.example.communect.domain.model.*
 import com.example.communect.domain.service.UserService
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
+import java.security.SecureRandom
 import java.util.*
 
 /** ユーザ処理実装クラス */
 @Service
 class UserServiceImpl(
 ): UserService {
+    private val apikeyService = ApikeyService()
     /**
      *  ユーザ検索
      *  @param keyword ユーザ名の部分一致 OR ユーザID
@@ -37,6 +39,7 @@ class UserServiceImpl(
         if(MockTestData.userList.any { it.userName == user.userName }) throw BadRequestException()
         val insUser = User(UUID.randomUUID().toString(), user.userName, user.nickName, user.email)
         MockTestData.userList.add(insUser)
+        MockTestData.apikeys[insUser.userId] = apikeyService.generateApiKey()
         return insUser
     }
 
@@ -82,5 +85,29 @@ class UserServiceImpl(
      */
     override fun deleteUser(userId: String) {
         MockTestData.userList.removeAll { it.userId == userId }
+    }
+
+    /**
+     *  apikey取得
+     *  @param userId 取得ユーザID
+     *  @return apikey
+     */
+    override fun getApikey(userId: String): String? {
+        return MockTestData.apikeys[userId]
+    }
+
+    /** apikey生成クラス */
+    private class ApikeyService{
+        private val secureRandom = SecureRandom()
+        private val encoder = Base64.getUrlEncoder().withoutPadding()
+        private val keyLength = 32
+
+        fun generateApiKey(): String {
+            val randomBytes = ByteArray(keyLength)
+            secureRandom.nextBytes(randomBytes)
+            val apikey = encoder.encodeToString(randomBytes)
+
+            return apikey
+        }
     }
 }

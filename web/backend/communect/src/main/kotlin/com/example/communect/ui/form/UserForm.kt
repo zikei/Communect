@@ -22,6 +22,9 @@ data class UsersResponse(val users: List<UserInfo>)
 /** 自身のユーザ情報返却 */
 data class MyUserInfoResponse(val user: MyUserInfo)
 
+/** Apikey返却 */
+data class ApikeyResponse(val apikey: String)
+
 /** グループユーザ情報 */
 data class GroupUserInfo(
     /** グループユーザID */

@@ -64,4 +64,12 @@ class UserAPIController(
     ) {
         userService.deleteUser(MockTestData.user1.userId)
     }
+
+    /** APIキー取得 */
+    @GetMapping("/apikey")
+    fun getApikey(
+    ): ApikeyResponse {
+        val apikey = userService.getApikey(MockTestData.user1.userId) ?: throw BadRequestException()
+        return ApikeyResponse(apikey)
+    }
 }

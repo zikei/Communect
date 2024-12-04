@@ -5,11 +5,14 @@ import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.enums.Importance
 import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
+import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.util.*
 
 object MockTestData {
     // TODO:モック用データのため後に削除
+    private val apikeyService = ApikeyService()
+
     private val group1 = Group(UUID.randomUUID().toString(), "初星学園", null)
     private val group2 = Group(UUID.randomUUID().toString(), "専門大学", group1.groupId)
     private val group3 = Group(UUID.randomUUID().toString(), "プロデューサー科", group2.groupId)
@@ -99,4 +102,22 @@ object MockTestData {
     val messageList = mutableListOf(message1, message2, message3)
     val contactList = mutableListOf(contact1, contact2, contact3)
     val reactionList = mutableListOf(reaction1, reaction2, reaction3, reaction4, reaction5)
+    val apikeys = mutableMapOf(user1.userId to apikeyService.generateApiKey(), user2.userId to apikeyService.generateApiKey(),
+        user3.userId to apikeyService.generateApiKey(), user4.userId to apikeyService.generateApiKey(),
+        user5.userId to apikeyService.generateApiKey(), user6.userId to apikeyService.generateApiKey())
+
+    /** apikey生成クラス */
+    private class ApikeyService{
+        private val secureRandom = SecureRandom()
+        private val encoder = Base64.getUrlEncoder().withoutPadding()
+        private val keyLength = 32
+
+        fun generateApiKey(): String {
+            val randomBytes = ByteArray(keyLength)
+            secureRandom.nextBytes(randomBytes)
+            val apikey = encoder.encodeToString(randomBytes)
+
+            return apikey
+        }
+    }
 }

@@ -18,4 +18,7 @@ interface UserService {
 
     /** ユーザ退会 */
     fun deleteUser(userId: String)
+
+    /** APIキー取得 */
+    fun getApikey(userId: String): String?
 }
