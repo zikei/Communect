@@ -1,5 +1,6 @@
 package com.example.communect.ui.controller
 
+import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.UserIns
 import com.example.communect.domain.service.UserService
 import com.example.communect.ui.form.*
@@ -22,6 +23,14 @@ class UserAPIController(
     ): UsersResponse {
         val users = userService.searchUser(keyword)
         return UsersResponse(users.map { UserInfo(it) })
+    }
+
+    /** ログインユーザ情報取得 */
+    @GetMapping("/login")
+    fun getLoginUser(
+    ): MyUserInfoResponse {
+        val user = userService.getUser(MockTestData.user1.userId) ?: throw BadRequestException()
+        return MyUserInfoResponse(MyUserInfo(user))
     }
 
     /** ユーザ登録 */

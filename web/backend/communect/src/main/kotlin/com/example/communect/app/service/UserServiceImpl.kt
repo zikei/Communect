@@ -21,6 +21,15 @@ class UserServiceImpl(
     }
 
     /**
+     *  ユーザ検索
+     *  @param userId 検索ユーザID
+     *  @return 検索結果ユーザ
+     */
+    override fun getUser(userId: String): User? {
+        return MockTestData.userList.find { it.userId == userId }
+    }
+
+    /**
      *  ユーザ登録
      *  @param user 登録ユーザ情報
      *  @return 登録ユーザ
