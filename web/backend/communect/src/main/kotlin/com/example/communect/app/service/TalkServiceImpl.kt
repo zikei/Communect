@@ -4,15 +4,12 @@ import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
 /** トーク処理実装クラス */
 @Service
-class TalkServiceImpl(
-    @Value("\${messageRowCount}") private val messageLimit: Int
-): TalkService {
+class TalkServiceImpl : TalkService {
     /**
      *  グループトーク一覧取得
      *  @param groupId 検索対象グループID

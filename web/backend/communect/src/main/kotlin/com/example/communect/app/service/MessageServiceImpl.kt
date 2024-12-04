@@ -59,4 +59,12 @@ class MessageServiceImpl(
         MockTestData.messageList[index] = updMessage
         return MockTestData.messageList[index]
     }
+
+    /**
+     *  メッセージ削除
+     *  @param messageId 削除対象メッセージID
+     */
+    override fun deleteMessage(messageId: String) {
+        MockTestData.messageList.removeAll { it.messageId == messageId }
+    }
 }

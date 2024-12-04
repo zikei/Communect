@@ -12,4 +12,7 @@ interface MessageService {
 
     /** メッセージ更新 */
     fun updMessage(message: MessageUpd): Message
+
+    /** メッセージ削除 */
+    fun deleteMessage(messageId: String)
 }

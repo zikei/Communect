@@ -30,4 +30,12 @@ class MessageAPIController(
         val message = messageService.updMessage(updMessage)
         return MessageResponse(MessageInfo(message))
     }
+
+    /** メッセージ削除 */
+    @DeleteMapping("/{messageId}")
+    fun deleteMessage(
+        @PathVariable("messageId") messageId: String
+    ) {
+        messageService.deleteMessage(messageId)
+    }
 }
