@@ -94,3 +94,11 @@ data class PostMessageRequest(
     @get:Size(max = 450)
     val message: String
 )
+
+/** メッセージ更新リクエスト */
+data class UpdMessageRequest(
+    /** メッセージ */
+    @get:NullOrNotBlank
+    @get:Size(max = 450)
+    val message: String
+)

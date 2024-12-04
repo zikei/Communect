@@ -35,5 +35,5 @@ data class MessageUpd(
     /** メッセージID */
     val messageId: String,
     /** メッセージ */
-    val message: String
+    val message: String?
 )

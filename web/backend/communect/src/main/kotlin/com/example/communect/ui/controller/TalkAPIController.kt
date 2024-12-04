@@ -4,6 +4,7 @@ import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.TalkUpd
+import com.example.communect.domain.service.MessageService
 import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/talk")
 class TalkAPIController(
-    @Autowired val talkService: TalkService
+    @Autowired val talkService: TalkService,
+    @Autowired val messageService: MessageService
 ) {
     /** 個人トーク一覧取得 */
     @GetMapping
@@ -40,7 +42,7 @@ class TalkAPIController(
         @PathVariable("talkId") talkId: String,
         messageId: String? = null
     ): MessagesResponse {
-        val messages = talkService.getMessages(talkId, messageId)
+        val messages = messageService.getMessages(talkId, messageId)
         return MessagesResponse(messages?.map { MessageInfo(it) })
     }
 
@@ -89,7 +91,7 @@ class TalkAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insMessage = MessageIns(req.message, talkId, MockTestData.user1.userId)
 
-        val message = talkService.postMessage(insMessage)
+        val message = messageService.postMessage(insMessage)
         return MessageResponse(MessageInfo(message))
     }
 }

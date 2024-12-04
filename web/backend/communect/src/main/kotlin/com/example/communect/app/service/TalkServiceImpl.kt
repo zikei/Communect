@@ -6,8 +6,7 @@ import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /** トーク処理実装クラス */
 @Service
@@ -39,20 +38,6 @@ class TalkServiceImpl(
      */
     override fun getTalk(talkId: String): Talk? {
         return MockTestData.talkList.find { it.talkId == talkId }
-    }
-
-    /**
-     *  メッセージ取得
-     *  @param talkId 検索対象トークID
-     *  @param lastMessageId 取得済み最古メッセージID
-     *  @return トーク
-     */
-    override fun getMessages(talkId: String, lastMessageId: String?): List<Message>? {
-        val message = lastMessageId?.let {id -> MockTestData.messageList.find { it.messageId == lastMessageId } }
-        val messages = MockTestData.messageList.filter {
-            it.talkId == talkId && ( message == null || it.createTime.isBefore(message.createTime) )
-        }.sortedBy { it.createTime }
-        return messages.take(messageLimit).sortedByDescending { it.createTime }
     }
 
     /**
@@ -123,18 +108,5 @@ class TalkServiceImpl(
         }else if(talk.talkType == TalkType.INDIVIDUAL){
             MockTestData.individualTalkList.removeAll { it.talkId == talkId }
         }
-    }
-
-    /**
-     *  メッセージ投稿
-     *  @param message 投稿メッセージ情報
-     *  @return 投稿メッセージ情報
-     */
-    override fun postMessage(message: MessageIns): Message {
-        val user = MockTestData.userList.find { it.userId == message.userId } ?: throw BadRequestException()
-        val insMessage = Message(UUID.randomUUID().toString(), message.message, LocalDateTime.now(), message.talkId, user.userId, user.userName, user.nickName)
-
-        MockTestData.messageList.add(insMessage)
-        return insMessage
     }
 }
