@@ -1,13 +1,13 @@
 package com.example.communect.ui.controller
 
+import com.example.communect.domain.model.UserIns
 import com.example.communect.domain.service.UserService
-import com.example.communect.ui.form.UserInfo
-import com.example.communect.ui.form.UsersResponse
+import com.example.communect.ui.form.*
+import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.validation.BindingResult
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.*
 
 /** ユーザAPIコントローラ */
 @RestController
@@ -17,10 +17,22 @@ class UserAPIController(
 ) {
     /** ユーザ検索 */
     @GetMapping
-    fun getGroups(
+    fun searchUser(
         @RequestParam keyword: String
     ): UsersResponse {
         val users = userService.searchUser(keyword)
         return UsersResponse(users.map { UserInfo(it) })
+    }
+
+    /** ユーザ登録 */
+    @PostMapping
+    fun addUser(
+        @Validated @RequestBody req: AddUserRequest,
+        bindingResult: BindingResult
+    ): MyUserInfoResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val insUser = UserIns(req.userName, req.nickName, req.password, req.email)
+        val user = userService.addUser(insUser)
+        return MyUserInfoResponse(MyUserInfo(user))
     }
 }

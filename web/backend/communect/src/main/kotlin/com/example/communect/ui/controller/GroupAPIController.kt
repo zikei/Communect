@@ -86,8 +86,10 @@ class GroupAPIController(
     @PostMapping("/{groupId}/user")
     fun addGroupUser(
         @PathVariable("groupId") groupId: String,
-        @RequestBody req: AddGroupUserRequest
+        @Validated @RequestBody req: AddGroupUserRequest,
+        bindingResult: BindingResult
     ): GroupUserResponse{
+        if (bindingResult.hasErrors()) throw BadRequestException()
         val user = groupService.addGroupUser(GroupUserIns(groupId, req.userId))
         return GroupUserResponse(GroupUserInfo(user))
     }
@@ -95,8 +97,10 @@ class GroupAPIController(
     /** グループユーザ一更新 */
     @PutMapping("/{groupId}/user")
     fun updGroupUser(
-        @RequestBody req: UpdGroupUserRequest
+        @Validated @RequestBody req: UpdGroupUserRequest,
+        bindingResult: BindingResult
     ): GroupUserResponse{
+        if (bindingResult.hasErrors()) throw BadRequestException()
         val user = groupService.updGroupUser(GroupUserUpd(req.groupUserId, req.nickName, req.role, req.isAdmin, req.isSubGroupCreate))
         return GroupUserResponse(GroupUserInfo(user))
     }

@@ -6,4 +6,7 @@ import com.example.communect.domain.model.*
 interface UserService {
     /** ユーザ検索 */
     fun searchUser(keyword: String): List<User>
+
+    /** ユーザ登録 */
+    fun addUser(user: UserIns): User
 }
