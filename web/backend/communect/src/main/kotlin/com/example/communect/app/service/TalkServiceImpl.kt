@@ -6,6 +6,7 @@ import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.UUID
 
 /** トーク処理実装クラス */
@@ -122,5 +123,18 @@ class TalkServiceImpl(
         }else if(talk.talkType == TalkType.INDIVIDUAL){
             MockTestData.individualTalkList.removeAll { it.talkId == talkId }
         }
+    }
+
+    /**
+     *  メッセージ投稿
+     *  @param message 投稿メッセージ情報
+     *  @return 投稿メッセージ情報
+     */
+    override fun postMessage(message: MessageIns): Message {
+        val user = MockTestData.userList.find { it.userId == message.userId } ?: throw BadRequestException()
+        val insMessage = Message(UUID.randomUUID().toString(), message.message, LocalDateTime.now(), message.talkId, user.userId, user.userName, user.nickName)
+
+        MockTestData.messageList.add(insMessage)
+        return insMessage
     }
 }

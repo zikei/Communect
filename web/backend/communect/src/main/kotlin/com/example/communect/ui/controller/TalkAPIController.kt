@@ -2,6 +2,7 @@ package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.IndividualTalkIns
+import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.TalkUpd
 import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
@@ -76,5 +77,19 @@ class TalkAPIController(
         @PathVariable("talkId") talkId: String
     ) {
         talkService.deleteTalk(talkId)
+    }
+
+    /** メッセージ送信 */
+    @PostMapping("/{talkId}/message")
+    fun postMessage(
+        @PathVariable("talkId") talkId: String,
+        @Validated @RequestBody req: PostMessageRequest,
+        bindingResult: BindingResult
+    ): MessageResponse {
+        if (bindingResult.hasErrors()) throw BadRequestException()
+        val insMessage = MessageIns(req.message, talkId, MockTestData.user1.userId)
+
+        val message = talkService.postMessage(insMessage)
+        return MessageResponse(MessageInfo(message))
     }
 }

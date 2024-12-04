@@ -27,4 +27,7 @@ interface TalkService {
 
     /** トーク削除 */
     fun deleteTalk(talkId: String)
+
+    /** メッセージ送信 */
+    fun postMessage(message: MessageIns): Message
 }

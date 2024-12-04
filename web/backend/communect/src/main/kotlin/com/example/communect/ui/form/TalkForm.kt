@@ -2,6 +2,7 @@ package com.example.communect.ui.form
 
 import com.example.communect.domain.model.Message
 import com.example.communect.domain.model.Talk
+import com.example.communect.ui.validator.NullOrNotBlank
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
@@ -15,6 +16,9 @@ data class TalkResponse(val talk: TalkInfo)
 
 /** メッセージリスト返却 */
 data class MessagesResponse(val messages: List<MessageInfo>?)
+
+/** メッセージ返却 */
+data class MessageResponse(val message: MessageInfo)
 
 /** トークルーム情報 */
 data class TalkInfo(
@@ -77,8 +81,16 @@ data class AddIndividualTalkRequest(
 /** トーク更新リクエスト */
 data class UpdTalkRequest(
     /** トーク名 */
+    @get:NullOrNotBlank
+    @get:Size(max = 20)
+    val talkName: String? = null
+)
+
+/** メッセージ送信リクエスト */
+data class PostMessageRequest(
+    /** メッセージ */
     @get:NotBlank
     @get:NotEmpty
-    @get:Size(max = 20)
-    val talkName: String
+    @get:Size(max = 450)
+    val message: String
 )
