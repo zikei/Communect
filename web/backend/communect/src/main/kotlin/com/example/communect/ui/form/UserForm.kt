@@ -2,6 +2,7 @@ package com.example.communect.ui.form
 
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.GroupUser
+import com.example.communect.domain.model.User
 
 
 /** グループユーザリスト返却 */
@@ -9,6 +10,9 @@ data class GroupUsersResponse(val users: List<GroupUserInfo>)
 
 /** グループユーザ返却 */
 data class GroupUserResponse(val user: GroupUserInfo)
+
+/** ユーザリスト返却 */
+data class UsersResponse(val users: List<UserInfo>)
 
 /** グループユーザ情報 */
 data class GroupUserInfo(
@@ -35,6 +39,22 @@ data class GroupUserInfo(
         groupUser.role,
         groupUser.isAdmin,
         groupUser.isSubGroupCreate
+    )
+}
+
+/** ユーザ情報 */
+data class UserInfo(
+    /** ユーザID */
+    val userId: String,
+    /** ユーザ名 */
+    val userName: String,
+    /** 表示名 */
+    val nickName: String
+){
+    constructor(user: User): this(
+        user.userId,
+        user.userName,
+        user.nickName
     )
 }
 

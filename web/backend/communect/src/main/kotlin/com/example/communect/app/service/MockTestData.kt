@@ -90,7 +90,7 @@ object MockTestData {
     private val reaction4 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,30, 50), null, user4.userId, user4.userName, user4.nickName)
     private val reaction5 = Reaction(UUID.randomUUID().toString(), contact3.contactId, LocalDateTime.of(2024,11, 21,8,19, 20), choice1, user1.userId, user1.userName, user1.nickName)
 
-    val userList = mutableListOf(user1, user2, user3, user4, user5)
+    val userList = mutableListOf(user1, user2, user3, user4, user5, user6)
     val groupList = mutableListOf(group1, group2, group3, group4, group5 ,group6, group7, group8, group9, group10)
     val groupUserList = mutableListOf(groupUser1, groupUser2, groupUser3, groupUser4, groupUser5, groupUser6, groupUser7, groupUser8, groupUser9, groupUser10, groupUser11, groupUser12, groupUser13, groupUser14, groupUser15, groupUser16)
     val talkList = mutableListOf(talk1, talk2, talk3, talk4, talk5, talk6, talk7, talk8, talk9, talk10)
