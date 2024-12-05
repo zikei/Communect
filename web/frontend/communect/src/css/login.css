@@ -1,0 +1,18 @@
+h2 {
+  color: black;
+}
+
+.card {
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+}
+
+.form-label {
+  font-size: 20px;
+  color: black;
+}
+
+a:hover {
+  color: #00ffff;
+}
