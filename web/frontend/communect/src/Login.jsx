@@ -43,12 +43,12 @@ function Login() {
   };
 
   return (
-    <div className="container vh-100 d-flex justify-content-center align-items-center position-relative">
+    <div className="container vh-100 d-flex justify-content-center align-items-center">
       {/* 背景用のCanvas */}
       <canvas id="canvas-basic" className="position-absolute w-100 h-100" />
 
       {/* ログインフォーム */}
-      <div className="card" style={{ width: '100%', maxWidth: '400px', zIndex: 1 }}>
+      <div className="card p-5" style={{ width: '100%', maxWidth: '400px', zIndex: 1 }}>
         <h2>ログイン</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
@@ -77,7 +77,7 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="btn"><a href='/home'>ログイン</a></button>
+          <button type="submit" className="btn"><a href='/group'>ログイン</a></button>
         </form>
 
         {/* パーミッションのダミー表示 */}

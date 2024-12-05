@@ -1,14 +1,45 @@
 import React, { useState, useEffect } from "react";
+import GroupCreate from "./components/GroupCreate";
+import GroupTalk from "./components/GroupTalk";
 import "./css/group.css";
 
 function Group() {
   const [groups, setGroups] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [currentGroup, setCurrentGroup] = useState(null);
+  const [groupMessages, setGroupMessages] = useState({
+    1: [
+      {
+        id: 1,
+        user: "プロデューサー",
+        text: "こんにちは！",
+        timestamp: "2024-12-02 10:00",
+      },
+      {
+        id: 3,
+        user: "testA",
+        text: "こんにちはー",
+        timestamp: "2024-12-02 10:01",
+      },
+      { id: 4, user: "testB", text: "ども", timestamp: "2024-12-02 10:03" },
+      { id: 5, user: "testC", text: "おす", timestamp: "2024-12-02 10:03" },
+      { id: 6, user: "testD", text: "うい", timestamp: "2024-12-02 10:05" },
+    ],
+    2: [
+      {
+        id: 2,
+        user: "佐藤花子",
+        text: "専門大学の話題",
+        timestamp: "2024-12-02 10:05",
+      },
+    ],
+    // 他のグループのデータもここに追加
+  });
   const [breadcrumb, setBreadcrumb] = useState([]);
   const [error, setError] = useState(null);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showModal, setShowModal] = useState(false); // モーダル表示管理
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -51,8 +82,19 @@ function Group() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleSendMessage = (groupId, newMessage) => {
+    setGroupMessages((prev) => ({
+      ...prev,
+      [groupId]: [...(prev[groupId] || []), newMessage],
+    }));
+  };
+
   const handleResize = (e) => {
     setSidebarWidth((prevWidth) => Math.max(200, prevWidth + e.movementX));
+  };
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
   useEffect(() => {
@@ -92,10 +134,7 @@ function Group() {
   };
 
   const renderGroupTree = (group, level = 0) => (
-    <li
-      key={group.groupId}
-      className="list-group-item"
-    >
+    <li key={group.groupId} className="list-group-item">
       <div className="d-flex align-items-center">
         <button
           className="btn btn-link text-decoration-none w-100 text-start text-truncate"
@@ -128,7 +167,7 @@ function Group() {
 
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
-      <header className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container-fluid">
           <div className="d-flex align-items-center">
             <img src="./logo.png" alt="logo" width={200} className="me-3" />
@@ -136,7 +175,7 @@ function Group() {
           </div>
         </div>
       </header>
-      <main className="d-flex vh-100">
+      <main className="h-80 d-flex">
         <aside
           className="bg-light p-3 border-end"
           style={{
@@ -146,11 +185,11 @@ function Group() {
           }}
         >
           <nav className="nav flex-column">
-            <a href="/" className="nav-link">
-              Home
-            </a>
-            <a href="/personal-chat" className="nav-link">
-              Personal Chat
+            <button className="btn btn-primary mb-3" onClick={toggleModal}>
+              グループ作成
+            </button>
+            <a href="/dm" className="nav-link">
+              Direct Message
             </a>
             <div>
               <h5 className="mt-3">Groups</h5>
@@ -162,6 +201,9 @@ function Group() {
                 <div>{error || "Loading..."}</div>
               )}
             </div>
+            <a href="/settings" className="nav-link">
+              Settings
+            </a>
           </nav>
         </aside>
         <div
@@ -174,10 +216,10 @@ function Group() {
             );
           }}
         ></div>
-        <div className="flex-grow-1 p-4 border-start">
+        <div className="flex-grow-1 pt-2 border-start">
           {breadcrumb.length > 0 && (
             <nav aria-label="breadcrumb">
-              <ol className="breadcrumb">
+              <ol className="breadcrumb m-0 mx-3 my-2">
                 {breadcrumb.map((item, index) => (
                   <li key={item.groupId} className="breadcrumb-item">
                     {index === breadcrumb.length - 1 ? (
@@ -194,16 +236,16 @@ function Group() {
           )}
           {currentGroup ? (
             <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">{currentGroup.groupName}</h5>
-                <a className="btn btn-primary mt-4" href={`/group/${currentGroup.groupId}`}>詳細</a>
-              </div>
+              <GroupTalk
+                group={currentGroup}
+                messages={groupMessages[currentGroup.groupId] || []}
+                onSendMessage={handleSendMessage}
+              />
             </div>
           ) : (
             <p>Select a group to see details.</p>
           )}
         </div>
-        {/* サイドバー開閉アイコン */}
         <div
           className="sidebar-toggle-icon"
           onClick={toggleSidebar}
@@ -211,24 +253,44 @@ function Group() {
             position: "fixed",
             bottom: "20px",
             left: "20px",
-            width: "50px", // 幅を設定
-            height: "50px", // 高さを設定
-            padding: "20px", // アイコンに余白を追加
+            width: "50px",
+            height: "50px",
+            padding: "20px",
             cursor: "pointer",
             fontSize: "24px",
-            backgroundColor: "#007bff", // 背景色
+            backgroundColor: "#007bff",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            lineHeight: "30px",
           }}
         >
-          {/* Bootstrap Icons */}
           <i
             className={`bi ${sidebarOpen ? "bi-arrow-bar-left" : "bi-list"}`}
           ></i>
         </div>
       </main>
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="btn-close" onClick={toggleModal}></button>
+            <GroupCreate
+              onSubmit={(newGroup) => {
+                // 新しいグループの処理をここに追加
+                console.log(newGroup);
+                toggleModal(); // モーダルを閉じる
+              }}
+              availableGroups={[
+                { groupId: "1", groupName: "初星学園" },
+                { groupId: "2", groupName: "専門大学" },
+              ]} // ダミーデータ
+              availableUsers={[
+                { userId: "1", nickName: "田中太郎", userName: "tanaka" },
+                { userId: "2", nickName: "佐藤花子", userName: "sato" },
+              ]}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

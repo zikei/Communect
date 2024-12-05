@@ -1,3 +1,32 @@
+header {
+  position: fixed;
+  height: 70px; /* ヘッダーの高さを固定 */
+  top: 0;
+  left: 0;
+}
+
+main {
+  margin-top: 70px;
+}
+
+aside {
+  flex-shrink: 0;
+}
+
+.flex-grow-1 {
+  display: flex;
+  flex-direction: column; /* 子要素を縦並びにする */
+  height: 100%;
+  overflow: hidden; /* 子要素のオーバーフローを防止 */
+}
+
+.card {
+  flex-grow: 1; /* コンテンツが余った分の高さを占有 */
+  display: flex;
+  flex-direction: column; /* GroupTalk用の縦並び */
+  height: 100%;
+}
+
 .list-group,
 .list-unstyled {
   display: block;
@@ -42,8 +71,9 @@
   color: white;
   padding: 18px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 
 .sidebar-toggle-icon:hover {
   background-color: #0056b3;
-} 
+}
