@@ -4,3 +4,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driverClassName: com.mysql.cj.jdbc.Driver
+
+contactRowCount: ${CONTACT_ROW_COUNT}
+messageRowCount: ${MESSAGE_ROW_COUNT}
