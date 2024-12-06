@@ -9,7 +9,7 @@ data class User(
     /** 表示名 */
     val nickName: String,
     /** メールアドレス */
-    var email: String
+    val email: String
 )
 
 /** 追加用ユーザエンティティ */
@@ -19,9 +19,9 @@ data class UserIns(
     /** 表示名 */
     val nickName: String,
     /** パスワード */
-    var password: String,
+    val password: String,
     /** メールアドレス */
-    var email: String
+    val email: String
 )
 
 /** 更新用ユーザエンティティ */
@@ -33,7 +33,7 @@ data class UserUpd(
     /** 表示名 */
     val nickName: String?,
     /** パスワード */
-    var password: String?,
+    val password: String?,
     /** メールアドレス */
-    var email: String?
+    val email: String?
 )
