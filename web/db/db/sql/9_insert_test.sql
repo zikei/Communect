@@ -70,7 +70,7 @@ insert into contact (contactId, noticeGroupId, message, contactType, importance,
 --reaction
 insert into reaction (reactionId, contactId, userId, reactionTime)
     values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', '87c6e905-41d5-484f-b7e1-14eb874a50ad', '2000-01-01 00:02:53'),
-          ('98847f47-10a2-4527-93a8-15bbaf9738bd', '90bff2b5-43d3-4a50-a905-805d3139c42f', '5da26136-975a-43fc-9a96-098ce55f1066', '2000-01-03 00:00:02'),
+          ('98847f47-10a2-4527-93a8-15bbaf9738bd', '90bff2b5-43d3-4a50-a905-805d3139c42f', '5da26136-975a-43fc-9a96-098ce55f1066', '2000-01-03 00:00:02');
           
 --choicecontact
 insert into choicecontact (choicecontactId, contactId, choices)
