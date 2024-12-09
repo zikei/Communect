@@ -79,5 +79,4 @@ insert into choicecontact (choicecontactId, contactId, choices)
 
 --choicereaction
 insert into choicereaction (reactionId, choiceContactId)
-    values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '2c975e3b-72f4-45c0-9a48-00765cbcc4df'),
-          ('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '19ad33e9-a69d-4050-882f-2015b0901d0e');
+    values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '2c975e3b-72f4-45c0-9a48-00765cbcc4df');
