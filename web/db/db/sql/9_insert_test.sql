@@ -71,8 +71,7 @@ insert into contact (contactId, noticeGroupId, message, contactType, importance,
 insert into reaction (reactionId, contactId, userId, reactionTime)
     values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', '87c6e905-41d5-484f-b7e1-14eb874a50ad', '2000-01-01 00:02:53'),
           ('98847f47-10a2-4527-93a8-15bbaf9738bd', '90bff2b5-43d3-4a50-a905-805d3139c42f', '5da26136-975a-43fc-9a96-098ce55f1066', '2000-01-03 00:00:02'),
-          ('e52b912a-e141-43f5-9cd5-cc9a8f6d6b24', '73c6fa63-11f6-4499-9f04-27cc5b00de51', '7b914ed7-b528-4236-8137-b0fa6c7b1cec', '2010-02-01 05:33:40');
-
+          
 --choicecontact
 insert into choicecontact (choicecontactId, contactId, choices)
     values('2c975e3b-72f4-45c0-9a48-00765cbcc4df', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'はい'),
@@ -80,5 +79,5 @@ insert into choicecontact (choicecontactId, contactId, choices)
 
 --choicereaction
 insert into choicereaction (reactionId, choiceContactId)
-    values('834ade11-3c54-4288-97a1-61e0b209a55d', '2c975e3b-72f4-45c0-9a48-00765cbcc4df'),
-          ('23605b06-6b2e-4eb0-b96a-8ecd50fd0e34', '19ad33e9-a69d-4050-882f-2015b0901d0e');
+    values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '2c975e3b-72f4-45c0-9a48-00765cbcc4df'),
+          ('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '19ad33e9-a69d-4050-882f-2015b0901d0e');
