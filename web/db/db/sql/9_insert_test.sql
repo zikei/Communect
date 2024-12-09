@@ -27,7 +27,7 @@ insert into notice_group (noticeGroupId, aboveId, groupTitle)
           ('eaab0304-42e7-473a-bada-539f8be3357a', '176e28f1-fd68-4084-a91d-182a12aa0297', '下位グループ');
           
 --user_group
-insert into user_group (userGroupId, noticeGroupId, userId, uickname, role, subGroupCreateAuthority, groupAdmin)
+insert into user_group (userGroupId, noticeGroupId, userId, nickname, role, subGroupCreateAuthority, groupAdmin)
     values('c37efa37-87ba-4f2e-9982-27aa3a8e89c7', '176e28f1-fd68-4084-a91d-182a12aa0297', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'ユーザー', 'HIGH', '1', '1'),
           ('2a574290-5222-469e-9ef7-2fd5ebdb09de', '176e28f1-fd68-4084-a91d-182a12aa0297', '7b914ed7-b528-4236-8137-b0fa6c7b1cec', 'ユーザー２', 'MEDIUM', '0', '0'),
           ('3434547d-593d-402e-a57f-03a4334a52dc', 'eaab0304-42e7-473a-bada-539f8be3357a', 'da872c4c-570e-454e-a66d-a8a6a63e62f8', 'ユーザー３', 'HIGH', '1', '1'),
