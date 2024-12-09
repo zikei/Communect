@@ -33,7 +33,7 @@ insert into user_group (userGroupId, noticeGroupId, userId, nickname, role, subG
           ('3434547d-593d-402e-a57f-03a4334a52dc', 'eaab0304-42e7-473a-bada-539f8be3357a', 'da872c4c-570e-454e-a66d-a8a6a63e62f8', 'ユーザー３', 'HIGH', '1', '1'),
           ('a9c7413d-bcba-4ac1-bdc4-5cc7ea823a25', '176e28f1-fd68-4084-a91d-182a12aa0297', 'da872c4c-570e-454e-a66d-a8a6a63e62f8', 'ユーザー３', 'HIGH', '1', '0'),
           ('862e7df9-cb5a-4565-86ad-90dec746541d', 'b642d6fa-a719-45d2-929c-081e89384b94', '5da26136-975a-43fc-9a96-098ce55f1066', 'ユーザー４', 'LOW', '1', '1'),
-          ('d2f3e338-7064-46c1-bb8f-5b2ab1d72651', 'eaab0304-42e7-473a-bada-539f8be3357a', '22ba2bbd-0ff7-4546-8f5d-e28ae38546d1', 'ユーザー５', 'MIDIUM', '0', '0'),
+          ('d2f3e338-7064-46c1-bb8f-5b2ab1d72651', 'eaab0304-42e7-473a-bada-539f8be3357a', '22ba2bbd-0ff7-4546-8f5d-e28ae38546d1', 'ユーザー５', 'MEDIUM', '0', '0'),
           ('99e44a4b-be55-46a3-904b-06969f483018', '176e28f1-fd68-4084-a91d-182a12aa0297', '22ba2bbd-0ff7-4546-8f5d-e28ae38546d1', 'ユーザー５', 'MEDIUM', '0', '0'),
           ('34f4ed7c-d53d-4d38-8ba9-c35c6f89727b', 'b642d6fa-a719-45d2-929c-081e89384b94', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'ユーザー', 'HIGH', '0', '1');
 
