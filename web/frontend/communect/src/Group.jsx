@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
 import "./css/group.css";
+import axios from "axios"; // You can also use fetch if preferred
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -12,26 +13,7 @@ function Group() {
   const [error, setError] = useState(null);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [posts, setPosts] = useState([
-    {
-      message: "12月のスケジュールについて",
-      contactType: "INFORM",
-      importance: "LOW",
-      choices: [],
-    },
-    {
-      message: "急遽、教室の変更がありました。明日の２限目は５０２教室です。",
-      contactType: "CONFIRM",
-      importance: "MEDIUM",
-      choices: [],
-    },
-    {
-      message: "卒業研究の日程決め",
-      contactType: "CHOICE",
-      importance: "HIGH",
-      choices: ["12/20", "1/10", "2/20"],
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const buildHierarchy = (groups) => {
@@ -88,28 +70,19 @@ function Group() {
   };
 
   useEffect(() => {
-    const mockResponse = {
-      groups: [
-        { groupId: "1", groupName: "初星学園", aboveId: null },
-        { groupId: "2", groupName: "専門大学", aboveId: "1" },
-        { groupId: "3", groupName: "プロデューサー科", aboveId: "2" },
-        { groupId: "4", groupName: "電子開発学園", aboveId: null },
-        { groupId: "5", groupName: "KCS", aboveId: "4" },
-        { groupId: "6", groupName: "KCSK", aboveId: "5" },
-        { groupId: "7", groupName: "大学併修科", aboveId: "6" },
-        { groupId: "8", groupName: "R4A1", aboveId: "7" },
-        { groupId: "9", groupName: "国試対策", aboveId: "6" },
-        { groupId: "10", groupName: "高度対策クラス", aboveId: "9" },
-      ],
+    // Fetch groups from the API
+    const fetchGroups = async () => {
+      try {
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/group");
+        const hierarchy = buildHierarchy(response.data.groups);
+        setGroups(hierarchy);
+      } catch (err) {
+        console.error("Error fetching groups:", err);
+        setError("Failed to load groups. Please try again later.");
+      }
     };
 
-    try {
-      const hierarchy = buildHierarchy(mockResponse.groups);
-      setGroups(hierarchy);
-    } catch (err) {
-      console.error("Error processing groups:", err);
-      setError("Failed to load groups. Please try again later.");
-    }
+    fetchGroups();
   }, []);
 
   const handleGroupClick = (group) => {
@@ -219,14 +192,8 @@ function Group() {
                 console.log(newGroup);
                 toggleModal();
               }}
-              availableGroups={[
-                { groupId: "1", groupName: "初星学園" },
-                { groupId: "2", groupName: "専門大学" },
-              ]}
-              availableUsers={[
-                { userId: "1", nickName: "田中太郎", userName: "tanaka" },
-                { userId: "2", nickName: "佐藤花子", userName: "sato" },
-              ]}
+              availableGroups={[{ groupId: "1", groupName: "初星学園" }]} // Example
+              availableUsers={[{ userId: "1", nickName: "田中太郎", userName: "tanaka" }]} // Example
             />
           </div>
         </div>
