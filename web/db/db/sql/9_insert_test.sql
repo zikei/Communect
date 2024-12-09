@@ -76,9 +76,9 @@ insert into reaction (reactionId, contactId, userId, reactionTime)
 --choicecontact
 insert into choicecontact (choicecontactId, contactId, choices)
     values('2c975e3b-72f4-45c0-9a48-00765cbcc4df', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'はい'),
-    values('19ad33e9-a69d-4050-882f-2015b0901d0e', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'いいえ');
+          ('19ad33e9-a69d-4050-882f-2015b0901d0e', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'いいえ');
 
 --choicereaction
 insert into choicereaction (reactionId, choiceContactId)
     values('834ade11-3c54-4288-97a1-61e0b209a55d', '2c975e3b-72f4-45c0-9a48-00765cbcc4df'),
-    values('23605b06-6b2e-4eb0-b96a-8ecd50fd0e34', '19ad33e9-a69d-4050-882f-2015b0901d0e');
+          ('23605b06-6b2e-4eb0-b96a-8ecd50fd0e34', '19ad33e9-a69d-4050-882f-2015b0901d0e');
