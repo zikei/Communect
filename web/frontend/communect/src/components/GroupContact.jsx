@@ -1,16 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/groupContact.css";
 
-function GroupContact({ groupName, hasPermission, onFormSubmit, groupId, posts = [] }) {
+function GroupContact({ groupName, hasPermission, onFormSubmit, groupId }) {
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    message: "",
-    contactType: "INFORM",
-    importance: "LOW",
-    choices: [],
-  });
+  const [posts, setPosts] = useState([]); // posts用のステート
+  const [selectedPost, setSelectedPost] = useState(null); // 詳細表示用
+  const [reactions, setReactions] = useState([]);
+  const [error, setError] = useState(null); // エラーメッセージ用
+  const [loading, setLoading] = useState(false); // ローディング状態
 
   const toggleModal = () => setShowModal(!showModal);
+
+  /* 一覧取得 */
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true); // ローディング開始
+      setError(null); // 前回のエラーをリセット
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/group/${groupId}/contact`
+        );
+        if (!response.ok) {
+          const errorDetail = await response.json();
+          throw new Error(
+            errorDetail.message || "データの取得に失敗しました。"
+          );
+        }
+
+        const result = await response.json();
+        setPosts(result.contacts || []); // contactsが存在しない場合のフォールバック
+      } catch (err) {
+        setError(err.message); // ユーザー向けエラー表示
+      } finally {
+        setLoading(false); // ローディング終了
+      }
+    };
+
+    if (groupId) {
+      fetchPosts();
+    }
+  }, [groupId]);
+
+  /* 詳細取得 */
+  const fetchPostDetails = async (contactId) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/contact/${contactId}`
+      );
+      if (!response.ok) throw new Error("詳細データの取得に失敗しました。");
+      const result = await response.json();
+      setSelectedPost(result.contact);
+      setReactions(result.reactions || []);
+    } catch (err) {
+      alert(`エラー: ${err.message}`);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,69 +65,37 @@ function GroupContact({ groupName, hasPermission, onFormSubmit, groupId, posts =
     }));
   };
 
-  const handleChoiceChange = (index, value) => {
-    const updatedChoices = [...formData.choices];
-    updatedChoices[index] = value;
-    setFormData((prevData) => ({
-      ...prevData,
-      choices: updatedChoices,
-    }));
-  };
-
-  const addChoiceField = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      choices: [...prevData.choices, ""],
-    }));
-  };
-
   const handleSubmit = async () => {
-
     if (formData.contactType === "CHOICE" && formData.choices.length < 2) {
       alert("選択肢は2つ以上入力してください。");
       return;
     }
-  
+
     const requestData = {
-        message: formData.message,
-        contactType: formData.contactType,
-        importance: formData.importance,
-        groupId,
-        choices: formData.contactType === "CHOICE" ? formData.choices : null,
-      };
-    
-    try {
-    const response = await fetch("/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestData),
-    });
+      message: formData.message,
+      contactType: formData.contactType,
+      importance: formData.importance,
+      groupId,
+      choices: formData.contactType === "CHOICE" ? formData.choices : null,
+    };
 
-    if (response.ok) {
-      const result = await response.json();
-      alert("投稿が成功しました！");
-      toggleModal();
-      onFormSubmit(result.contact); // 新規投稿をリストに追加
-    } else {
-      throw new Error("投稿に失敗しました。");
-    }
-  } catch (error) {
-    alert(error.message);
-  }
-};
-
-  const handleReaction = async (choiceId) => {
+    /* 投稿 */
     try {
-      const response = await fetch(`/contact/${groupId}/reaction`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ choiceId }),
+        body: JSON.stringify(requestData),
       });
-  
+
       if (response.ok) {
-        alert("リアクションが成功しました！");
+        const result = await response.json();
+        alert("投稿が成功しました！");
+        toggleModal();
+        onFormSubmit(result); // 新規投稿をリストに追加
+        setPosts((prevPosts) => [result, ...prevPosts]); // 新しい投稿を先頭に追加
       } else {
-        throw new Error("リアクションに失敗しました。");
+        const errorDetail = await response.json();
+        throw new Error(errorDetail.message || "投稿に失敗しました。");
       }
     } catch (error) {
       alert(error.message);
@@ -106,57 +119,139 @@ function GroupContact({ groupName, hasPermission, onFormSubmit, groupId, posts =
           </button>
         )}
       </div>
+      {/* 投稿一覧表示 */}
       <div className="group-contact-content px-5">
-        {posts && posts.length > 0 ? (
+        {error ? (
+          <p className="text-danger">エラー: {error}</p>
+        ) : posts.length > 0 ? (
           posts.map((post, index) => (
             <div
               key={index}
-              className={`group-contact-post px-5 ${importanceClass[post.importance] || ""}`}
+              className={`group-contact-post px-5 ${
+                importanceClass[post.importance] || ""
+              }`}
             >
-              {post.importance === "LOW" && <span className="badge bg-info">INFO</span>}
-              {post.importance === "MEDIUM" && <span className="badge bg-warning">WARNING</span>}
-              {post.importance === "HIGH" && <span className="badge bg-danger">DANGER</span>}
               <p>{post.message}</p>
-
+  
+              {/* 確認連絡の処理 */}
+              {post.contactType === "CONFIRM" && (
+                <div>
+                  <button
+                    className="btn btn-secondary mt-2"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(
+                          `${import.meta.env.VITE_API_URL}/contact/${
+                            post.contactId
+                          }/reaction`,
+                          {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ choiceId: null }),
+                          }
+                        );
+  
+                        if (response.ok) {
+                          alert("確認しました！");
+                        } else {
+                          const errorDetail = await response.json();
+                          throw new Error(
+                            errorDetail.message || "確認に失敗しました。"
+                          );
+                        }
+                      } catch (err) {
+                        alert(`エラー: ${err.message}`);
+                      }
+                    }}
+                  >
+                    確認
+                  </button>
+                  {/* リアクション表示 */}
+                  {post.reactions && post.reactions.length > 0 && (
+                    <ul className="mt-2">
+                      {post.reactions.map((reaction) => (
+                        <li key={reaction.reactionId}>
+                          {reaction.nickName} ({reaction.userName})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+  
+              {/* 多肢連絡の処理 */}
               {post.contactType === "CHOICE" &&
                 Array.isArray(post.choices) &&
                 post.choices.length > 0 && (
                   <div className="d-flex flex-wrap mt-2">
                     {post.choices.map((choice, idx) => (
-                      <div key={idx} className="me-2">
+                      <div key={idx} className="me-3 mb-2">
                         <button
                           className="btn btn-sm btn-outline-primary"
-                          onClick={() => handleReaction(choice.id)}
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(
+                                `${import.meta.env.VITE_API_URL}/contact/${
+                                  post.contactId
+                                }/reaction`,
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    choiceId: choice.choiceId,
+                                  }),
+                                }
+                              );
+  
+                              if (response.ok) {
+                                alert(`「${choice.choice}」を選択しました！`);
+                                const updatedReactions = await response.json();
+                                setPosts((prevPosts) =>
+                                  prevPosts.map((p) =>
+                                    p.contactId === post.contactId
+                                      ? { ...p, reactions: updatedReactions }
+                                      : p
+                                  )
+                                );
+                              } else {
+                                const errorDetail = await response.json();
+                                throw new Error(
+                                  errorDetail.message || "選択に失敗しました。"
+                                );
+                              }
+                            } catch (err) {
+                              alert(`エラー: ${err.message}`);
+                            }
+                          }}
                         >
-                          {choice}
+                          {choice.choice}
                         </button>
-                        {choice.reactionCount !== undefined && (
+                        {/* 選択肢ごとのリアクション件数 */}
+                        {post.reactions && (
                           <span className="ms-2 text-muted small">
-                            {choice.reactionCount}件
+                            {
+                              post.reactions.filter(
+                                (reaction) =>
+                                  reaction.choice &&
+                                  reaction.choice.choiceId === choice.choiceId
+                              ).length
+                            }{" "}
+                            件
                           </span>
                         )}
                       </div>
                     ))}
                   </div>
                 )}
-
-              {post.contactType === "CONFIRM" && (
-                <div className="mt-2">
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => handleReaction(post.id)}
-                  >
-                    確認
-                  </button>
-                </div>
-              )}
             </div>
           ))
         ) : (
           <p>まだ投稿がありません。</p>
         )}
       </div>
-
+      {/* 投稿フォームモーダル */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -198,23 +293,6 @@ function GroupContact({ groupName, hasPermission, onFormSubmit, groupId, posts =
                 <option value="SAFE">最低</option>
               </select>
             </div>
-            {formData.contactType === "CHOICE" && (
-              <div className="form-group">
-                <label>選択肢</label>
-                {formData.choices.map((choice, idx) => (
-                  <input
-                    key={idx}
-                    type="text"
-                    className="form-control mb-2"
-                    value={choice}
-                    onChange={(e) => handleChoiceChange(idx, e.target.value)}
-                  />
-                ))}
-                <button className="btn btn-secondary" onClick={addChoiceField}>
-                  選択肢を追加
-                </button>
-              </div>
-            )}
             <button className="btn btn-success" onClick={handleSubmit}>
               投稿
             </button>
@@ -223,6 +301,7 @@ function GroupContact({ groupName, hasPermission, onFormSubmit, groupId, posts =
       )}
     </div>
   );
+  
 }
 
 export default GroupContact;

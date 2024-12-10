@@ -3,7 +3,7 @@ import Sidebar from "./components/Sidebar";
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
 import "./css/group.css";
-import axios from "axios"; // You can also use fetch if preferred
+import axios from "axios";
 
 function Group() {
   const [groups, setGroups] = useState([]);
