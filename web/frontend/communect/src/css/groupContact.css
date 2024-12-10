@@ -73,10 +73,6 @@ ul li {
     background-color: #d9f5fd;
   }
 
-.badge {
-  margin-left: 10px;
-}
-
 .choice-buttons {
   display: flex;
   gap: 10px;

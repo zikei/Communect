@@ -34,6 +34,10 @@ function PostList({
               importanceClass[post.importance] || ""
             }`}
           >
+            {post.importance === "LOW" && <span className="badge bg-info">INFO</span>}
+            {post.importance === "MEDIUM" && <span className="badge bg-warning">WARNING</span>}
+            {post.importance === "HIGH" && <span className="badge bg-danger">DANGER</span>}
+            
             {/* 投稿メッセージ */}
             <p>{post.message}</p>
 
@@ -85,12 +89,14 @@ function PostList({
             )}
 
             {/* 詳細ボタン */}
-            <button
-              className="btn btn-outline-info mt-2"
-              onClick={() => onFetchDetails(post.contactId)}
-            >
-              詳細を見る
-            </button>
+            {(post.contactType === "CONFIRM" || post.contactType === "CHOICE") && (
+              <button
+                className="btn btn-outline-info mt-2"
+                onClick={() => onFetchDetails(post.contactId)}
+              >
+                詳細を見る
+              </button>
+            )}
           </div>
         );
       })}
