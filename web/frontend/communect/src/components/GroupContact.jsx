@@ -5,37 +5,33 @@ import ReactionsModal from "./contact/ReactionsModal";
 import "../css/groupContact.css";
 
 function GroupContact({ groupName, hasPermission, groupId }) {
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showReactionsModal, setShowReactionsModal] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   // 投稿一覧を取得
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      setError(null);
+  const fetchPosts = async () => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/group/${groupId}/contact`
-        );
-        if (!response.ok) throw new Error("データの取得に失敗しました。");
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}/contact`
+      );
+      if (!response.ok) throw new Error("データの取得に失敗しました。");
 
-        const result = await response.json();
-        setPosts(result.contacts || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (groupId) fetchPosts();
-  }, [groupId]);
+      const result = await response.json();
+      setPosts(result.contacts || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 投稿詳細とリアクションを取得
   const fetchPostDetails = async (contactId) => {
@@ -53,6 +49,13 @@ function GroupContact({ groupName, hasPermission, groupId }) {
       alert(`エラー: ${err.message}`);
     }
   };
+
+  // 初回ロードまたはグループID変更時に投稿一覧を取得
+  useEffect(() => {
+    if (groupId) {
+      fetchPosts();
+    }
+  }, [groupId]);
 
   return (
     <div className="group-contact p-3">
