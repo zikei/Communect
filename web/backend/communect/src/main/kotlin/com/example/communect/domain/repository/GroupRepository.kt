@@ -6,4 +6,7 @@ import com.example.communect.domain.model.Group
 interface GroupRepository {
     /** ユーザIDによる所属グループリストの取得 */
     fun findByUserId(userId: String): List<Group>
+
+    /** グループIDによるグループの取得 */
+    fun findByGroupId(groupId: String): Group?
 }
