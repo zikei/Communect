@@ -6,6 +6,7 @@ import com.example.communect.domain.repository.GroupRepository
 import com.example.communect.infrastructure.db.mapper.*
 import com.example.communect.infrastructure.db.mapper.custom.CustomGroupUserMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByGroupId
+import com.example.communect.infrastructure.db.mapper.custom.selectByGroupIdAndUserId
 import com.example.communect.infrastructure.db.record.custom.CustomGroupUser
 import org.springframework.stereotype.Repository
 import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport as UserGroupSql
@@ -56,6 +57,16 @@ class GroupRepositoryImpl(
     override fun findGroupUsersByGroupId(groupId: String): List<GroupUser> {
         return groupUserMapper.selectByGroupId(groupId).map { toModelForGroupUser(it) }
     }
+
+    /**
+     * グループIDによるグループユーザの取得
+     * @param groupId グループID
+     * @return グループユーザリスト
+     */
+    override fun findGroupUser(groupId: String, userId: String): GroupUser? {
+        return groupUserMapper.selectByGroupIdAndUserId(groupId, userId)?.let { toModelForGroupUser(it) }
+    }
+
 
     /** レコードのグループモデルへの変換 */
     private fun toModelForGroup(record: GroupRecord): Group{

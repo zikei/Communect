@@ -1,17 +1,16 @@
 package com.example.communect.infrastructure.db.mapper.custom
 
 import com.example.communect.infrastructure.db.record.custom.CustomGroupUser
-import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport as User
-import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport.user as userTable
-import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport as UserGroup
-import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport.userGroup as userGroupTable
 import org.apache.ibatis.annotations.*
 import org.apache.ibatis.type.EnumTypeHandler
 import org.apache.ibatis.type.JdbcType
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter
-import org.mybatis.dynamic.sql.util.kotlin.elements.count
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
+import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport as User
+import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport.user as userTable
+import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport as UserGroup
+import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport.userGroup as userGroupTable
 
 @Mapper
 interface CustomGroupUserMapper {
@@ -59,4 +58,20 @@ fun CustomGroupUserMapper.selectByGroupId(groupId: String): List<CustomGroupUser
         }
     }
     return selectMany(selectStatement)
+}
+
+fun CustomGroupUserMapper.selectByGroupIdAndUserId(groupId: String, userId: String): CustomGroupUser? {
+    val selectStatement = select(columnList){
+        from(userGroupTable, "ug")
+        leftJoin(userTable, "u"){
+            on(UserGroup.userid) equalTo(User.userid)
+        }
+        where {
+            UserGroup.noticegroupid isEqualTo groupId
+            and{
+                UserGroup.userid isEqualTo userId
+            }
+        }
+    }
+    return selectOne(selectStatement)
 }

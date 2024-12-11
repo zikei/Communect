@@ -13,4 +13,7 @@ interface GroupRepository {
 
     /** グループIDによるグループユーザの取得 */
     fun findGroupUsersByGroupId(groupId: String): List<GroupUser>
+
+    /** グループID, ユーザIDによるグループユーザの取得 */
+    fun findGroupUser(groupId: String, userId: String): GroupUser?
 }

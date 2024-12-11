@@ -42,7 +42,7 @@ class GroupServiceImpl(): GroupService {
      *  グループユーザ取得
      *  @param groupId 検索グループID
      *  @param userId 検索ユーザID
-     *  @return 検索結果ユーザリスト
+     *  @return 検索結果ユーザ
      */
     override fun getGroupUser(groupId: String, userId: String): GroupUser? {
         return MockTestData.groupUserList.find{ it.groupId == groupId && it.userId == userId }
