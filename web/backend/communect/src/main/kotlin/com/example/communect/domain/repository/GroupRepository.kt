@@ -1,6 +1,7 @@
 package com.example.communect.domain.repository
 
 import com.example.communect.domain.model.Group
+import com.example.communect.domain.model.GroupIns
 import com.example.communect.domain.model.GroupUser
 
 /** グループリポジトリ */
@@ -16,4 +17,7 @@ interface GroupRepository {
 
     /** グループID, ユーザIDによるグループユーザの取得 */
     fun findGroupUser(groupId: String, userId: String): GroupUser?
+
+    /** グループ追加 */
+    fun insertGroup(group: GroupIns): Group
 }

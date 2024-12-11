@@ -1,6 +1,7 @@
 package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.model.Group
+import com.example.communect.domain.model.GroupIns
 import com.example.communect.domain.model.GroupUser
 import com.example.communect.domain.repository.GroupRepository
 import com.example.communect.infrastructure.db.mapper.*
@@ -67,6 +68,17 @@ class GroupRepositoryImpl(
         return groupUserMapper.selectByGroupIdAndUserId(groupId, userId)?.let { toModelForGroupUser(it) }
     }
 
+    /**
+     * グループ追加
+     * @param group 追加グループ
+     * @return 追加グループ
+     */
+    override fun insertGroup(group: GroupIns): Group {
+        val record = toRecord(group)
+        groupMapper.insert(record)
+        return toModelForGroup(record)
+    }
+
 
     /** レコードのグループモデルへの変換 */
     private fun toModelForGroup(record: GroupRecord): Group{
@@ -92,6 +104,15 @@ class GroupRepositoryImpl(
             record.role!!,
             record.isadmin!!,
             record.issubgroupcreate!!
+        )
+    }
+
+    /** グループモデルからレコードの変換 */
+    private fun toRecord(model: GroupIns): GroupRecord{
+        return GroupRecord(
+            null,
+            model.aboveId,
+            model.groupName
         )
     }
 }
