@@ -5,9 +5,10 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
     message: "",
     contactType: "INFORM",
     importance: "LOW",
+    choices: [],
   });
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -39,7 +40,7 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="btn-close" onClick={toggleModal}></button>
+        <button className="btn-close" onClick={onClose}></button>
         <h2>投稿フォーム</h2>
         <div className="form-group">
           <label>メッセージ</label>
@@ -78,7 +79,6 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
           </select>
         </div>
 
-        {/* 多肢連絡用の選択肢入力フォーム */}
         {formData.contactType === "CHOICE" && (
           <div className="form-group">
             <label>選択肢</label>
@@ -122,7 +122,7 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
             </button>
           </div>
         )}
-        <button className="btn btn-success" onClick={handleSubmit}>
+        <button className="btn btn-success mt-3" onClick={handleSubmit}>
           投稿
         </button>
       </div>
