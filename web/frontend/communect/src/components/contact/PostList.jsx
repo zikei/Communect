@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import ReactionsModal from "./ReactionsModal";
 
-function PostList({
-  posts,
-  error,
-  loading,
-  onFetchDetails,
-  reactions = [],
-}) {
+function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
   const [showReactionsModal, setShowReactionsModal] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
@@ -31,13 +25,16 @@ function PostList({
 
   const handleReactionClick = async (contactId, choiceId = null) => {
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL +`/contact/${contactId}/reaction`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ choiceId }),
-      });
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/contact/${contactId}/reaction`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ choiceId }),
+        }
+      );
 
       if (response.status === 200) {
         alert("リアクションが送信されました！");
@@ -51,17 +48,15 @@ function PostList({
 
   return (
     <div className="group-contact-content px-5">
-      {posts.map((post) => {
+      {posts.map((post, index) => {
         const postReactions = reactions.filter(
           (reaction) => reaction.contactId === post.contactId
         );
 
         return (
           <div
-            key={post.contactId}
-            className={`group-contact-post px-5 ${
-              importanceClass[post.importance] || ""
-            }`}
+            key={`${post.contactId}-${index}`}
+            className={`group-contact-post px-5 ${importanceClass[post.importance] || ""}`}
           >
             {post.importance === "LOW" && (
               <span className="badge bg-info">INFO</span>
@@ -87,13 +82,13 @@ function PostList({
             {post.contactType === "CHOICE" && post.choices && (
               <div className="choices-section mt-3">
                 <h5>選択肢</h5>
-                {post.choices.map((choice) => {
+                {post.choices.map((choice, index) => {
                   const choiceReactions = postReactions.filter(
                     (reaction) => reaction.choice.choiceId === choice.choiceId
                   );
 
                   return (
-                    <div key={choice.choiceId} className="choice-item mb-3">
+                    <div key={`${post.contactId}-${choice.choiceId}`} className="choice-item mb-3">
                       <button
                         className="btn btn-sm btn-outline-primary me-2"
                         onClick={() =>
@@ -117,7 +112,8 @@ function PostList({
               </div>
             )}
 
-            {(post.contactType === "CONFIRM" || post.contactType === "CHOICE") && (
+            {(post.contactType === "CONFIRM" ||
+              post.contactType === "CHOICE") && (
               <button
                 className="btn btn-outline-info mt-2"
                 onClick={() => onFetchDetails(post.contactId)}
