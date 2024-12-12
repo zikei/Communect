@@ -74,6 +74,14 @@ class GroupUserRepositoryImpl(
         groupUserMapper.updateByPrimaryKeySelective(record)
     }
 
+    /**
+     * グループユーザ削除
+     * @param groupUserId 削除対象グループユーザID
+     */
+    override fun deleteGroupUser(groupUserId: String) {
+        groupUserMapper.deleteByPrimaryKey(groupUserId)
+    }
+
 
     /** レコードのグループユーザモデルへの変換 */
     private fun toModel(record: CustomGroupUser): GroupUser{

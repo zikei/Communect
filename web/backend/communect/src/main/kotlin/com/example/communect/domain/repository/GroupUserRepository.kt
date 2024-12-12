@@ -20,4 +20,7 @@ interface GroupUserRepository {
 
     /** グループユーザ更新 */
     fun updateGroupUser(user: GroupUserUpd)
+
+    /** グループユーザ削除 */
+    fun deleteGroupUser(groupUserId: String)
 }
