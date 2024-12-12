@@ -2,6 +2,7 @@ package com.example.communect.domain.repository
 
 import com.example.communect.domain.model.Group
 import com.example.communect.domain.model.GroupIns
+import com.example.communect.domain.model.GroupUpd
 
 /** グループリポジトリ */
 interface GroupRepository {
@@ -13,4 +14,7 @@ interface GroupRepository {
 
     /** グループ追加 */
     fun insertGroup(group: GroupIns): Group?
+
+    /** グループ更新 */
+    fun updateGroup(group: GroupUpd): Group?
 }

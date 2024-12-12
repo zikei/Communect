@@ -131,3 +131,9 @@ fun NoticeGroupMapper.updateByPrimaryKeySelective(row: NoticeGroup) =
         set(grouptitle) equalToWhenPresent row::grouptitle
         where { noticegroupid isEqualTo row.noticegroupid!! }
     }
+
+fun NoticeGroupMapper.updateAboveIdToNullByPrimaryKey(id: String) =
+    update {
+        set(aboveid).equalToNull()
+        where { noticegroupid isEqualTo id }
+    }

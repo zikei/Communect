@@ -2,11 +2,9 @@ package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.model.Group
 import com.example.communect.domain.model.GroupIns
+import com.example.communect.domain.model.GroupUpd
 import com.example.communect.domain.repository.GroupRepository
-import com.example.communect.infrastructure.db.mapper.NoticeGroupMapper
-import com.example.communect.infrastructure.db.mapper.insert
-import com.example.communect.infrastructure.db.mapper.select
-import com.example.communect.infrastructure.db.mapper.selectOne
+import com.example.communect.infrastructure.db.mapper.*
 import org.springframework.stereotype.Repository
 import java.util.UUID
 import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSupport as GroupSql
@@ -59,6 +57,21 @@ class GroupRepositoryImpl(
         return toModel(record)
     }
 
+    /**
+     * グループ更新
+     * @param group 更新グループ
+     * @return 更新グループ
+     */
+    override fun updateGroup(group: GroupUpd): Group? {
+        val record = toRecord(group)
+        if(record.aboveid == ""){
+            record.aboveid = null
+            groupMapper.updateAboveIdToNullByPrimaryKey(group.groupId)
+        }
+        groupMapper.updateByPrimaryKeySelective(record)
+        return toModel(record)
+    }
+
 
     /** レコードのグループモデルへの変換 */
     private fun toModel(record: GroupRecord): Group{
@@ -73,6 +86,15 @@ class GroupRepositoryImpl(
     private fun toRecord(model: GroupIns): GroupRecord{
         return GroupRecord(
             UUID.randomUUID().toString(),
+            model.aboveId,
+            model.groupName
+        )
+    }
+
+    /** グループモデルからレコードの変換 */
+    private fun toRecord(model: GroupUpd): GroupRecord{
+        return GroupRecord(
+            model.groupId,
             model.aboveId,
             model.groupName
         )
