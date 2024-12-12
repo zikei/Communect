@@ -3,21 +3,27 @@ package com.example.communect.app.service
 import com.example.communect.app.service.MockTestData.user1
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.GroupRepository
+import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 /** グループ処理実装クラス */
 @Service
-class GroupServiceImpl(): GroupService {
+class GroupServiceImpl(
+    @Autowired val groupRepository : GroupRepository,
+    @Autowired val groupUserRepository : GroupUserRepository
+): GroupService {
     /**
      *  グループ一覧取得
      *  @param userId 所属グループを検索するユーザID
      *  @return ユーザが所属するグループリスト
      */
     override fun getGroups(userId: String): List<Group> {
-        return MockTestData.groupList
+        return groupRepository.findByUserId(userId)
     }
 
     /**
