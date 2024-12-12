@@ -1,12 +1,23 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 
-function PostFormModal({ onClose, groupId, onPostCreated }) {
+function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   const [formData, setFormData] = useState({
     message: "",
     contactType: "INFORM",
     importance: "LOW",
     choices: [],
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        message: initialData.message,
+        contactType: initialData.contactType,
+        importance: initialData.importance,
+        choices: initialData.choices || [],
+      });
+    }
+  }, [initialData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,8 +33,8 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
     const requestData = { ...formData, groupId };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
-        method: "POST",
+      const response = await fetch( `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`, {
+        method: initialData ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
@@ -41,7 +52,7 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="btn-close" onClick={onClose}></button>
-        <h2>投稿フォーム</h2>
+        <h2>{initialData ? "投稿を編集" : "新規投稿"}</h2>
         <div className="form-group">
           <label>メッセージ</label>
           <textarea
@@ -123,7 +134,7 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
           </div>
         )}
         <button className="btn btn-success mt-3" onClick={handleSubmit}>
-          投稿
+        {initialData ? "更新" : "投稿"}
         </button>
       </div>
     </div>

@@ -36,7 +36,7 @@ ul li {
 .group-contact-content {
   padding: 20px;
   overflow-y: auto;
-  max-height: auto;
+  max-height: 500px;
 }
 
 .group-contact-post {

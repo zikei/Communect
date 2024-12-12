@@ -67,6 +67,47 @@ function GroupContact({ groupName, hasPermission, groupId }) {
     }
   };
 
+  // 投稿編集
+  const handleEditPost = async (contactId, updatedData) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/contact/${contactId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData), // 編集内容を送信
+        }
+      );
+  
+      if (!response.ok) throw new Error("投稿の編集に失敗しました。");
+  
+      fetchPosts(); // 投稿一覧を再取得
+    } catch (err) {
+      alert(`エラー: ${err.message}`);
+    }
+  };
+
+  // 投稿削除
+  const handleDeletePost = async (contactId) => {
+    if (!window.confirm("本当にこの投稿を削除しますか？")) return;
+  
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/contact/${contactId}`,
+        {
+          method: "DELETE",
+        }
+      );
+  
+      if (!response.ok) throw new Error("投稿の削除に失敗しました。");
+      fetchPosts(); // 投稿一覧を再取得
+    } catch (err) {
+      alert(`エラー: ${err.message}`);
+    }
+  };
+
   return (
     <div className="group-contact p-3">
       <header className="group-contact-header">
@@ -85,6 +126,8 @@ function GroupContact({ groupName, hasPermission, groupId }) {
         loading={loading} // ローディング状態
         onFetchDetails={fetchPostDetails} // 詳細取得関数
         reactions={selectedReactions} // リアクション
+        onEditPost={handleEditPost} // 編集処理
+        onDeletePost={handleDeletePost} // 削除処理
       />
 
       {/* 投稿フォームモーダル */}

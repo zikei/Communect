@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 import ReactionsModal from "./ReactionsModal";
+import PostFormModal from "./PostFormModal";
 
-function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
+function PostList({
+  posts,
+  error,
+  loading,
+  onFetchDetails,
+  reactions = [],
+  onEditPost,
+  onDeletePost,
+}) {
   const [showReactionsModal, setShowReactionsModal] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
 
   const importanceClass = {
     HIGH: "post-high-importance",
@@ -46,6 +56,15 @@ function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
     }
   };
 
+  const handleOpenEditModal = (post) => {
+    setEditingPost(post);
+  };
+
+  const handleEditComplete = (updatedData) => {
+    onEditPost(editingPost.contactId, updatedData);
+    setEditingPost(null); // 編集モーダルを閉じる
+  };
+
   return (
     <div className="group-contact-content px-5">
       {posts.map((post, index) => {
@@ -56,7 +75,9 @@ function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
         return (
           <div
             key={`${post.contactId}-${index}`}
-            className={`group-contact-post px-5 ${importanceClass[post.importance] || ""}`}
+            className={`group-contact-post px-5 ${
+              importanceClass[post.importance] || ""
+            }`}
           >
             {post.importance === "LOW" && (
               <span className="badge bg-info">INFO</span>
@@ -88,7 +109,10 @@ function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
                   );
 
                   return (
-                    <div key={`${post.contactId}-${choice.choiceId}`} className="choice-item mb-3">
+                    <div
+                      key={`${post.contactId}-${choice.choiceId}`}
+                      className="choice-item mb-3"
+                    >
                       <button
                         className="btn btn-sm btn-outline-primary me-2"
                         onClick={() =>
@@ -121,6 +145,20 @@ function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
                 詳細を確認する
               </button>
             )}
+            <div className="d-flex justify-content-end">
+              <button
+                className="btn btn-warning btn-sm me-2"
+                onClick={() => handleOpenEditModal(post)}
+              >
+                編集
+              </button>
+              <button
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => onDeletePost(post.contactId)}
+              >
+                削除
+              </button>
+            </div>
           </div>
         );
       })}
@@ -130,6 +168,15 @@ function PostList({ posts, error, loading, onFetchDetails, reactions = [] }) {
           reactions={selectedReactions}
           post={{ message: selectedChoice }}
           onClose={() => setShowReactionsModal(false)}
+        />
+      )}
+
+      {editingPost && (
+        <PostFormModal
+          onClose={() => setEditingPost(null)}
+          groupId={editingPost.groupId}
+          onPostCreated={handleEditComplete} // 編集結果を適用
+          initialData={editingPost} // 初期データを渡す
         />
       )}
     </div>
