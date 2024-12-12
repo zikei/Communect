@@ -56,6 +56,7 @@ class GroupAPIController(
     /** グループ更新 */
     @PutMapping("/{groupId}")
     fun updGroup(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String,
         @Validated @RequestBody req: UpdGroupRequest,
         bindingResult: BindingResult
@@ -63,16 +64,17 @@ class GroupAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val updGroup = GroupUpd(groupId, req.name, req.above)
 
-        val group = groupService.updGroup(updGroup)
+        val group = groupService.updGroup(updGroup, loginUser.user.userId)
         return UpdGroupResponse(GroupInfo(group))
     }
 
     /** グループ削除 */
     @DeleteMapping("/{groupId}")
     fun deleteGroup(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String
     ) {
-        groupService.deleteGroup(groupId)
+        groupService.deleteGroup(groupId, loginUser.user.userId)
     }
 
     /** グループユーザ一覧取得 */
@@ -87,32 +89,35 @@ class GroupAPIController(
     /** グループユーザ一追加 */
     @PostMapping("/{groupId}/user")
     fun addGroupUser(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String,
         @Validated @RequestBody req: AddGroupUserRequest,
         bindingResult: BindingResult
     ): GroupUserResponse{
         if (bindingResult.hasErrors()) throw BadRequestException()
-        val user = groupService.addGroupUser(GroupUserIns(groupId, req.userId))
+        val user = groupService.addGroupUser(GroupUserIns(groupId, req.userId), loginUser.user.userId)
         return GroupUserResponse(GroupUserInfo(user))
     }
 
     /** グループユーザ一更新 */
     @PutMapping("/{groupId}/user")
     fun updGroupUser(
+        @AuthenticationPrincipal loginUser: Login,
         @Validated @RequestBody req: UpdGroupUserRequest,
         bindingResult: BindingResult
     ): GroupUserResponse{
         if (bindingResult.hasErrors()) throw BadRequestException()
-        val user = groupService.updGroupUser(GroupUserUpd(req.groupUserId, req.nickName, req.role, req.isAdmin, req.isSubGroupCreate))
+        val user = groupService.updGroupUser(GroupUserUpd(req.groupUserId, req.nickName, req.role, req.isAdmin, req.isSubGroupCreate), loginUser.user.userId)
         return GroupUserResponse(GroupUserInfo(user))
     }
 
     /** グループユーザ一削除 */
     @DeleteMapping("/{groupId}/user")
     fun deleteGroupUser(
+        @AuthenticationPrincipal loginUser: Login,
         @RequestBody req: DeleteGroupUserRequest
     ){
-       groupService.deleteGroupUser(req.groupUserId)
+       groupService.deleteGroupUser(req.groupUserId, loginUser.user.userId)
     }
 
     /** グループトーク一覧取得 */
