@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -14,7 +14,8 @@ function Group() {
     { groupId: "2", groupName: "Group 2", aboveId: "1" },
     { groupId: "3", groupName: "Group 3", aboveId: "1" },
     { groupId: "4", groupName: "Group 4", aboveId: "2" },
-    { groupId: "5", groupName: "Group 5", aboveId: null },
+    { groupId: "5", groupName: "Group 5", aboveId: "1" },
+    { groupId: "6", groupName: "Group 6", aboveId: "1" },
   ];
 
   const buildHierarchy = (groups) => {
@@ -50,7 +51,7 @@ function Group() {
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
     if (!sidebarOpen) {
-      toggleSidebar(); // サイドバーを閉じる
+      toggleSidebar();
     }
   };
 
@@ -73,11 +74,21 @@ function Group() {
           toggleGroup={toggleGroup}
           handleGroupClick={handleGroupClick}
           renderGroupTree={(group) => (
-            <Button
-              key={group.groupId}
-              title={group.groupName}
-              onPress={() => handleGroupClick(group)}
-            />
+            <View key={group.groupId} style={styles.groupContainer}>
+              <Text
+                style={styles.groupItem}
+                onPress={() => handleGroupClick(group)}
+              >
+                {group.groupName}
+              </Text>
+              {expandedGroups[group.groupId] && group.children.length > 0 && (
+                <View style={styles.childGroupContainer}>
+                  {group.children.map((child) =>
+                    renderGroupTree(child)
+                  )}
+                </View>
+              )}
+            </View>
           )}
           sidebarOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
@@ -85,8 +96,13 @@ function Group() {
         />
       )}
 
-      <View style={styles.mainContent}>
-        {!sidebarOpen && currentGroup ? (
+      <View
+        style={[
+          styles.mainContent,
+          { marginLeft: sidebarOpen ? 250 : 0 }, // Adjust main content position
+        ]}
+      >
+        {currentGroup ? (
           <View>
             <Text style={styles.groupDetail}>
               <Text style={styles.label}>Group Name:</Text> {currentGroup.groupName}
@@ -103,6 +119,15 @@ function Group() {
           </Text>
         )}
       </View>
+
+      {!sidebarOpen && (
+        <TouchableOpacity
+          style={styles.sidebarToggleButton}
+          onPress={toggleSidebar}
+        >
+          <Text style={styles.sidebarToggleButtonText}>☰</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -126,6 +151,38 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "bold",
+  },
+  sidebarToggleButton: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#007bff",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  sidebarToggleButtonText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  groupItem: {
+    padding: 10,
+    fontSize: 16,
+  },
+  groupContainer: {
+    marginBottom: 5,
+  },
+  childGroupContainer: {
+    paddingLeft: 20,
   },
 });
 
