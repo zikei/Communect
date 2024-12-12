@@ -1,6 +1,5 @@
 package com.example.communect.ui.controller
 
-import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.ContactService
 import com.example.communect.domain.service.GroupService
@@ -8,6 +7,7 @@ import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -22,24 +22,26 @@ class GroupAPIController(
 ) {
     /** グループ一覧取得 */
     @GetMapping
-    fun getGroups(): GroupsResponse{
-        val groups = groupService.getGroups("")
+    fun getGroups(@AuthenticationPrincipal loginUser: Login): GroupsResponse{
+        val groups = groupService.getGroups(loginUser.user.userId)
         return GroupsResponse(groups.map { GroupInfo(it) })
     }
 
-    /** グループ一覧取得 */
+    /** グループ詳細取得 */
     @GetMapping("/{groupId}")
     fun getGroup(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String
     ): GroupResponse {
         val group = groupService.getGroup(groupId)?.let { GroupInfo(it) } ?: throw BadRequestException()
-        val groupUser = groupService.getGroupUser(groupId, MockTestData.user1.userId)?.let{ GroupUserInfo(it) } ?: throw BadRequestException()
+        val groupUser = groupService.getGroupUser(groupId, loginUser.user.userId)?.let{ GroupUserInfo(it) } ?: throw BadRequestException()
         return GroupResponse(group, groupUser)
     }
 
     /** グループ作成 */
     @PostMapping
     fun createGroup(
+        @AuthenticationPrincipal loginUser: Login,
         @Validated @RequestBody req: CreateGroupRequest,
         bindingResult: BindingResult
     ): CreateGroupResponse {
@@ -47,7 +49,7 @@ class GroupAPIController(
         val insGroup = GroupIns(req.name, req.above)
         val userIds = req.users
 
-        val (group, groupUsers) = groupService.createGroup(insGroup, MockTestData.user1.userId, userIds)
+        val (group, groupUsers) = groupService.createGroup(insGroup, loginUser.user.userId, userIds)
         return CreateGroupResponse(GroupInfo(group), groupUsers.map { GroupUserInfo(it) })
     }
 
