@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
+import Breadcrumb from "./components/group/Breadcrumb"
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
 import "./css/group.css";
@@ -57,10 +58,6 @@ function Group() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleResize = (e) => {
-    setSidebarWidth((prevWidth) => Math.max(200, prevWidth + e.movementX));
-  };
-
   const handleFormSubmit = (formData) => {
     setPosts((prevPosts) => [...prevPosts, formData]);
   };
@@ -96,38 +93,6 @@ function Group() {
     setBreadcrumb(trail);
   };
 
-  const renderGroupTree = (group, level = 0) => (
-    <li key={group.groupId} className="list-group-item">
-      <div className="d-flex align-items-center">
-        <button
-          className="btn btn-link text-decoration-none w-100 text-start text-truncate"
-          onClick={() => handleGroupClick(group)}
-        >
-          {group.groupName}
-        </button>
-        {group.children.length > 0 && (
-          <button
-            className="btn btn-sm group-toggle-btn"
-            onClick={() => toggleGroup(group.groupId)}
-          >
-            <span
-              className={`rotate-icon ${
-                expandedGroups[group.groupId] ? "rotated" : ""
-              }`}
-            >
-              &gt;
-            </span>
-          </button>
-        )}
-      </div>
-      {group.children.length > 0 && expandedGroups[group.groupId] && (
-        <ul className="list-unstyled">
-          {group.children.map((child) => renderGroupTree(child, level + 1))}
-        </ul>
-      )}
-    </li>
-  );
-
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -143,7 +108,6 @@ function Group() {
           expandedGroups={expandedGroups}
           toggleGroup={toggleGroup}
           handleGroupClick={handleGroupClick}
-          renderGroupTree={renderGroupTree}
           sidebarWidth={sidebarWidth}
           sidebarOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
@@ -151,23 +115,7 @@ function Group() {
           error={error}
         />
         <div className="maincontent flex-grow-1 pt-2 px-5 reset">
-          {breadcrumb.length > 0 && (
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb m-0 mx-3 my-2">
-                {breadcrumb.map((item, index) => (
-                  <li key={item.groupId} className="breadcrumb-item">
-                    {index === breadcrumb.length - 1 ? (
-                      <span>{item.groupName}</span>
-                    ) : (
-                      <a href="#" onClick={() => handleGroupClick(item)}>
-                        {item.groupName}
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          )}
+        <Breadcrumb breadcrumb={breadcrumb} handleGroupClick={handleGroupClick} />
           {currentGroup ? (
             <div className="card">
               <GroupContact
@@ -188,12 +136,7 @@ function Group() {
           <div className="modal-content">
             <button className="btn-close" onClick={toggleModal}></button>
             <GroupCreate
-              onSubmit={(newGroup) => {
-                console.log(newGroup);
-                toggleModal();
-              }}
-              availableGroups={[{ groupId: "1", groupName: "初星学園" }]} // Example
-              availableUsers={[{ userId: "1", nickName: "田中太郎", userName: "tanaka" }]} // Example
+              onSubmit={handleFormSubmit}
             />
           </div>
         </div>

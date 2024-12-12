@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../css/groupCreate.css";
 
-function GroupCreate({ onSubmit, availableGroups = [], availableUsers = [] }) {
+function GroupCreate({ onSubmit }) {
   const [groupName, setGroupName] = useState("");
   const [aboveId, setAboveId] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -22,19 +22,10 @@ function GroupCreate({ onSubmit, availableGroups = [], availableUsers = [] }) {
     };
 
     onSubmit(newGroup);
-    closeModal(); // モーダルを閉じる
-    setGroupName(""); // フォームのリセット
+    setGroupName(""); // Reset form
     setAboveId("");
     setSelectedUsers([]);
     setError(null);
-  };
-
-  const handleUserSelection = (userId) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
   };
 
   return (
@@ -54,39 +45,23 @@ function GroupCreate({ onSubmit, availableGroups = [], availableUsers = [] }) {
           />
         </label>
         <label className="form-label mt-3">
-          親グループ:
-          <select
-            className="form-select"
+          親グループID:
+          <input
+            type="text"
+            className="form-control"
             value={aboveId}
             onChange={(e) => setAboveId(e.target.value)}
-          >
-            <option value="">なし</option>
-            {availableGroups.map((group) => (
-              <option key={group.groupId} value={group.groupId}>
-                {group.groupName}
-              </option>
-            ))}
-          </select>
+            placeholder="親グループIDを入力"
+          />
         </label>
         <label className="form-label mt-3">
-          ユーザーを選択:
-          <div className="form-check">
-            {availableUsers.map((user) => (
-              <div key={user.userId}>
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id={user.userId}
-                  value={user.userId}
-                  onChange={() => handleUserSelection(user.userId)}
-                  checked={selectedUsers.includes(user.userId)}
-                />
-                <label className="form-check-label" htmlFor={user.userId}>
-                  {user.nickName} ({user.userName})
-                </label>
-              </div>
-            ))}
-          </div>
+          ユーザーIDリスト:
+          <textarea
+            className="form-control"
+            value={selectedUsers.join(",")}
+            onChange={(e) => setSelectedUsers(e.target.value.split(","))}
+            placeholder="ユーザーIDをカンマ区切りで入力"
+          />
         </label>
         <button type="submit" className="btn btn-primary mt-3">
           グループ作成

@@ -1,11 +1,11 @@
 import React from "react";
+import GroupTree from "./group/GroupTree";
 
 function Sidebar({
   groups,
   expandedGroups,
   toggleGroup,
   handleGroupClick,
-  renderGroupTree,
   sidebarWidth,
   sidebarOpen,
   toggleSidebar,
@@ -33,7 +33,15 @@ function Sidebar({
             <h5 className="mt-3">Groups</h5>
             {groups.length > 0 ? (
               <ul className="list-group">
-                {groups.map((group) => renderGroupTree(group))}
+                {groups.map((group) => (
+                  <GroupTree
+                    key={group.groupId}
+                    group={group}
+                    expandedGroups={expandedGroups}
+                    toggleGroup={toggleGroup}
+                    handleGroupClick={handleGroupClick}
+                  />
+                ))}
               </ul>
             ) : (
               <div>{error || "Loading..."}</div>

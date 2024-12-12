@@ -48,7 +48,7 @@ function Login() {
       <canvas id="canvas-basic" className="position-absolute w-100 h-100" />
 
       {/* ログインフォーム */}
-      <div className="card p-5" style={{ width: '100%', maxWidth: '400px', zIndex: 1 }}>
+      <div className="card p-5 font" style={{ width: '100%', maxWidth: '400px', zIndex: 1 }}>
         <h2>ログイン</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
