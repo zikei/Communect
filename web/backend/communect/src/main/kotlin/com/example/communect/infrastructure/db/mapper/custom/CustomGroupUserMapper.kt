@@ -47,6 +47,19 @@ private val columnList = listOf(
     UserGroup.groupadmin
 )
 
+fun CustomGroupUserMapper.selectByPrimaryKey(groupUserId: String): CustomGroupUser? {
+    val selectStatement = select(columnList){
+        from(userGroupTable, "ug")
+        leftJoin(userTable, "u"){
+            on(UserGroup.userid) equalTo(User.userid)
+        }
+        where {
+            UserGroup.usergroupid isEqualTo groupUserId
+        }
+    }
+    return selectOne(selectStatement)
+}
+
 fun CustomGroupUserMapper.selectByGroupId(groupId: String): List<CustomGroupUser> {
     val selectStatement = select(columnList){
         from(userGroupTable, "ug")
