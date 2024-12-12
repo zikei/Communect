@@ -8,12 +8,9 @@ import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSuppo
 import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSupport.noticeGroup
 import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSupport.noticegroupid
 import com.example.communect.infrastructure.db.record.NoticeGroup
-import org.apache.ibatis.annotations.Mapper
-import org.apache.ibatis.annotations.Result
-import org.apache.ibatis.annotations.ResultMap
-import org.apache.ibatis.annotations.Results
-import org.apache.ibatis.annotations.SelectProvider
+import org.apache.ibatis.annotations.*
 import org.apache.ibatis.type.JdbcType
+import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter
 import org.mybatis.dynamic.sql.util.kotlin.CountCompleter
@@ -47,6 +44,10 @@ interface NoticeGroupMapper : CommonCountMapper, CommonDeleteMapper, CommonInser
     @SelectProvider(type=SqlProviderAdapter::class, method="select")
     @ResultMap("NoticeGroupResult")
     fun selectOne(selectStatement: SelectStatementProvider): NoticeGroup?
+
+    @InsertProvider(type=SqlProviderAdapter::class, method="insert")
+    @Options(useGeneratedKeys = true, keyColumn = "noticeGroupId", keyProperty = "row.noticegroupid")
+    override fun insert(insertStatement: InsertStatementProvider<NoticeGroup>): Int
 }
 
 fun NoticeGroupMapper.count(completer: CountCompleter) =
@@ -129,4 +130,10 @@ fun NoticeGroupMapper.updateByPrimaryKeySelective(row: NoticeGroup) =
         set(aboveid) equalToWhenPresent row::aboveid
         set(grouptitle) equalToWhenPresent row::grouptitle
         where { noticegroupid isEqualTo row.noticegroupid!! }
+    }
+
+fun NoticeGroupMapper.updateAboveIdToNullByPrimaryKey(id: String) =
+    update {
+        set(aboveid).equalToNull()
+        where { noticegroupid isEqualTo id }
     }
