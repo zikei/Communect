@@ -3,7 +3,7 @@ use communect;
 --user
 --password=userName
 insert into user (userId, userName, nickname, password, email, apikey)
-    values('87c6e905-41d5-484f-b7e1-14eb874a50ad', 'user', 'ユーザー', ':$2y$05$KMtYOY1TKvjUviZyjR.NDu.1HmC7IXAN.Dgh3Yw5j7jQteqT.kMAO', 'user@user.com', 'user-api'),
+    values('87c6e905-41d5-484f-b7e1-14eb874a50ad', 'user', 'ユーザー', '$2y$05$KMtYOY1TKvjUviZyjR.NDu.1HmC7IXAN.Dgh3Yw5j7jQteqT.kMAO', 'user@user.com', 'user-api'),
           ('7b914ed7-b528-4236-8137-b0fa6c7b1cec', 'user2', 'ユーザー２', "$2y$05$q1m4UVdf3gd6BlfJGhWtru9Sfi00SDZOpXrE7ltyHbe/gcckdl3US", 'user2@user.com', 'user2-api'),
           ('da872c4c-570e-454e-a66d-a8a6a63e62f8', 'user3', 'ユーザー３', "$2y$05$uXICN/CBJh/0Y0rTXfGkCO.wObeZeADLSXeugC5ULHsEUBPIbOwXi", 'user3@user.com', 'user3-api'),
           ('5da26136-975a-43fc-9a96-098ce55f1066', 'user4', 'ユーザー４', '$2y$05$awPFx5lh.fs3aPNGe1Nw6O9Fs4WOnmCli5gQuujbYXx1iy1FvZHLW', 'user4@user.com', 'user4-api'),
@@ -25,7 +25,7 @@ insert into notice_group (noticeGroupId, aboveId, groupTitle)
     values('176e28f1-fd68-4084-a91d-182a12aa0297', NULL, 'グループ'),
           ('b642d6fa-a719-45d2-929c-081e89384b94', NULL, 'グループ２'),
           ('eaab0304-42e7-473a-bada-539f8be3357a', '176e28f1-fd68-4084-a91d-182a12aa0297', '下位グループ');
-          
+
 --user_group
 insert into user_group (userGroupId, noticeGroupId, userId, nickname, role, subGroupCreateAuthority, groupAdmin)
     values('c37efa37-87ba-4f2e-9982-27aa3a8e89c7', '176e28f1-fd68-4084-a91d-182a12aa0297', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'ユーザー', 'HIGH', '1', '1'),
@@ -71,7 +71,7 @@ insert into contact (contactId, noticeGroupId, message, contactType, importance,
 insert into reaction (reactionId, contactId, userId, reactionTime)
     values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', '87c6e905-41d5-484f-b7e1-14eb874a50ad', '2000-01-01 00:02:53'),
           ('98847f47-10a2-4527-93a8-15bbaf9738bd', '90bff2b5-43d3-4a50-a905-805d3139c42f', '5da26136-975a-43fc-9a96-098ce55f1066', '2000-01-03 00:00:02');
-          
+
 --choicecontact
 insert into choicecontact (choicecontactId, contactId, choices)
     values('2c975e3b-72f4-45c0-9a48-00765cbcc4df', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'はい'),

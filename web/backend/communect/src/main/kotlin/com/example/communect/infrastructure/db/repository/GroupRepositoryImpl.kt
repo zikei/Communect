@@ -85,7 +85,7 @@ class GroupRepositoryImpl(
         return Group(
             record.noticegroupid!!,
             record.grouptitle!!,
-            record.aboveid!!
+            record.aboveid
         )
     }
 
