@@ -16,7 +16,7 @@ interface GroupRepository {
     fun insertGroup(group: GroupIns): Group?
 
     /** グループ更新 */
-    fun updateGroup(group: GroupUpd): Group?
+    fun updateGroup(group: GroupUpd)
 
     /** グループ削除 */
     fun deleteByGroupId(groupId: String)

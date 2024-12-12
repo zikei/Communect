@@ -157,3 +157,9 @@ fun UserGroupMapper.updateByPrimaryKeySelective(row: UserGroup) =
         set(groupadmin) equalToWhenPresent row::groupadmin
         where { usergroupid isEqualTo row.usergroupid!! }
     }
+
+fun UserGroupMapper.updateNicknameToNullByPrimaryKey(id: String) =
+    update {
+        set(nickname).equalToNull()
+        where { usergroupid isEqualTo id }
+    }

@@ -2,6 +2,7 @@ package com.example.communect.domain.repository
 
 import com.example.communect.domain.model.GroupUser
 import com.example.communect.domain.model.GroupUserIns
+import com.example.communect.domain.model.GroupUserUpd
 
 /** グループユーザリポジトリ */
 interface GroupUserRepository {
@@ -16,4 +17,7 @@ interface GroupUserRepository {
 
     /** グループユーザ追加 */
     fun insertGroupUser(user: GroupUserIns): GroupUser?
+
+    /** グループユーザ更新 */
+    fun updateGroupUser(user: GroupUserUpd)
 }

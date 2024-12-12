@@ -62,14 +62,13 @@ class GroupRepositoryImpl(
      * @param group 更新グループ
      * @return 更新グループ
      */
-    override fun updateGroup(group: GroupUpd                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ): Group? {
+    override fun updateGroup(group: GroupUpd) {
         val record = toRecord(group)
         if(record.aboveid == ""){
             record.aboveid = null
             groupMapper.updateAboveIdToNullByPrimaryKey(group.groupId)
         }
         groupMapper.updateByPrimaryKeySelective(record)
-        return toModel(record)
     }
 
     /**

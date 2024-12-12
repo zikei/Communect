@@ -2,6 +2,7 @@ package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.model.GroupUser
 import com.example.communect.domain.model.GroupUserIns
+import com.example.communect.domain.model.GroupUserUpd
 import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.infrastructure.db.mapper.*
 import com.example.communect.infrastructure.db.mapper.custom.CustomGroupUserMapper
@@ -59,6 +60,21 @@ class GroupUserRepositoryImpl(
         return record.usergroupid?.let { findByGroupUserId(it) }
     }
 
+    /**
+     * グループユーザ更新
+     * @param user 更新グループユーザ
+     * @return 更新グループユーザ
+     */
+    override fun updateGroupUser(user: GroupUserUpd) {
+        val record = toRecord(user)
+        if(record.nickname == ""){
+            record.nickname = null
+            groupUserMapper.updateNicknameToNullByPrimaryKey(user.groupUserId)
+        }
+        groupUserMapper.updateByPrimaryKeySelective(record)
+    }
+
+
     /** レコードのグループユーザモデルへの変換 */
     private fun toModel(record: CustomGroupUser): GroupUser{
         return GroupUser(
@@ -83,6 +99,19 @@ class GroupUserRepositoryImpl(
             UUID.randomUUID().toString(),
             model.groupId,
             model.userId,
+            model.nickName,
+            model.role,
+            model.isSubGroupCreate,
+            model.isAdmin
+        )
+    }
+
+    /** グループユーザモデルからレコードの変換 */
+    private fun toRecord(model: GroupUserUpd): GroupUserRecord{
+        return GroupUserRecord(
+            model.groupUserId,
+            null,
+            null,
             model.nickName,
             model.role,
             model.isSubGroupCreate,
