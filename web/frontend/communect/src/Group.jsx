@@ -84,13 +84,21 @@ function Group() {
 
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
-    const trail = [];
-    let current = group;
-    while (current) {
-      trail.unshift(current);
-      current = findGroupById(current.aboveId, groups);
-    }
-    setBreadcrumb(trail);
+    setBreadcrumb((prev) => {
+      const trail = [];
+      let current = group;
+      while (current) {
+        trail.unshift(current);
+        current = findGroupById(current.aboveId, groups);
+      }
+      return trail;
+    });
+  
+    // 必要ならば選択グループを開く
+    setExpandedGroups((prevState) => ({
+      ...prevState,
+      [group.groupId]: true,
+    }));
   };
 
   return (
@@ -113,6 +121,7 @@ function Group() {
           toggleSidebar={toggleSidebar}
           toggleModal={toggleModal}
           error={error}
+          currentGroup={currentGroup}
         />
         <div className="maincontent flex-grow-1 pt-2 px-5 reset">
         <Breadcrumb breadcrumb={breadcrumb} handleGroupClick={handleGroupClick} />

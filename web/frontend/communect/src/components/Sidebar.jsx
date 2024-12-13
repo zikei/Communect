@@ -1,5 +1,6 @@
 import React from "react";
 import GroupTree from "./group/GroupTree";
+import "../css/sidebar.css";
 
 function Sidebar({
   groups,
@@ -11,6 +12,7 @@ function Sidebar({
   toggleSidebar,
   toggleModal,
   error,
+  currentGroup,
 }) {
   return (
     <>
@@ -40,6 +42,7 @@ function Sidebar({
                     expandedGroups={expandedGroups}
                     toggleGroup={toggleGroup}
                     handleGroupClick={handleGroupClick}
+                    currentGroup={currentGroup}
                   />
                 ))}
               </ul>
