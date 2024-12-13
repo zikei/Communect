@@ -32,7 +32,7 @@ class GroupServiceImpl(
      *  @return 検索結果
      */
     override fun getGroup(groupId: String): Group? {
-        return MockTestData.groupList.find { it.groupId == groupId }
+        return groupRepository.findByGroupId(groupId)
     }
 
     /**
