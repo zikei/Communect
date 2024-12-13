@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Button, ScrollView } from "react-native";
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -8,14 +8,16 @@ function Group() {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [groupName, setGroupName] = useState("");
+  const [parentId, setParentId] = useState(null);
 
   const localGroupData = [
-    { groupId: "1", groupName: "Group 1", aboveId: null },
-    { groupId: "2", groupName: "Group 2", aboveId: "1" },
-    { groupId: "3", groupName: "Group 3", aboveId: "1" },
-    { groupId: "4", groupName: "Group 4", aboveId: "2" },
-    { groupId: "5", groupName: "Group 5", aboveId: "1" },
-    { groupId: "6", groupName: "Group 6", aboveId: "1" },
+    { groupId: "1", groupName: "Group 1", aboveId: null, children: [] },
+    { groupId: "2", groupName: "Group 2", aboveId: "1", children: [] },
+    { groupId: "3", groupName: "Group 3", aboveId: "1", children: [] },
+    { groupId: "4", groupName: "Group 4", aboveId: "2", children: [] },
+    { groupId: "5", groupName: "Group 5", aboveId: "1", children: [] },
+    { groupId: "6", groupName: "Group 6", aboveId: "5", children: [] },
   ];
 
   const buildHierarchy = (groups) => {
@@ -55,6 +57,44 @@ function Group() {
     }
   };
 
+  const createGroup = () => {
+    if (!groupName) return;
+
+    const newGroup = {
+      groupId: (groups.length + 1).toString(),
+      groupName: groupName,
+      aboveId: parentId,
+      children: [],
+    };
+
+    if (parentId) {
+      const updatedGroups = groups.map((group) =>
+        group.groupId === parentId
+          ? { ...group, children: [...group.children, newGroup] }
+          : group
+      );
+      setGroups(updatedGroups);
+    } else {
+      setGroups([...groups, newGroup]);
+    }
+
+    setGroupName("");
+    setParentId(null);
+  };
+
+  const renderGroupTree = (group, level = 0) => (
+    <View key={group.groupId} style={{ paddingLeft: level * 20 }}>
+      <Text
+        style={styles.groupItem}
+        onPress={() => handleGroupClick(group)}
+      >
+        {group.groupName}
+      </Text>
+      {expandedGroups[group.groupId] &&
+        group.children.map((child) => renderGroupTree(child, level + 1))}
+    </View>
+  );
+
   useEffect(() => {
     try {
       const hierarchy = buildHierarchy(localGroupData);
@@ -68,38 +108,17 @@ function Group() {
   return (
     <View style={styles.container}>
       {sidebarOpen && (
-        <Sidebar
-          groups={groups}
-          expandedGroups={expandedGroups}
-          toggleGroup={toggleGroup}
-          handleGroupClick={handleGroupClick}
-          renderGroupTree={(group) => (
-            <View key={group.groupId} style={styles.groupContainer}>
-              <Text
-                style={styles.groupItem}
-                onPress={() => handleGroupClick(group)}
-              >
-                {group.groupName}
-              </Text>
-              {expandedGroups[group.groupId] && group.children.length > 0 && (
-                <View style={styles.childGroupContainer}>
-                  {group.children.map((child) =>
-                    renderGroupTree(child)
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-          sidebarOpen={sidebarOpen}
-          toggleSidebar={toggleSidebar}
-          error={error}
-        />
+        <Sidebar>
+          <ScrollView>
+            {groups.map((group) => !group.aboveId && renderGroupTree(group))}
+          </ScrollView>
+        </Sidebar>
       )}
 
       <View
         style={[
           styles.mainContent,
-          { marginLeft: sidebarOpen ? 250 : 0 }, // Adjust main content position
+          { marginLeft: sidebarOpen ? 250 : 0 },
         ]}
       >
         {currentGroup ? (
@@ -118,6 +137,23 @@ function Group() {
               : "No group selected."}
           </Text>
         )}
+
+        <View style={styles.formContainer}>
+          <Text>Create a New Group</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Group Name"
+            value={groupName}
+            onChangeText={setGroupName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Parent Group ID (optional)"
+            value={parentId}
+            onChangeText={setParentId}
+          />
+          <Button title="Create Group" onPress={createGroup} />
+        </View>
       </View>
 
       {!sidebarOpen && (
@@ -178,11 +214,14 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
   },
-  groupContainer: {
-    marginBottom: 5,
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginVertical: 10,
   },
-  childGroupContainer: {
-    paddingLeft: 20,
+  formContainer: {
+    marginTop: 20,
   },
 });
 
