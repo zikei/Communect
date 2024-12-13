@@ -54,10 +54,11 @@ class ContactServiceImpl(
     override fun addContact(contact: ContactIns): Contact {
         if(contact.contactType == ContactType.CHOICE && contact.choices == null) throw BadRequestException()
         val group = MockTestData.groupList.find { it.groupId == contact.groupId } ?: throw BadRequestException()
+        val user = MockTestData.userList.find { it.userId == contact.userId } ?: throw BadRequestException()
 
         val contactId = UUID.randomUUID().toString()
         val postChoices = contact.choices?.map { Choice(UUID.randomUUID().toString(), contactId, it) }
-        val postContact = Contact(contactId, contact.groupId, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
+        val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
         return postContact
@@ -84,7 +85,8 @@ class ContactServiceImpl(
             null
         }
         val updContact =
-            Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].groupName,
+            Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].userId,
+                MockTestData.contactList[index].userName, MockTestData.contactList[index].nickName, MockTestData.contactList[index].groupName,
                 contact.message ?: MockTestData.contactList[index].message, contactType,
                 contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, choices)
 

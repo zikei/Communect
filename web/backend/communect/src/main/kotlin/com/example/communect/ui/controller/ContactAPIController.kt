@@ -41,7 +41,7 @@ class ContactAPIController(
     ): ContactResponse {
         if (bindingResult.hasErrors()) throw BadRequestException()
 
-        val postContact = ContactIns(req.groupId, req.message, req.contactType, req.importance, req.choices)
+        val postContact = ContactIns(req.groupId, MockTestData.user1.userId, req.message, req.contactType, req.importance, req.choices)
         val contact = contactService.addContact(postContact)
         return ContactResponse(ContactInfo(contact))
     }
