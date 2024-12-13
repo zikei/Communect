@@ -41,7 +41,7 @@ class GroupServiceImpl(
      *  @return 検索結果ユーザリスト
      */
     override fun getGroupUsers(groupId: String): List<GroupUser> {
-        return MockTestData.groupUserList.filter { it.groupId == groupId }
+        return groupUserRepository.findByGroupId(groupId)
     }
 
     /**
