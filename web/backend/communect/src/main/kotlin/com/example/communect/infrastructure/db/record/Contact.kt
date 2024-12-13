@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 data class Contact(
     var contactid: String? = null,
     var noticegroupid: String? = null,
+    var userid: String? = null,
     var message: String? = null,
     var contacttype: ContactType? = null,
     var importance: Importance? = null,
