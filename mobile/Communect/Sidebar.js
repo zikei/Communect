@@ -45,17 +45,14 @@ const Sidebar = ({
 
       {/* グループ一覧 */}
       <View style={styles.groupsSection}>
-        <Text style={styles.sectionTitle}>Groups</Text>
+       <Text style={styles.sectionTitle}>Groups</Text>
         {groups.length > 0 ? (
-          <FlatList
-            data={groups}
-            renderItem={({ item }) => renderGroupTree(item)}
-            keyExtractor={(item) => item.groupId}
-          />
+          groups.map((group) => renderGroupTree(group)) // renderGroupTree を使用
         ) : (
           <Text style={styles.errorText}>{error || 'Loading...'}</Text>
         )}
       </View>
+
 
       {/* サイドバー切り替えボタン */}
       <TouchableOpacity style={styles.toggleIcon} onPress={toggleSidebar}>
