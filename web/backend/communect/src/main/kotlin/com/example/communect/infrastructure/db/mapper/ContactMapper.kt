@@ -10,6 +10,7 @@ import com.example.communect.infrastructure.db.mapper.ContactDynamicSqlSupport.c
 import com.example.communect.infrastructure.db.mapper.ContactDynamicSqlSupport.importance
 import com.example.communect.infrastructure.db.mapper.ContactDynamicSqlSupport.message
 import com.example.communect.infrastructure.db.mapper.ContactDynamicSqlSupport.noticegroupid
+import com.example.communect.infrastructure.db.mapper.ContactDynamicSqlSupport.userid
 import com.example.communect.infrastructure.db.record.Contact
 import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Result
@@ -44,6 +45,7 @@ interface ContactMapper : CommonCountMapper, CommonDeleteMapper, CommonInsertMap
     @Results(id="ContactResult", value = [
         Result(column="contactId", property="contactid", jdbcType=JdbcType.CHAR, id=true),
         Result(column="noticeGroupId", property="noticegroupid", jdbcType=JdbcType.CHAR),
+        Result(column="userId", property="userid", jdbcType=JdbcType.CHAR),
         Result(column="message", property="message", jdbcType=JdbcType.VARCHAR),
         Result(column="contactType", property="contacttype", typeHandler=EnumTypeHandler::class, jdbcType=JdbcType.CHAR),
         Result(column="importance", property="importance", typeHandler=EnumTypeHandler::class, jdbcType=JdbcType.CHAR),
@@ -71,6 +73,7 @@ fun ContactMapper.insert(row: Contact) =
     insert(this::insert, row, contact) {
         map(contactid) toProperty "contactid"
         map(noticegroupid) toProperty "noticegroupid"
+        map(userid) toProperty "userid"
         map(message) toProperty "message"
         map(contacttype) toProperty "contacttype"
         map(importance) toProperty "importance"
@@ -81,6 +84,7 @@ fun ContactMapper.insertMultiple(records: Collection<Contact>) =
     insertMultiple(this::insertMultiple, records, contact) {
         map(contactid) toProperty "contactid"
         map(noticegroupid) toProperty "noticegroupid"
+        map(userid) toProperty "userid"
         map(message) toProperty "message"
         map(contacttype) toProperty "contacttype"
         map(importance) toProperty "importance"
@@ -94,13 +98,14 @@ fun ContactMapper.insertSelective(row: Contact) =
     insert(this::insert, row, contact) {
         map(contactid).toPropertyWhenPresent("contactid", row::contactid)
         map(noticegroupid).toPropertyWhenPresent("noticegroupid", row::noticegroupid)
+        map(userid).toPropertyWhenPresent("userid", row::userid)
         map(message).toPropertyWhenPresent("message", row::message)
         map(contacttype).toPropertyWhenPresent("contacttype", row::contacttype)
         map(importance).toPropertyWhenPresent("importance", row::importance)
         map(createtime).toPropertyWhenPresent("createtime", row::createtime)
     }
 
-private val columnList = listOf(contactid, noticegroupid, message, contacttype, importance, createtime)
+private val columnList = listOf(contactid, noticegroupid, userid, message, contacttype, importance, createtime)
 
 fun ContactMapper.selectOne(completer: SelectCompleter) =
     selectOne(this::selectOne, columnList, contact, completer)
@@ -123,6 +128,7 @@ fun KotlinUpdateBuilder.updateAllColumns(row: Contact) =
     apply {
         set(contactid) equalToOrNull row::contactid
         set(noticegroupid) equalToOrNull row::noticegroupid
+        set(userid) equalToOrNull row::userid
         set(message) equalToOrNull row::message
         set(contacttype) equalToOrNull row::contacttype
         set(importance) equalToOrNull row::importance
@@ -133,6 +139,7 @@ fun KotlinUpdateBuilder.updateSelectiveColumns(row: Contact) =
     apply {
         set(contactid) equalToWhenPresent row::contactid
         set(noticegroupid) equalToWhenPresent row::noticegroupid
+        set(userid) equalToWhenPresent row::userid
         set(message) equalToWhenPresent row::message
         set(contacttype) equalToWhenPresent row::contacttype
         set(importance) equalToWhenPresent row::importance
@@ -142,6 +149,7 @@ fun KotlinUpdateBuilder.updateSelectiveColumns(row: Contact) =
 fun ContactMapper.updateByPrimaryKey(row: Contact) =
     update {
         set(noticegroupid) equalToOrNull row::noticegroupid
+        set(userid) equalToOrNull row::userid
         set(message) equalToOrNull row::message
         set(contacttype) equalToOrNull row::contacttype
         set(importance) equalToOrNull row::importance
@@ -152,6 +160,7 @@ fun ContactMapper.updateByPrimaryKey(row: Contact) =
 fun ContactMapper.updateByPrimaryKeySelective(row: Contact) =
     update {
         set(noticegroupid) equalToWhenPresent row::noticegroupid
+        set(userid) equalToWhenPresent row::userid
         set(message) equalToWhenPresent row::message
         set(contacttype) equalToWhenPresent row::contacttype
         set(importance) equalToWhenPresent row::importance

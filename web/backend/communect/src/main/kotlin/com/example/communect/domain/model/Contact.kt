@@ -10,6 +10,12 @@ data class Contact(
     val contactId: String,
     /** グループID */
     val groupId: String,
+    /** ユーザID */
+    val userId: String,
+    /** ユーザ名 */
+    val userName: String,
+    /** 表示名 */
+    val nickName: String,
     /** グループ名 */
     val groupName: String,
     /** メッセージ */
@@ -28,6 +34,8 @@ data class Contact(
 data class ContactIns(
     /** グループID */
     val groupId: String,
+    /** ユーザID */
+    val userId: String,
     /** メッセージ */
     val message: String,
     /** 連絡種別 */
