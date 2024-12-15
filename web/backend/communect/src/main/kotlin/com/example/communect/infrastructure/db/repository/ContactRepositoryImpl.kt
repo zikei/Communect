@@ -3,16 +3,22 @@ package com.example.communect.infrastructure.db.repository
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Contact
+import com.example.communect.domain.model.ContactIns
 import com.example.communect.domain.repository.ContactRepository
 import com.example.communect.infrastructure.db.mapper.ChoicecontactMapper
+import com.example.communect.infrastructure.db.mapper.ContactMapper
 import com.example.communect.infrastructure.db.mapper.custom.CustomContactMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByGroupIdAndContactId
 import com.example.communect.infrastructure.db.mapper.custom.selectByPrimaryKey
+import com.example.communect.infrastructure.db.mapper.insert
 import com.example.communect.infrastructure.db.mapper.select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
-import com.example.communect.infrastructure.db.record.Choicecontact as ChoicesRecord
+import java.time.LocalDateTime
+import java.util.*
 import com.example.communect.infrastructure.db.mapper.ChoicecontactDynamicSqlSupport as ChoicesSql
+import com.example.communect.infrastructure.db.record.Choicecontact as ChoicesRecord
+import com.example.communect.infrastructure.db.record.Contact as ContactRecord
 import com.example.communect.infrastructure.db.record.custom.CustomContact as CustomContactRecord
 
 
@@ -20,6 +26,7 @@ import com.example.communect.infrastructure.db.record.custom.CustomContact as Cu
 @Repository
 class ContactRepositoryImpl(
     private val customContactMapper: CustomContactMapper,
+    private val contactMapper: ContactMapper,
     private val choiceContactMapper: ChoicecontactMapper,
     @Value("\${contactRowCount}") private val contactLimit: Long
 ) : ContactRepository {
@@ -44,9 +51,23 @@ class ContactRepositoryImpl(
         }
     }
 
+    /**
+     *  連絡追加
+     *  @param contact 追加連絡情報
+     *  @return 追加連絡
+     */
+    override fun insertContact(contact: ContactIns): Contact? {
+        val (contactRecord, choiceRecordList) = toRecord(contact)
+        contactMapper.insert(contactRecord)
+        choiceRecordList?.map {
+            choiceContactMapper.insert(it)
+        }
+        return contactRecord.contactid?.let { findByContactId(it) }
+    }
+
 
     /**
-     * レコードのグループモデルへの変換
+     * レコードの連絡モデルへの変換
      * 多肢連絡の場合はDBから選択肢も取得する
      */
     private fun toModelAndFindChoices(record: CustomContactRecord): Contact {
@@ -60,7 +81,7 @@ class ContactRepositoryImpl(
         return toModel(record, choicesList)
     }
 
-    /** レコードのグループモデルへの変換 */
+    /** レコードの連絡モデルへの変換 */
     private fun toModel(record: CustomContactRecord, choicesRecordList: List<ChoicesRecord>?): Contact {
         return Contact(
             record.contactid!!,
@@ -81,12 +102,33 @@ class ContactRepositoryImpl(
         )
     }
 
-    /** レコードのグループモデルへの変換 */
+    /** レコードの選択肢モデルへの変換 */
     private fun toModel(record: ChoicesRecord): Choice {
         return Choice(
             record.choicecontactid!!,
             record.contactid!!,
             record.choices!!
         )
+    }
+
+    /** 連絡追加モデルからレコードの変換 */
+    private fun toRecord(model: ContactIns): Pair<ContactRecord, List<ChoicesRecord>?> {
+        val contactRecord = ContactRecord(
+            UUID.randomUUID().toString(),
+            model.groupId,
+            model.userId,
+            model.message,
+            model.contactType,
+            model.importance,
+            LocalDateTime.now()
+        )
+        val choiceRecordList = model.choices?.map {choice ->
+            ChoicesRecord(
+                UUID.randomUUID().toString(),
+                contactRecord.contactid,
+                choice
+            )
+        }
+        return Pair(contactRecord, choiceRecordList)
     }
 }

@@ -23,7 +23,7 @@ class ReactionRepositoryImpl(
     }
 
 
-    /** レコードのグループモデルへの変換 */
+    /** レコードのリアクションモデルへの変換 */
     private fun toModel(record: CustomReactionRecord): Reaction {
         return Reaction(
             record.reactionid!!,
