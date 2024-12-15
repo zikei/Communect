@@ -55,6 +55,26 @@ private val columnList = listOf(
     Contact.createtime
 )
 
+fun CustomContactMapper.selectByPrimaryKey(contactId: String): CustomContact? {
+    val selectStatement = select(columnList){
+        from(contactTable, "c")
+        leftJoin(userTable, "u"){
+            on(Contact.userid) equalTo(User.userid)
+        }
+        leftJoin(GroupTable, "g"){
+            on(Contact.noticegroupid) equalTo(Group.noticegroupid)
+        }
+        leftJoin(userGroupTable, "ug"){
+            on(Contact.userid) equalTo (UserGroup.userid)
+            and(Contact.noticegroupid) equalTo(UserGroup.noticegroupid)
+        }
+        where {
+            Contact.contactid isEqualTo contactId
+        }
+    }
+    return selectOne(selectStatement)
+}
+
 fun CustomContactMapper.selectByGroupIdAndContactId(groupId: String, lastContactId: String?, readLimit: Long?): List<CustomContact> {
     val selectStatement = select(columnList){
         from(contactTable, "c")

@@ -7,6 +7,7 @@ import com.example.communect.domain.repository.ContactRepository
 import com.example.communect.infrastructure.db.mapper.ChoicecontactMapper
 import com.example.communect.infrastructure.db.mapper.custom.CustomContactMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByGroupIdAndContactId
+import com.example.communect.infrastructure.db.mapper.custom.selectByPrimaryKey
 import com.example.communect.infrastructure.db.mapper.select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
@@ -23,6 +24,15 @@ class ContactRepositoryImpl(
     @Value("\${contactRowCount}") private val contactLimit: Long
 ) : ContactRepository {
     /**
+     *  連絡IDによる連絡取得
+     *  @param contactId 連絡ID
+     *  @return 連絡
+     */
+    override fun findByContactId(contactId: String): Contact? {
+        return customContactMapper.selectByPrimaryKey(contactId)?.let { toModelAndFindChoices(it) }
+    }
+
+    /**
      *  グループIDによる連絡取得
      *  @param groupId 検索グループID
      *  @param lastContactId 取得済み最古連絡ID(nullの場合最新のメッセージから取得)
@@ -30,15 +40,24 @@ class ContactRepositoryImpl(
      */
     override fun findByGroupId(groupId: String, lastContactId: String?): List<Contact> {
         return customContactMapper.selectByGroupIdAndContactId(groupId, lastContactId, contactLimit).map{
-            val choicesList = if(it.contacttype == ContactType.CHOICE){
-                choiceContactMapper.select{
-                    where { ChoicesSql.contactid isEqualTo it.contactid!! }
-                }
-            }else{
-                null
-            }
-            toModel(it, choicesList)
+            toModelAndFindChoices(it)
         }
+    }
+
+
+    /**
+     * レコードのグループモデルへの変換
+     * 多肢連絡の場合はDBから選択肢も取得する
+     */
+    private fun toModelAndFindChoices(record: CustomContactRecord): Contact {
+        val choicesList = if(record.contacttype == ContactType.CHOICE){
+            choiceContactMapper.select{
+                where { ChoicesSql.contactid isEqualTo record.contactid!! }
+            }
+        }else{
+            null
+        }
+        return toModel(record, choicesList)
     }
 
     /** レコードのグループモデルへの変換 */
