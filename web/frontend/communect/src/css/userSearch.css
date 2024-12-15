@@ -1,0 +1,37 @@
+.container {
+    color: black;
+}
+
+.user-search {
+  overflow-y: scroll;
+  max-height: 250px;
+  padding-top: 10px;
+}
+
+.user-search .search-results .card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: box-shadow 0.3s ease;
+  text-wrap: nowrap;
+}
+
+.user-search .search-results .card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.user-search .selected-users ul {
+  margin-top: 1rem;
+}
+
+.user-search .selected-users li {
+  border-radius: 4px;
+}
+
+.user-search .search-bar input {
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.list-group .list-group-item {
+  margin-bottom: 10px;
+}

@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../css/groupCreate.css";
+import UserSearch from "./group/UserSearch";
+import axios from "axios";
 
-function GroupCreate({ onSubmit, currentGroup, availableUsers, toggleModal }) {
+function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
   const [groupName, setGroupName] = useState("");
   const [parentGroupId, setParentGroupId] = useState(currentGroup?.groupId || null);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [addedUsers, setAddedUsers] = useState([]);
   const [error, setError] = useState(null);
 
-  // モーダルが開かれたときに親グループを初期化
+  // モーダル開く時に親グループ初期化
   useEffect(() => {
     setParentGroupId(currentGroup?.groupId || null);
   }, [currentGroup]);
 
-  const handleUserSelection = (userId) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
+  // ユーザー選択コールバック（useCallbackで再レンダリングを最適化）
+  const handleUserSelect = useCallback((selectedUsers) => {
+    setAddedUsers(selectedUsers);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,26 +29,24 @@ function GroupCreate({ onSubmit, currentGroup, availableUsers, toggleModal }) {
 
     const newGroup = {
       name: groupName.trim(),
-      parentGroupId: parentGroupId || null,
+      above: parentGroupId || null,
+      users: addedUsers.map((user) => user.userId),
     };
 
     try {
-      onSubmit(newGroup);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/group`, newGroup);
+      alert("グループが作成されました。再読み込みを行ってください。");
 
-      for (const userId of selectedUsers) {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/group/${currentGroup.groupId}/user`,
-          { userId }
-        );
-      }
+      if (onSubmit) onSubmit(response.data);
 
       setGroupName("");
       setParentGroupId(null);
-      setSelectedUsers([]);
+      setAddedUsers([]);
       setError(null);
+      toggleModal(); // モーダルを閉じる
     } catch (err) {
-      console.error("Error adding users to group:", err);
-      setError("ユーザーの追加中にエラーが発生しました。");
+      console.error("グループ作成エラー:", err);
+      setError("グループ作成中にエラーが発生しました。");
     }
   };
 
@@ -99,22 +96,7 @@ function GroupCreate({ onSubmit, currentGroup, availableUsers, toggleModal }) {
 
             <div className="mb-3">
               <label className="form-label">ユーザーの追加:</label>
-              <div className="user-selection">
-                {availableUsers.map((user) => (
-                  <div key={user.id} className="form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id={`user-${user.id}`}
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => handleUserSelection(user.id)}
-                    />
-                    <label htmlFor={`user-${user.id}`} className="form-check-label">
-                      {user.name} ({user.email})
-                    </label>
-                  </div>
-                ))}
-              </div>
+              <UserSearch onAddUsers={handleUserSelect} />
             </div>
 
             <div className="modal-footer">

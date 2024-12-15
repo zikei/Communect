@@ -6,7 +6,7 @@ function GroupTree({
   expandedGroups,
   toggleGroup,
   handleGroupClick,
-  currentGroup, // 現在のグループを受け取る
+  currentGroup,
 }) {
   // 選択されたグループかどうかを判定
   const isSelected = currentGroup && currentGroup.groupId === group.groupId;

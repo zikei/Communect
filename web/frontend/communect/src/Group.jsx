@@ -16,7 +16,6 @@ function Group() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [posts, setPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [availableUsers, setAvailableUsers] = useState([]);
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -83,19 +82,6 @@ function Group() {
     fetchGroups();
   }, []);
 
-  useEffect(() => {
-    const fetchAvailableUsers = async () => {
-      try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/users");
-        setAvailableUsers(response.data.users);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      }
-    };
-  
-    fetchAvailableUsers();
-  }, []);
-
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
     setBreadcrumb((prev) => {
@@ -159,7 +145,6 @@ function Group() {
             <GroupCreate
               onSubmit={handleFormSubmit}
               currentGroup={currentGroup}
-              availableUsers={availableUsers}
               toggleModal={toggleModal}
             />
         </div>
