@@ -4,14 +4,12 @@ import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Contact
 import com.example.communect.domain.model.ContactIns
+import com.example.communect.domain.model.ContactUpd
 import com.example.communect.domain.repository.ContactRepository
-import com.example.communect.infrastructure.db.mapper.ChoicecontactMapper
-import com.example.communect.infrastructure.db.mapper.ContactMapper
+import com.example.communect.infrastructure.db.mapper.*
 import com.example.communect.infrastructure.db.mapper.custom.CustomContactMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByGroupIdAndContactId
 import com.example.communect.infrastructure.db.mapper.custom.selectByPrimaryKey
-import com.example.communect.infrastructure.db.mapper.insert
-import com.example.communect.infrastructure.db.mapper.select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
@@ -63,6 +61,16 @@ class ContactRepositoryImpl(
             choiceContactMapper.insert(it)
         }
         return contactRecord.contactid?.let { findByContactId(it) }
+    }
+
+    /**
+     *  連絡更新
+     *  @param contact 更新連絡情報
+     *  @return 更新連絡
+     */
+    override fun updateContact(contact: ContactUpd) {
+        val record = toRecord(contact)
+        contactMapper.updateByPrimaryKeySelective(record)
     }
 
 
@@ -130,5 +138,18 @@ class ContactRepositoryImpl(
             )
         }
         return Pair(contactRecord, choiceRecordList)
+    }
+
+    /** 連絡追加モデルからレコードの変換 */
+    private fun toRecord(model: ContactUpd): ContactRecord {
+        return ContactRecord(
+            model.contactId,
+            null,
+            null,
+            model.message,
+            model.contactType,
+            model.importance,
+            null
+        )
     }
 }
