@@ -1,8 +1,6 @@
 package com.example.communect.domain.repository
 
-import com.example.communect.domain.model.Contact
-import com.example.communect.domain.model.ContactIns
-import com.example.communect.domain.model.ContactUpd
+import com.example.communect.domain.model.*
 
 /** 連絡リポジトリ */
 interface ContactRepository {
@@ -14,6 +12,9 @@ interface ContactRepository {
 
     /** 連絡追加 */
     fun insertContact(contact: ContactIns): Contact?
+
+    /** 選択肢追加 */
+    fun insertChoices(choices: List<ChoiceIns>): List<Choice>
 
     /** 連絡更新 */
     fun updateContact(contact: ContactUpd)

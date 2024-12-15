@@ -1,10 +1,7 @@
 package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.enums.ContactType
-import com.example.communect.domain.model.Choice
-import com.example.communect.domain.model.Contact
-import com.example.communect.domain.model.ContactIns
-import com.example.communect.domain.model.ContactUpd
+import com.example.communect.domain.model.*
 import com.example.communect.domain.repository.ContactRepository
 import com.example.communect.infrastructure.db.mapper.*
 import com.example.communect.infrastructure.db.mapper.custom.CustomContactMapper
@@ -55,12 +52,24 @@ class ContactRepositoryImpl(
      *  @return 追加連絡
      */
     override fun insertContact(contact: ContactIns): Contact? {
-        val (contactRecord, choiceRecordList) = toRecord(contact)
+        val contactRecord = toRecord(contact)
         contactMapper.insert(contactRecord)
-        choiceRecordList?.map {
+        val choices = contact.choices?.map{ ChoiceIns(contactRecord.contactid!!, it) }
+        choices?.let { insertChoices(it) }
+        return contactRecord.contactid?.let { findByContactId(it) }
+    }
+
+    /**
+     *  選択肢追加
+     *  @param choices 追加選択肢リスト
+     *  @return 追加連絡
+     */
+    override fun insertChoices(choices: List<ChoiceIns>): List<Choice> {
+        val records = choices.map { toRecord(it) }
+        records.map {
             choiceContactMapper.insert(it)
         }
-        return contactRecord.contactid?.let { findByContactId(it) }
+        return records.map { toModel(it) }
     }
 
     /**
@@ -120,8 +129,8 @@ class ContactRepositoryImpl(
     }
 
     /** 連絡追加モデルからレコードの変換 */
-    private fun toRecord(model: ContactIns): Pair<ContactRecord, List<ChoicesRecord>?> {
-        val contactRecord = ContactRecord(
+    private fun toRecord(model: ContactIns): ContactRecord {
+        return ContactRecord(
             UUID.randomUUID().toString(),
             model.groupId,
             model.userId,
@@ -130,14 +139,6 @@ class ContactRepositoryImpl(
             model.importance,
             LocalDateTime.now()
         )
-        val choiceRecordList = model.choices?.map {choice ->
-            ChoicesRecord(
-                UUID.randomUUID().toString(),
-                contactRecord.contactid,
-                choice
-            )
-        }
-        return Pair(contactRecord, choiceRecordList)
     }
 
     /** 連絡追加モデルからレコードの変換 */
@@ -150,6 +151,15 @@ class ContactRepositoryImpl(
             model.contactType,
             model.importance,
             null
+        )
+    }
+
+    /** 選択肢追加モデルからレコードの変換 */
+    private fun toRecord(model: ChoiceIns): ChoicesRecord {
+        return ChoicesRecord(
+            UUID.randomUUID().toString(),
+            model.contactId,
+            model.choice
         )
     }
 }
