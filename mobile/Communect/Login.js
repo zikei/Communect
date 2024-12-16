@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
@@ -75,6 +75,10 @@ const Login = ({ navigation }) => {
         onChangeText={setPassword}
       />
       <Button title="ログイン" onPress={handleLogin} />
+
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <Text style={styles.registerText}>アカウントをお持ちでない方はこちら</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -105,6 +109,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: 'gray',
+  },
+  registerText: {
+    color: 'blue',
+    textAlign: 'center',
+    marginTop: 15,
+    textDecorationLine: 'underline',
   },
 });
 
