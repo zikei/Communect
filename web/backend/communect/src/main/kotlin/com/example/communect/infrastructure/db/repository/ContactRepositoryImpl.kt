@@ -82,6 +82,18 @@ class ContactRepositoryImpl(
         contactMapper.updateByPrimaryKeySelective(record)
     }
 
+    /**
+     *  連絡IDによる選択肢の削除
+     *  @param contactId 削除対象連絡ID
+     */
+    override fun deleteChoicesByContactId(contactId: String) {
+        choiceContactMapper.delete {
+            where {
+                ChoicesSql.contactid isEqualTo contactId
+            }
+        }
+    }
+
 
     /**
      * レコードの連絡モデルへの変換
