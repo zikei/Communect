@@ -55,7 +55,5 @@ data class ContactUpd(
     /** 連絡種別 */
     val contactType: ContactType?,
     /** 重要度 */
-    val importance: Importance?,
-    /** 選択肢 */
-    val choices: List<String>?
+    val importance: Importance?
 )
