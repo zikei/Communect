@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Button, ScrollView } from "react-native";
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -8,16 +8,21 @@ function Group() {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [selectedParentId, setSelectedParentId] = useState(null);
 
   const localGroupData = [
-    { groupId: "1", groupName: "Group 1", aboveId: null },
-    { groupId: "2", groupName: "Group 2", aboveId: "1" },
-    { groupId: "3", groupName: "Group 3", aboveId: "1" },
-    { groupId: "4", groupName: "Group 4", aboveId: "2" },
-    { groupId: "5", groupName: "Group 5", aboveId: "1" },
-    { groupId: "6", groupName: "Group 6", aboveId: "5" },
+    { groupId: "1", groupName: "初星学園", aboveId: null },
+    { groupId: "2", groupName: "専門大学", aboveId: "1" },
+    { groupId: "3", groupName: "プロデューサー科", aboveId: "2" },
+    { groupId: "4", groupName: "電子開発学園", aboveId: null },
+    { groupId: "5", groupName: "KCS", aboveId: "4" },
+    { groupId: "6", groupName: "KCSK", aboveId: "5" },
+    { groupId: "7", groupName: "大学併修科", aboveId: "6" },
+    { groupId: "8", groupName: "R4A1", aboveId: "7" },
+    { groupId: "9", groupName: "国試対策", aboveId: "6" },
   ];
-  
+
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
     const roots = [];
@@ -55,6 +60,18 @@ function Group() {
     }
   };
 
+  const getBreadcrumb = (groupId) => {
+    const breadcrumbs = [];
+    let current = localGroupData.find((group) => group.groupId === groupId);
+
+    while (current) {
+      breadcrumbs.unshift(current);
+      current = localGroupData.find((group) => group.groupId === current.aboveId);
+    }
+
+    return breadcrumbs;
+  };
+
   useEffect(() => {
     try {
       const hierarchy = buildHierarchy(localGroupData);
@@ -65,18 +82,7 @@ function Group() {
     }
   }, []);
 
-  const renderGroupTree = (group, level = 0) => (
-    <View key={group.groupId} style={{ paddingLeft: level * 20 }}>
-      <Text
-        style={styles.groupItem}
-        onPress={() => handleGroupClick(group)}
-      >
-        {group.groupName}
-      </Text>
-      {expandedGroups[group.groupId] &&
-        group.children.map((child) => renderGroupTree(child, level + 1))}
-    </View>
-  );
+  const breadcrumbs = currentGroup ? getBreadcrumb(currentGroup.groupId) : [];
 
   return (
     <View style={styles.container}>
@@ -86,7 +92,6 @@ function Group() {
           expandedGroups={expandedGroups}
           toggleGroup={toggleGroup}
           handleGroupClick={handleGroupClick}
-          renderGroupTree={renderGroupTree}
           sidebarOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
           error={error}
@@ -96,9 +101,30 @@ function Group() {
       <View
         style={[
           styles.mainContent,
-          { marginLeft: sidebarOpen ? 250 : 0 }, // Adjust main content position
+          { marginLeft: sidebarOpen ? 250 : 0 },
         ]}
       >
+        {breadcrumbs.length > 0 && (
+          <ScrollView
+            horizontal
+            style={styles.breadcrumbContainer}
+            contentContainerStyle={styles.breadcrumbContent} // 修正箇所
+  >
+            {breadcrumbs.map((group, index) => (
+            <TouchableOpacity
+              key={group.groupId}
+              onPress={() => handleGroupClick(group)}
+      >
+             <Text style={styles.breadcrumb}>
+                {group.groupName}
+                {index < breadcrumbs.length - 1 && " > "}
+              </Text>
+            </TouchableOpacity>
+            ))}
+           </ScrollView>
+        )}
+
+
         {currentGroup ? (
           <View>
             <Text style={styles.groupDetail}>
@@ -110,18 +136,13 @@ function Group() {
           </View>
         ) : (
           <Text style={styles.placeholderText}>
-            {sidebarOpen
-              ? "Select a group from the sidebar."
-              : "No group selected."}
+            {sidebarOpen ? "Select a group from the sidebar." : "No group selected."}
           </Text>
         )}
       </View>
 
       {!sidebarOpen && (
-        <TouchableOpacity
-          style={styles.sidebarToggleButton}
-          onPress={toggleSidebar}
-        >
+        <TouchableOpacity style={styles.sidebarToggleButton} onPress={toggleSidebar}>
           <Text style={styles.sidebarToggleButtonText}>☰</Text>
         </TouchableOpacity>
       )}
@@ -130,25 +151,32 @@ function Group() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1, flexDirection: "row" },
+  mainContent: { flex: 1, padding: 20 },
+  breadcrumbContainer: {
     flexDirection: "row",
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+    borderRadius: 5,
+  paddingHorizontal: 5, // パディングを調整して範囲を縮小
+  marginVertical: 5, // 上下の余白を調整
+  maxHeight: 40, // 高さを制限
   },
-  mainContent: {
-    flex: 1,
-    padding: 20,
+  
+  breadcrumbContent: {
+    alignItems: "center", // 子要素のレイアウトをここに指定
   },
-  placeholderText: {
-    fontSize: 18,
-    color: "gray",
-  },
-  groupDetail: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  label: {
-    fontWeight: "bold",
-  },
+  
+  breadcrumb: {
+    fontSize: 16,
+    color: "#007bff",
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },  
+  
+  placeholderText: { fontSize: 18, color: "gray" },
+  groupDetail: { fontSize: 18, marginVertical: 5 },
+  label: { fontWeight: "bold" },
   sidebarToggleButton: {
     position: "absolute",
     bottom: 20,
@@ -166,15 +194,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
-  sidebarToggleButtonText: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  groupItem: {
-    padding: 10,
-    fontSize: 16,
-  },
+  sidebarToggleButtonText: { color: "white", fontSize: 24, fontWeight: "bold" },
 });
 
 export default Group;
