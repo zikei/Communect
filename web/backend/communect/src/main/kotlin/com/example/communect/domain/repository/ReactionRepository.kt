@@ -6,4 +6,7 @@ import com.example.communect.domain.model.Reaction
 interface ReactionRepository {
     /** 連絡IDによるリアクション取得 */
     fun findByContactId(contactId: String):List<Reaction>
+
+    /** 連絡IDによるリアクションの削除 */
+    fun deleteByContactId(contactId: String)
 }
