@@ -50,7 +50,7 @@ function EditGroupModal({ group, onClose, onUpdateGroup }) {
 
       const response = await axios.put(import.meta.env.VITE_API_URL + `/group/${group.groupId}`, payload);
       if (response.status === 200) {
-        alert("グループが更新されました");
+        alert("グループが更新されました。再読み込みを行ってください。");
         onUpdateGroup(group.groupId, payload); // 親に通知
         onClose(); // モーダルを閉じる
       }
