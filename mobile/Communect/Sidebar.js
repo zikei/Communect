@@ -1,10 +1,12 @@
 import React from "react";
+import { useNavigation } from '@react-navigation/native';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Button,
 } from "react-native";
 
 const Sidebar = ({
@@ -16,6 +18,7 @@ const Sidebar = ({
   toggleSidebar,
   error,
 }) => {
+  const navigation = useNavigation();
   const renderGroupTree = (group, level = 0) => (
     <View key={group.groupId} style={{ paddingLeft: level * 8 }}>
       <View style={styles.groupRow}>
@@ -51,8 +54,8 @@ const Sidebar = ({
       </TouchableOpacity>
 
       {/* 設定リンク */}
-      <TouchableOpacity style={styles.link} onPress={() => alert("Settings!")}>
-        <Text style={styles.linkText}>Settings</Text>
+      <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Setting')}>
+        <Text style={styles.linkText}>Setting</Text>
       </TouchableOpacity>
 
       {/* グループ一覧 */}
