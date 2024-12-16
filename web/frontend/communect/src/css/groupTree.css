@@ -1,0 +1,44 @@
+.group-item-container {
+  display: flex;
+  align-items: center;
+}
+
+.plus-icon-container {
+  position: relative;
+  margin-right: 10px;
+}
+
+.plus-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.plus-menu {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  list-style: none;
+  padding: 10px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.plus-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.plus-menu-item:hover {
+  background-color: #f0f0f0;
+  color: #007bff;
+}
+
+.selected-group {
+  background-color: #e9f7ff;
+}

@@ -1,0 +1,78 @@
+/* 背景の半透明オーバーレイ */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* 他の要素より前に表示 */
+  overflow: hidden; /* スクロールを無効化 */
+}
+
+/* モーダルのコンテナ */
+.custom-modal-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  max-width: 90%;
+  max-height: 90%; /* 画面サイズを超えないように制限 */
+  overflow-y: auto; /* コンテンツが多い場合スクロール可能に */
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+  z-index: 1051; /* モーダル本体がオーバーレイより前に表示 */
+}
+
+/* モーダルヘッダー */
+.custom-modal-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* タイトル */
+.custom-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* 閉じるボタン */
+.custom-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* モーダル本文 */
+.custom-modal-body {
+  padding: 1rem;
+}
+
+/* モーダルフッター */
+.custom-modal-footer {
+  padding: 1rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

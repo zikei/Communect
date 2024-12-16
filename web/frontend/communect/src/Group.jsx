@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
+import EditGroupModal from "./components/group/feature/EditGroupModal";
 import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
 import "./css/group.css";
+import "./css/editGroupModal.css";
 import axios from "axios";
 
 function Group() {
@@ -16,6 +18,7 @@ function Group() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [posts, setPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editModalGroup, setEditModalGroup] = useState(null);
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -103,14 +106,14 @@ function Group() {
     }));
   };
 
+  /* 削除機能 */
   const handleGroupDelete = async (deletedGroupId) => {
     try {
-      // API呼び出しでグループ削除
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`
       );
 
-      // フロントエンド状態を更新
+      // フロントエンド状態更新
       const removeGroupFromHierarchy = (groups, groupIdToDelete) => {
         return groups
           .map((group) => {
@@ -147,6 +150,24 @@ function Group() {
     }
   };
 
+  /* 編集関連 */
+
+  const handleEditGroup = (group) => {
+    setEditModalGroup(group); // 編集するグループをセット
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalGroup(null); // モーダルを閉じる
+  };
+
+  const handleUpdateGroup = (groupId, updatedData) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((group) =>
+        group.groupId === groupId ? { ...group, ...updatedData } : group
+      )
+    );
+  };
+
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -169,6 +190,7 @@ function Group() {
           error={error}
           currentGroup={currentGroup}
           handleGroupDelete={handleGroupDelete}
+          onEditGroup={handleEditGroup}
         />
         <div className="maincontent flex-grow-1 pt-2 px-5 reset">
           <Breadcrumb
@@ -198,6 +220,14 @@ function Group() {
             toggleModal={toggleModal}
           />
         </div>
+      )}
+
+      {editModalGroup && (
+            <EditGroupModal
+              group={editModalGroup}
+              onClose={handleCloseEditModal}
+              onUpdateGroup={handleUpdateGroup}
+            />
       )}
     </div>
   );

@@ -1,6 +1,8 @@
-import React from "react";
-import DeleteButton from "./DeleteButton";
+import React, { useState } from "react";
+import DeleteButton from "./feature/DeleteButton";
+import EditGroupModal from "./feature/EditGroupModal";
 import PropTypes from "prop-types";
+import "../../css/groupTree.css";
 
 function GroupTree({
   group,
@@ -10,31 +12,53 @@ function GroupTree({
   handleGroupClick,
   currentGroup,
   onDeleteGroup,
+  onUpdateGroup,
+  onEditGroup, // 親から渡されるコールバック関数
 }) {
+  const [showPlusMenu, setShowPlusMenu] = useState(false);
+
   // 選択されたグループかどうかを判定
   const isSelected = currentGroup && currentGroup.groupId === group.groupId;
+
+  const handleEditClick = () => {
+    console.log("グループ編集ボタンが押されました");
+    onEditGroup(group); // 親コンポーネントに通知
+  };
 
   return (
     <li
       key={group.groupId}
-      className={`list-group-item ${isSelected ? "selected-group" : ""}`} // ハイライト用クラス
+      className={`list-group-item ${isSelected ? "selected-group" : ""}`}
     >
-      <div className="d-flex align-items-center">
+      <div className="d-flex align-items-center group-item-container">
+        {isSelected && (
+          <div
+            className="plus-icon-container"
+            onMouseEnter={() => setShowPlusMenu(true)}
+            onMouseLeave={() => setShowPlusMenu(false)}
+          >
+            <i className="bi bi-plus-circle plus-icon"></i>
+            {showPlusMenu && (
+              <ul className="plus-menu">
+                <li className="plus-menu-item">メンバー表示</li>
+                <li className="plus-menu-item" onClick={handleEditClick}>
+                  グループ編集
+                </li>
+                <li className="plus-menu-item">ユーザ追加</li>
+                <li className="plus-menu-item">ユーザ削除</li>
+              </ul>
+            )}
+          </div>
+        )}
         <button
           className="btn btn-link text-decoration-none w-100 text-start text-truncate"
           onClick={() => handleGroupClick(group)}
         >
           {group.groupName}
         </button>
-
-        {/* 削除ボタン（右端）: 選択されている場合のみ表示 */}
         {isSelected && (
-          <DeleteButton
-            groupId={group.groupId}
-            onDelete={onDeleteGroup} // 削除後の処理を親コンポーネントに通知
-          />
+          <DeleteButton groupId={group.groupId} onDelete={onDeleteGroup} />
         )}
-        
         {group.children.length > 0 && (
           <button
             className="btn btn-sm group-toggle-btn"
@@ -62,6 +86,8 @@ function GroupTree({
               handleGroupClick={handleGroupClick}
               currentGroup={currentGroup}
               onDeleteGroup={onDeleteGroup}
+              onUpdateGroup={onUpdateGroup}
+              onEditGroup={onEditGroup} // 子にも渡す
             />
           ))}
         </ul>
@@ -78,6 +104,8 @@ GroupTree.propTypes = {
   handleGroupClick: PropTypes.func.isRequired,
   currentGroup: PropTypes.object,
   onDeleteGroup: PropTypes.func.isRequired,
+  onUpdateGroup: PropTypes.func.isRequired,
+  onEditGroup: PropTypes.func.isRequired, // 追加
 };
 
 export default GroupTree;

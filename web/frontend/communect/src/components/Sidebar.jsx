@@ -13,8 +13,10 @@ function Sidebar({
   toggleModal,
   error,
   currentGroup,
-  handleGroupDelete
+  handleGroupDelete,
+  onEditGroup
 }) {
+
   return (
     <>
       <aside
@@ -45,6 +47,7 @@ function Sidebar({
                     handleGroupClick={handleGroupClick}
                     currentGroup={currentGroup}
                     onDeleteGroup={handleGroupDelete}
+                    onEditGroup={onEditGroup}
                   />
                 ))}
               </ul>
