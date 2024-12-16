@@ -1,20 +1,23 @@
 package com.example.communect.infrastructure.db.repository
 
+import com.example.communect.domain.enums.TalkType
+import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.Talk
 import com.example.communect.domain.repository.TalkRepository
-import com.example.communect.infrastructure.db.mapper.TalkMapper
-import com.example.communect.infrastructure.db.mapper.select
-import com.example.communect.infrastructure.db.mapper.selectOne
+import com.example.communect.infrastructure.db.mapper.*
 import org.springframework.stereotype.Repository
-import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as TalkSql
+import java.util.UUID
 import com.example.communect.infrastructure.db.mapper.GroupTalkDynamicSqlSupport as GroupTalkSql
 import com.example.communect.infrastructure.db.mapper.IndividualTalkDynamicSqlSupport as IndividualTalkSql
+import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as TalkSql
 import com.example.communect.infrastructure.db.record.Talk as TalkRecord
+import com.example.communect.infrastructure.db.record.GroupTalk as GroupTalkRecord
 
 /** トークリポジトリ実装クラス */
 @Repository
 class TalkRepositoryImpl(
-    private val talkMapper: TalkMapper
+    private val talkMapper: TalkMapper,
+    private val groupTalkMapper: GroupTalkMapper
 ) : TalkRepository {
     /**
      *  トーク取得
@@ -61,6 +64,18 @@ class TalkRepositoryImpl(
         }.map { toModel(it) }
     }
 
+    /**
+     *  グループトーク追加
+     *  @param talk 追加グループトーク
+     *  @return 追加トーク
+     */
+    override fun insertGroupTalk(talk: GroupTalkIns): Talk {
+        val (talkRecord, groupTalkRecord) = toRecord(talk)
+        talkMapper.insert(talkRecord)
+        groupTalkMapper.insert(groupTalkRecord)
+        return toModel(talkRecord)
+    }
+
 
     /** レコードのトークモデルへの変換 */
     private fun toModel(record: TalkRecord): Talk {
@@ -69,5 +84,19 @@ class TalkRepositoryImpl(
             record.talktitle!!,
             record.talktype!!
         )
+    }
+
+    /** グループトーク追加モデルからレコードの変換 */
+    private fun toRecord(model: GroupTalkIns): Pair<TalkRecord, GroupTalkRecord> {
+        val talk = TalkRecord(
+            UUID.randomUUID().toString(),
+            model.talkName,
+            TalkType.GROUP
+        )
+        val groupTalk = GroupTalkRecord(
+            talk.talkid,
+            model.groupId
+        )
+        return Pair(talk, groupTalk)
     }
 }

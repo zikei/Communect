@@ -1,5 +1,6 @@
 package com.example.communect.domain.repository
 
+import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.Talk
 
 /** トークリポジトリ */
@@ -12,4 +13,7 @@ interface TalkRepository {
 
     /** ユーザIDによる個人トーク一覧の取得 */
     fun findIndividualTalkByUserId(userId: String): List<Talk>
+
+    /** グループトーク追加 */
+    fun insertGroupTalk(talk: GroupTalkIns): Talk
 }
