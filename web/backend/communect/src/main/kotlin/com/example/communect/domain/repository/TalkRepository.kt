@@ -5,5 +5,8 @@ import com.example.communect.domain.model.Talk
 /** トークリポジトリ */
 interface TalkRepository {
     /** グループIDによるグループトーク一覧の取得 */
-    fun findByGroupId(groupId: String): List<Talk>
+    fun findGroupTalkByGroupId(groupId: String): List<Talk>
+
+    /** ユーザIDによる個人トーク一覧の取得 */
+    fun findIndividualTalkByUserId(userId: String): List<Talk>
 }

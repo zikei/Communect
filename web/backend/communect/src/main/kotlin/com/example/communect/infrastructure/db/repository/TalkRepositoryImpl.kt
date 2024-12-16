@@ -7,6 +7,7 @@ import com.example.communect.infrastructure.db.mapper.select
 import org.springframework.stereotype.Repository
 import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as TalkSql
 import com.example.communect.infrastructure.db.mapper.GroupTalkDynamicSqlSupport as GroupTalkSql
+import com.example.communect.infrastructure.db.mapper.IndividualTalkDynamicSqlSupport as IndividualTalkSql
 import com.example.communect.infrastructure.db.record.Talk as TalkRecord
 
 /** トークリポジトリ実装クラス */
@@ -19,13 +20,29 @@ class TalkRepositoryImpl(
      *  @param groupId 検索対象グループID
      *  @return トークリスト
      */
-    override fun findByGroupId(groupId: String): List<Talk> {
+    override fun findGroupTalkByGroupId(groupId: String): List<Talk> {
         return talkMapper.select {
             leftJoin(GroupTalkSql.groupTalk, "gt"){
                 on(TalkSql.talkid) equalTo GroupTalkSql.talkid
             }
             where {
                 GroupTalkSql.noticegroupid isEqualTo groupId
+            }
+        }.map { toModel(it) }
+    }
+
+    /**
+     *  個人トーク一覧取得
+     *  @param userId 検索対象ユーザID
+     *  @return トークリスト
+     */
+    override fun findIndividualTalkByUserId(userId: String): List<Talk> {
+        return talkMapper.select {
+            leftJoin(IndividualTalkSql.individualTalk, "it"){
+                on(TalkSql.talkid) equalTo IndividualTalkSql.talkid
+            }
+            where {
+                IndividualTalkSql.userid isEqualTo userId
             }
         }.map { toModel(it) }
     }
