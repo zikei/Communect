@@ -83,6 +83,14 @@ class ContactRepositoryImpl(
     }
 
     /**
+     *  連絡IDによる連絡の削除
+     *  @param contactId 削除対象連絡ID
+     */
+    override fun deleteByContactId(contactId: String) {
+        contactMapper.deleteByPrimaryKey(contactId)
+    }
+
+    /**
      *  連絡IDによる選択肢の削除
      *  @param contactId 削除対象連絡ID
      */

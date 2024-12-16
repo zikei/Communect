@@ -19,6 +19,9 @@ interface ContactRepository {
     /** 連絡更新 */
     fun updateContact(contact: ContactUpd)
 
+    /** 連絡削除 */
+    fun deleteByContactId(contactId: String)
+
     /** 連絡IDによる選択肢の削除 */
     fun deleteChoicesByContactId(contactId: String)
 }
