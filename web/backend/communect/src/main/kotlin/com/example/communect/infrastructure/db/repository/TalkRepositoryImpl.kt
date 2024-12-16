@@ -2,6 +2,7 @@ package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.GroupTalkIns
+import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.model.Talk
 import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.infrastructure.db.mapper.*
@@ -12,12 +13,14 @@ import com.example.communect.infrastructure.db.mapper.IndividualTalkDynamicSqlSu
 import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as TalkSql
 import com.example.communect.infrastructure.db.record.Talk as TalkRecord
 import com.example.communect.infrastructure.db.record.GroupTalk as GroupTalkRecord
+import com.example.communect.infrastructure.db.record.IndividualTalk as IndividualTalkRecord
 
 /** トークリポジトリ実装クラス */
 @Repository
 class TalkRepositoryImpl(
     private val talkMapper: TalkMapper,
-    private val groupTalkMapper: GroupTalkMapper
+    private val groupTalkMapper: GroupTalkMapper,
+    private val individualTalkMapper: IndividualTalkMapper
 ) : TalkRepository {
     /**
      *  トーク取得
@@ -76,6 +79,20 @@ class TalkRepositoryImpl(
         return toModel(talkRecord)
     }
 
+    /**
+     *  個人トーク追加
+     *  @param talk 追加個人トーク
+     *  @return 追加トーク
+     */
+    override fun insertIndividualTalk(talk: IndividualTalkIns): Talk {
+        val (talkRecord, individualTalkRecordList) = toRecord(talk)
+        talkMapper.insert(talkRecord)
+        individualTalkRecordList.map {
+            individualTalkMapper.insert(it)
+        }
+        return toModel(talkRecord)
+    }
+
 
     /** レコードのトークモデルへの変換 */
     private fun toModel(record: TalkRecord): Talk {
@@ -98,5 +115,22 @@ class TalkRepositoryImpl(
             model.groupId
         )
         return Pair(talk, groupTalk)
+    }
+
+    /** 個人トーク追加モデルからレコードの変換 */
+    private fun toRecord(model: IndividualTalkIns): Pair<TalkRecord, List<IndividualTalkRecord>> {
+        val talk = TalkRecord(
+            UUID.randomUUID().toString(),
+            model.talkName,
+            TalkType.GROUP
+        )
+        val individualTalkList = model.userIds.map{userId ->
+            IndividualTalkRecord(
+                UUID.randomUUID().toString(),
+                talk.talkid,
+                userId
+            )
+        }
+        return Pair(talk, individualTalkList)
     }
 }
