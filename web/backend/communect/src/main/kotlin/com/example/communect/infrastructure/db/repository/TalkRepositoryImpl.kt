@@ -4,6 +4,7 @@ import com.example.communect.domain.model.Talk
 import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.infrastructure.db.mapper.TalkMapper
 import com.example.communect.infrastructure.db.mapper.select
+import com.example.communect.infrastructure.db.mapper.selectOne
 import org.springframework.stereotype.Repository
 import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as TalkSql
 import com.example.communect.infrastructure.db.mapper.GroupTalkDynamicSqlSupport as GroupTalkSql
@@ -15,6 +16,19 @@ import com.example.communect.infrastructure.db.record.Talk as TalkRecord
 class TalkRepositoryImpl(
     private val talkMapper: TalkMapper
 ) : TalkRepository {
+    /**
+     *  トーク取得
+     *  @param talkId 検索対象トークID
+     *  @return トーク
+     */
+    override fun findByTalkId(talkId: String): Talk? {
+        return talkMapper.selectOne{
+            where {
+                TalkSql.talkid isEqualTo talkId
+            }
+        }?.let { toModel(it) }
+    }
+
     /**
      *  グループトーク一覧取得
      *  @param groupId 検索対象グループID
