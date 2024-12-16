@@ -1,4 +1,6 @@
 import React from "react";
+import DeleteButton from "./DeleteButton";
+import PropTypes from "prop-types";
 
 function GroupTree({
   group,
@@ -7,6 +9,7 @@ function GroupTree({
   toggleGroup,
   handleGroupClick,
   currentGroup,
+  onDeleteGroup,
 }) {
   // 選択されたグループかどうかを判定
   const isSelected = currentGroup && currentGroup.groupId === group.groupId;
@@ -23,6 +26,15 @@ function GroupTree({
         >
           {group.groupName}
         </button>
+
+        {/* 削除ボタン（右端）: 選択されている場合のみ表示 */}
+        {isSelected && (
+          <DeleteButton
+            groupId={group.groupId}
+            onDelete={onDeleteGroup} // 削除後の処理を親コンポーネントに通知
+          />
+        )}
+        
         {group.children.length > 0 && (
           <button
             className="btn btn-sm group-toggle-btn"
@@ -48,7 +60,8 @@ function GroupTree({
               expandedGroups={expandedGroups}
               toggleGroup={toggleGroup}
               handleGroupClick={handleGroupClick}
-              currentGroup={currentGroup} // 子にも渡す
+              currentGroup={currentGroup}
+              onDeleteGroup={onDeleteGroup}
             />
           ))}
         </ul>
@@ -56,5 +69,15 @@ function GroupTree({
     </li>
   );
 }
+
+GroupTree.propTypes = {
+  group: PropTypes.object.isRequired,
+  level: PropTypes.number,
+  expandedGroups: PropTypes.object.isRequired,
+  toggleGroup: PropTypes.func.isRequired,
+  handleGroupClick: PropTypes.func.isRequired,
+  currentGroup: PropTypes.object,
+  onDeleteGroup: PropTypes.func.isRequired,
+};
 
 export default GroupTree;

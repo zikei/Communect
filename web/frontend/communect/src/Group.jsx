@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
-import Breadcrumb from "./components/group/Breadcrumb"
+import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
 import "./css/group.css";
@@ -70,7 +70,9 @@ function Group() {
     // Fetch groups from the API
     const fetchGroups = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/group");
+        const response = await axios.get(
+          import.meta.env.VITE_API_URL + "/group"
+        );
         const hierarchy = buildHierarchy(response.data.groups);
         setGroups(hierarchy);
       } catch (err) {
@@ -93,12 +95,56 @@ function Group() {
       }
       return trail;
     });
-  
+
     // 必要ならば選択グループを開く
     setExpandedGroups((prevState) => ({
       ...prevState,
       [group.groupId]: true,
     }));
+  };
+
+  const handleGroupDelete = async (deletedGroupId) => {
+    try {
+      // API呼び出しでグループ削除
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`
+      );
+
+      // フロントエンド状態を更新
+      const removeGroupFromHierarchy = (groups, groupIdToDelete) => {
+        return groups
+          .map((group) => {
+            if (group.children.length > 0) {
+              group.children = removeGroupFromHierarchy(
+                group.children,
+                groupIdToDelete
+              );
+            }
+            return group.groupId === groupIdToDelete ? null : group;
+          })
+          .filter((group) => group !== null);
+      };
+      const updatedGroups = removeGroupFromHierarchy(groups, deletedGroupId);
+      setGroups(updatedGroups);
+      // 現在選択されているグループが削除された場合、選択をリセット
+      if (currentGroup && currentGroup.groupId === deletedGroupId) {
+        setCurrentGroup(null);
+      }
+
+      // パンくずリストを更新（削除したグループが含まれている場合にリセット）
+      setBreadcrumb((prevBreadcrumb) =>
+        prevBreadcrumb.filter((b) => b.groupId !== deletedGroupId)
+      );
+
+      // 展開状態も削除されたグループに関連する部分をリセット
+      setExpandedGroups((prevExpandedGroups) => {
+        const updatedExpanded = { ...prevExpandedGroups };
+        delete updatedExpanded[deletedGroupId];
+        return updatedExpanded;
+      });
+    } catch (err) {
+      console.error("Error deleting group:", err);
+    }
   };
 
   return (
@@ -122,9 +168,13 @@ function Group() {
           toggleModal={toggleModal}
           error={error}
           currentGroup={currentGroup}
+          handleGroupDelete={handleGroupDelete}
         />
         <div className="maincontent flex-grow-1 pt-2 px-5 reset">
-        <Breadcrumb breadcrumb={breadcrumb} handleGroupClick={handleGroupClick} />
+          <Breadcrumb
+            breadcrumb={breadcrumb}
+            handleGroupClick={handleGroupClick}
+          />
           {currentGroup ? (
             <div className="card">
               <GroupContact
@@ -142,11 +192,11 @@ function Group() {
       </main>
       {showModal && (
         <div className="modal-overlay">
-            <GroupCreate
-              onSubmit={handleFormSubmit}
-              currentGroup={currentGroup}
-              toggleModal={toggleModal}
-            />
+          <GroupCreate
+            onSubmit={handleFormSubmit}
+            currentGroup={currentGroup}
+            toggleModal={toggleModal}
+          />
         </div>
       )}
     </div>
