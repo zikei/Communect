@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import DeleteButton from "./feature/DeleteButton";
-import EditGroupModal from "./feature/EditGroupModal";
 import PropTypes from "prop-types";
 import "../../css/groupTree.css";
 
@@ -13,7 +12,8 @@ function GroupTree({
   currentGroup,
   onDeleteGroup,
   onUpdateGroup,
-  onEditGroup, // 親から渡されるコールバック関数
+  onEditGroup,
+  onShowMembers
 }) {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
 
@@ -40,7 +40,9 @@ function GroupTree({
             <i className="bi bi-plus-circle plus-icon"></i>
             {showPlusMenu && (
               <ul className="plus-menu">
-                <li className="plus-menu-item">メンバー表示</li>
+                <li className="plus-menu-item" onClick={() => onShowMembers(group.groupId)}>
+                  メンバー表示
+                </li>
                 <li className="plus-menu-item" onClick={handleEditClick}>
                   グループ編集
                 </li>
@@ -88,6 +90,7 @@ function GroupTree({
               onDeleteGroup={onDeleteGroup}
               onUpdateGroup={onUpdateGroup}
               onEditGroup={onEditGroup} // 子にも渡す
+              onShowMembers={onShowMembers}
             />
           ))}
         </ul>

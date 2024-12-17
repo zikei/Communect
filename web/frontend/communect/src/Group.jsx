@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import EditGroupModal from "./components/group/feature/EditGroupModal";
+import GroupMemberModal from "./components/group/feature/GroupMemberModal";
 import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
 import GroupContact from "./components/GroupContact";
@@ -18,6 +19,8 @@ function Group() {
   const [posts, setPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editModalGroup, setEditModalGroup] = useState(null);
+  const [showMembersModal, setShowMembersModal] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -167,6 +170,17 @@ function Group() {
     );
   };
 
+  /* メンバー表示機能 */
+  const handleShowMembers = (groupId) => {
+    setSelectedGroupId(groupId);
+    setShowMembersModal(true);
+  };
+
+  const handleCloseMembersModal = () => {
+    setShowMembersModal(false);
+    setSelectedGroupId(null);
+  };
+
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -190,6 +204,7 @@ function Group() {
           currentGroup={currentGroup}
           handleGroupDelete={handleGroupDelete}
           onEditGroup={handleEditGroup}
+          onShowMembers={handleShowMembers}
         />
         <div className="maincontent flex-grow-1 pt-2 px-5 reset">
           <Breadcrumb
@@ -227,6 +242,14 @@ function Group() {
               onClose={handleCloseEditModal}
               onUpdateGroup={handleUpdateGroup}
             />
+      )}
+
+      {showMembersModal && selectedGroupId && (
+        <GroupMemberModal
+          groupId={selectedGroupId}
+          show={showMembersModal}
+          onClose={handleCloseMembersModal}
+        />
       )}
     </div>
   );
