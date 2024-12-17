@@ -31,6 +31,9 @@ interface UserRepository {
     /** ユーザ更新 */
     fun updateUser(user: UserUpd)
 
+    /** ユーザIDによるapikeyの更新 */
+    fun updateApikeyByUserId(userId: String, apikey: String)
+
     /** ユーザ削除 */
     fun deleteByUserId(userId: String)
 }

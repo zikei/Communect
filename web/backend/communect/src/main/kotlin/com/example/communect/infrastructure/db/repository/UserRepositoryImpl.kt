@@ -103,6 +103,17 @@ class UserRepositoryImpl(
     }
 
     /**
+     * ユーザIDによるApikeyの更新
+     * @param userId ユーザID
+     * @param apikey 更新apikey
+     * @return apikey
+     */
+    override fun updateApikeyByUserId(userId: String, apikey: String) {
+        val record = UserRecord(userid = userId, apikey = apikey)
+        userMapper.updateByPrimaryKeySelective(record)
+    }
+
+    /**
      * ユーザ削除
      * @param userId 削除対象ユーザID
      */
