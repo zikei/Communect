@@ -27,4 +27,7 @@ interface UserRepository {
 
     /** ユーザ更新 */
     fun updateUser(user: UserUpd)
+
+    /** ユーザ更新 */
+    fun deleteByUserId(userId: String)
 }

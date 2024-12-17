@@ -90,6 +90,14 @@ class UserRepositoryImpl(
         userMapper.updateByPrimaryKeySelective(record)
     }
 
+    /**
+     * ユーザ削除
+     * @param userId 削除対象ユーザID
+     */
+    override fun deleteByUserId(userId: String) {
+        userMapper.deleteByPrimaryKey(userId)
+    }
+
 
     /** レコードのログインユーザモデルへの変換 */
     private fun toModelForLoginUser(record: UserRecord): LoginUser {
