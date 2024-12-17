@@ -3,6 +3,7 @@ package com.example.communect.domain.repository
 import com.example.communect.domain.model.LoginUser
 import com.example.communect.domain.model.User
 import com.example.communect.domain.model.UserIns
+import com.example.communect.domain.model.UserUpd
 
 /** ユーザリポジトリ */
 interface UserRepository {
@@ -23,4 +24,7 @@ interface UserRepository {
 
     /** ユーザ追加 */
     fun insertUser(user: UserIns): User
+
+    /** ユーザ更新 */
+    fun updateUser(user: UserUpd)
 }
