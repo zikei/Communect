@@ -49,7 +49,6 @@ function GroupTree({
                 <li className="plus-menu-item" onClick={handleEditClick}>
                   グループ編集
                 </li>
-                <li className="plus-menu-item">ユーザ追加</li>
               </ul>
             )}
           </div>

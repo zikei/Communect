@@ -1,37 +1,71 @@
-.container {
-    color: black;
+/* モーダル内の親要素に最低幅を設定 */
+.modal-body {
+  min-width: 400px; /* モーダルの最低幅 */
+  max-width: 600px; /* 必要なら最大幅も設定 */
+  overflow-y: auto;
 }
 
 .user-search {
   overflow-y: scroll;
-  max-height: 250px;
+  max-height: 400px;
   padding-top: 10px;
 }
 
-.user-search .search-results .card {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  transition: box-shadow 0.3s ease;
-  text-wrap: nowrap;
-}
-
-.user-search .search-results .card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-.user-search .selected-users ul {
-  margin-top: 1rem;
-}
-
-.user-search .selected-users li {
-  border-radius: 4px;
-}
-
-.user-search .search-bar input {
+.search-bar {
   font-size: 1rem;
   padding: 0.5rem;
 }
 
-.list-group .list-group-item {
+/* 検索結果のリストの幅を十分に確保 */
+.search-results {
+  width: 100%; /* リストがモーダル幅を超えないようにする */
+  max-height: 300px; /* 縦スクロールの制御 */
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+/* ユーザカードの調整 */
+.user-card {
+  width: 100%; /* 各カードが親の幅に合わせる */
+  box-sizing: border-box; /* パディングを含めた幅の計算 */
   margin-bottom: 10px;
+  padding: 1rem; /* パディングを増やしてカード内に余白を作る */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden; /* 要素がカードの範囲を超えないように */
+}
+
+/* ユーザ名とニックネームの調整 */
+.user-name,
+.user-nickname {
+  white-space: nowrap; /* テキストを折り返さない */
+  overflow: hidden; /* 内容がはみ出さないように */
+  text-overflow: ellipsis; /* はみ出したテキストは「...」にする */
+}
+
+.user-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.user-card.selected {
+  background-color: #198754; /* Bootstrapのsuccess色 */
+  color: white;
+}
+
+/* 追加の余白と整列調整 */
+.user-name {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem; /* 名前とニックネームの間に余白 */
+}
+
+.user-nickname {
+  font-size: 0.875rem;
+}
+
+.selected-users {
+  max-height: 150px;
+  overflow-y: auto;
 }

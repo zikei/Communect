@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import debounce from "lodash/debounce";
+import { Card, Form, Row, Col, ListGroup } from "react-bootstrap";
 import "../../css/userSearch.css";
 
-function UserSearch({ onAddUsers }) {
+function UserSearch({ onAddUsers, singleSelect = false }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -37,68 +38,68 @@ function UserSearch({ onAddUsers }) {
     return () => debouncedFetchUsers.cancel();
   }, [searchKeyword]);
 
-  const toggleUserSelection = (user) => {
-    setSelectedUsers((prev) => {
-      const isSelected = prev.some((u) => u.userId === user.userId);
+  const handleUserSelect = (user) => {
+    if (singleSelect) {
+      setSelectedUsers([user]);
+      onAddUsers([user]);
+    } else {
+      const isSelected = selectedUsers.some((u) => u.userId === user.userId);
       const updatedUsers = isSelected
-        ? prev.filter((u) => u.userId !== user.userId)
-        : [...prev, user];
-
-      // 状態確定後に親コンポーネントに送信する
+        ? selectedUsers.filter((u) => u.userId !== user.userId)
+        : [...selectedUsers, user];
+      setSelectedUsers(updatedUsers);
       onAddUsers(updatedUsers);
-      return updatedUsers;
-    });
+    }
   };
 
   return (
-    <div className="user-search container">
-      <div className="search-bar mb-4">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="ユーザ名またはIDで検索"
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-        />
-      </div>
-
-      <div className="search-results row">
+    <div className="user-search px-4">
+      <Form.Control
+        type="text"
+        placeholder="ユーザ名またはIDで検索"
+        value={searchKeyword}
+        onChange={(e) => setSearchKeyword(e.target.value)}
+        className="mb-3 search-bar"
+      />
+      <Row className="search-results">
         {searchResults.map((user) => (
-          <div key={user.userId} className="col-12 col-md-6 mb-3">
-            <div className="card search-result-item p-2">
-              <div className="d-flex align-items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedUsers.some((u) => u.userId === user.userId)}
-                  onChange={() => toggleUserSelection(user)}
-                  className="form-check-input me-2"
-                />
-                <span>
-                  {user.userName} <small>({user.nickName})</small>
-                </span>
-              </div>
-            </div>
-          </div>
+          <Col
+            key={user.userId}
+            xs={12}
+            sm={6}
+            md={4}
+            className="mb-3"
+          >
+            <Card
+              className={`user-card ${
+                selectedUsers.some((u) => u.userId === user.userId)
+                  ? "selected"
+                  : ""
+              }`}
+              onClick={() => handleUserSelect(user)}
+            >
+              <Card.Body className="p-0">
+                <Card.Title className="user-name">
+                  {user.userName}
+                </Card.Title>
+                <Card.Text className="user-nickname">
+                  {user.nickName}
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
         ))}
-      </div>
-
-      {selectedUsers.length > 0 && (
-        <div className="selected-users col-10 mt-4">
-          <h5>選択されたユーザ:</h5>
-          <ul className="list-group">
-            {selectedUsers.map((user) => (
-              <li key={user.userId} className="list-group-item d-flex justify-content-between align-items-center">
+      </Row>
+      {!singleSelect && selectedUsers.length > 0 && (
+        <ListGroup className="selected-users mt-3">
+          {selectedUsers.map((user) => (
+            <ListGroup.Item key={user.userId} className="d-flex justify-content-between">
+              <span>
                 {user.userName} <small>({user.nickName})</small>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => toggleUserSelection(user)}
-                >
-                  削除
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </span>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
       )}
     </div>
   );

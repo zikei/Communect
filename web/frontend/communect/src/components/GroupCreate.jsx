@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "../css/groupCreate.css";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 import UserSearch from "./group/UserSearch";
 import axios from "axios";
 
 function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
   const [groupName, setGroupName] = useState("");
-  const [parentGroupId, setParentGroupId] = useState(currentGroup?.groupId || null);
+  const [parentGroupId, setParentGroupId] = useState(
+    currentGroup?.groupId || null
+  );
   const [addedUsers, setAddedUsers] = useState([]);
   const [error, setError] = useState(null);
 
-  // モーダル開く時に親グループ初期化
   useEffect(() => {
     setParentGroupId(currentGroup?.groupId || null);
   }, [currentGroup]);
 
-  // ユーザー選択コールバック（useCallbackで再レンダリングを最適化）
   const handleUserSelect = useCallback((selectedUsers) => {
     setAddedUsers(selectedUsers);
   }, []);
@@ -34,7 +34,10 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
     };
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/group`, newGroup);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/group`,
+        newGroup
+      );
       alert("グループが作成されました。再読み込みを行ってください。");
 
       if (onSubmit) onSubmit(response.data);
@@ -43,7 +46,7 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
       setParentGroupId(null);
       setAddedUsers([]);
       setError(null);
-      toggleModal(); // モーダルを閉じる
+      toggleModal();
     } catch (err) {
       console.error("グループ作成エラー:", err);
       setError("グループ作成中にエラーが発生しました。");
@@ -51,37 +54,28 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
   };
 
   return (
-    <div className="modal-dialog">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">グループ作成</h5>
-          <button className="btn-close" onClick={toggleModal}></button>
-        </div>
-        <div className="modal-body">
-          {error && <div className="alert alert-danger">{error}</div>}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="groupName" className="form-label">
-                グループ名:
-              </label>
-              <input
+    <Modal show={true} onHide={toggleModal} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>グループ作成</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div style={{ minWidth: "400px", maxWidth: "600px", padding: "10px" }}>
+          {error && <Alert variant="danger">{error}</Alert>}
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="groupName" className="mb-3">
+              <Form.Label>グループ名:</Form.Label>
+              <Form.Control
                 type="text"
-                className="form-control"
-                id="groupName"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 placeholder="グループ名を入力"
                 required
               />
-            </div>
+            </Form.Group>
 
-            <div className="mb-3">
-              <label htmlFor="parentGroupId" className="form-label">
-                親グループ:
-              </label>
-              <select
-                className="form-select"
-                id="parentGroupId"
+            <Form.Group controlId="parentGroupId" className="mb-3">
+              <Form.Label>親グループ:</Form.Label>
+              <Form.Select
                 value={parentGroupId || ""}
                 onChange={(e) => setParentGroupId(e.target.value || null)}
               >
@@ -91,23 +85,21 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
                     {currentGroup.groupName}
                   </option>
                 )}
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
-            <div className="mb-3">
-              <label className="form-label">ユーザーの追加:</label>
-              <UserSearch onAddUsers={handleUserSelect} />
-            </div>
+            <Form.Group controlId="userSearch" className="mb-3">
+              <Form.Label>ユーザーの追加:</Form.Label>
+              <UserSearch onAddUsers={handleUserSelect} singleSelect={false} />
+            </Form.Group>
 
-            <div className="modal-footer">
-              <button type="submit" className="btn btn-primary">
-                グループ作成
-              </button>
-            </div>
-          </form>
+            <Button variant="primary" type="submit" className="w-100">
+              グループ作成
+            </Button>
+          </Form>
         </div>
-      </div>
-    </div>
+      </Modal.Body>
+    </Modal>
   );
 }
 

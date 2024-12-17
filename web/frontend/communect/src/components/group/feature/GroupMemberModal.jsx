@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Modal, Button, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import EditGroupMemberModal from "./EditGroupMemberModal";
+import AddUserModal from "./AddUserModal";
 import styles from "../../../css/module/groupMemberModal.module.css";
 
 const ROLE_DISPLAY_MAP = {
@@ -19,6 +20,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
 
   useEffect(() => {
     const fetchGroupMembers = async () => {
@@ -91,11 +93,22 @@ function GroupMemberModal({ groupId, show, onClose }) {
     }
   };
 
+  const handleAddUser = (newUser) => {
+    setMembers((prev) => [...prev, newUser]);
+    setShowAddUserModal(false);
+  };
+
   return (
     <>
       <Modal show={show} onHide={onClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Group Members</Modal.Title>
+        <Modal.Header closeButton className={styles.modalHeader}>
+          <Modal.Title className={styles.modalTitle}>Group Members</Modal.Title>
+          <button
+            className={styles.addUserButton}
+            onClick={() => setShowAddUserModal(true)}
+          >
+            ＋
+          </button>
         </Modal.Header>
         <Modal.Body>
           {loading && (
@@ -142,7 +155,9 @@ function GroupMemberModal({ groupId, show, onClose }) {
               ))}
             </div>
           ) : (
-            !loading && <div className="text-center">No members found in this group.</div>
+            !loading && (
+              <div className="text-center">No members found in this group.</div>
+            )
           )}
         </Modal.Body>
         <Modal.Footer>
@@ -159,6 +174,15 @@ function GroupMemberModal({ groupId, show, onClose }) {
           show={!!editingMember}
           onClose={() => setEditingMember(null)}
           onSave={handleMemberUpdate}
+        />
+      )}
+
+      {showAddUserModal && (
+        <AddUserModal
+          groupId={groupId}
+          show={showAddUserModal}
+          onClose={() => setShowAddUserModal(false)}
+          onAddUser={handleAddUser}
         />
       )}
     </>
