@@ -2,6 +2,7 @@ package com.example.communect.domain.repository
 
 import com.example.communect.domain.model.LoginUser
 import com.example.communect.domain.model.User
+import com.example.communect.domain.model.UserIns
 
 /** ユーザリポジトリ */
 interface UserRepository {
@@ -19,4 +20,7 @@ interface UserRepository {
 
     /** ユーザIDによるユーザの取得 */
     fun findByUserId(userId: String): User?
+
+    /** ユーザ追加 */
+    fun insertUser(user: UserIns): User
 }

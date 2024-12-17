@@ -1,13 +1,18 @@
 package com.example.communect.infrastructure.db.repository
 
+import com.example.communect.domain.model.GroupIns
 import com.example.communect.domain.model.LoginUser
 import com.example.communect.domain.model.User
+import com.example.communect.domain.model.UserIns
 import com.example.communect.domain.repository.UserRepository
 import com.example.communect.infrastructure.db.mapper.UserMapper
+import com.example.communect.infrastructure.db.mapper.insert
 import com.example.communect.infrastructure.db.mapper.select
 import com.example.communect.infrastructure.db.mapper.selectOne
+import com.example.communect.infrastructure.db.record.NoticeGroup
 import org.mybatis.dynamic.sql.util.kotlin.elements.upper
 import org.springframework.stereotype.Repository
+import java.util.*
 import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport as UserSql
 import com.example.communect.infrastructure.db.record.User as UserRecord
 
@@ -69,6 +74,17 @@ class UserRepositoryImpl(
         return record?.let { toModel(it) }
     }
 
+    /**
+     * ユーザ追加
+     * @param user 追加ユーザ
+     * @return 追加ユーザ
+     */
+    override fun insertUser(user: UserIns): User {
+        val record = toRecord(user)
+        userMapper.insert(record)
+        return toModel(record)
+    }
+
 
     /** レコードのログインユーザモデルへの変換 */
     private fun toModelForLoginUser(record: UserRecord): LoginUser {
@@ -89,6 +105,18 @@ class UserRepositoryImpl(
             record.username!!,
             record.nickname!!,
             record.email!!,
+        )
+    }
+
+    /** ユーザ追加モデルからレコードの変換 */
+    private fun toRecord(model: UserIns): UserRecord {
+        return UserRecord(
+            UUID.randomUUID().toString(),
+            model.userName,
+            model.nickName,
+            model.password,
+            model.email,
+            model.apikey
         )
     }
 }
