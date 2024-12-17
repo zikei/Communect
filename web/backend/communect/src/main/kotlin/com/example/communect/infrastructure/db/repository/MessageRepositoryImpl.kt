@@ -8,6 +8,7 @@ import com.example.communect.infrastructure.db.mapper.MessageMapper
 import com.example.communect.infrastructure.db.mapper.custom.CustomMessageMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByPrimaryKey
 import com.example.communect.infrastructure.db.mapper.custom.selectByTalkIdAndMessageId
+import com.example.communect.infrastructure.db.mapper.deleteByPrimaryKey
 import com.example.communect.infrastructure.db.mapper.insert
 import com.example.communect.infrastructure.db.mapper.updateByPrimaryKeySelective
 import org.springframework.beans.factory.annotation.Value
@@ -58,11 +59,18 @@ class MessageRepositoryImpl(
     /**
      *  メッセージ更新
      *  @param message 更新メッセージ
-     *  @return 更新メッセージ
      */
     override fun updateMessage(message: MessageUpd) {
         val record = toRecord(message)
         messageMapper.updateByPrimaryKeySelective(record)
+    }
+
+    /**
+     *  メッセージ削除
+     *  @param messageId 削除対象メッセージID
+     */
+    override fun deleteMessage(messageId: String) {
+        messageMapper.deleteByPrimaryKey(messageId)
     }
 
 

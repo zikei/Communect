@@ -17,4 +17,7 @@ interface MessageRepository {
 
     /** メッセージ更新 */
     fun updateMessage(message: MessageUpd)
+
+    /** メッセージ削除 */
+    fun deleteMessage(messageId: String)
 }
