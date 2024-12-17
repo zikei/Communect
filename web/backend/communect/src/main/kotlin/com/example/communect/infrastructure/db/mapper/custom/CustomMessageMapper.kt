@@ -48,6 +48,26 @@ private val columnList = listOf(
     UserGroup.nickname.`as`("groupNickname")
 )
 
+fun CustomMessageMapper.selectByPrimaryKey(messageId: String): CustomMessage? {
+    val selectStatement = select(columnList){
+        from(messageTable, "m")
+        leftJoin(userTable, "u"){
+            on(Message.userid) equalTo(User.userid)
+        }
+        leftJoin(groupTalkTable, "gt"){
+            on(Message.talkid) equalTo(GroupTalk.talkid)
+        }
+        leftJoin(userGroupTable, "ug"){
+            on(Message.userid) equalTo (UserGroup.userid)
+            and(GroupTalk.noticegroupid) equalTo(UserGroup.noticegroupid)
+        }
+        where {
+            Message.messageid isEqualTo messageId
+        }
+    }
+    return selectOne(selectStatement)
+}
+
 fun CustomMessageMapper.selectByTalkIdAndMessageId(talkId: String, lastMessageId: String?, readLimit: Long?): List<CustomMessage> {
     val selectStatement = select(columnList){
         from(messageTable, "m")

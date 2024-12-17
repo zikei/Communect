@@ -1,33 +1,60 @@
 package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.model.Message
+import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.repository.MessageRepository
+import com.example.communect.infrastructure.db.mapper.MessageMapper
 import com.example.communect.infrastructure.db.mapper.custom.CustomMessageMapper
+import com.example.communect.infrastructure.db.mapper.custom.selectByPrimaryKey
 import com.example.communect.infrastructure.db.mapper.custom.selectByTalkIdAndMessageId
+import com.example.communect.infrastructure.db.mapper.insert
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
+import java.util.*
 import com.example.communect.infrastructure.db.record.custom.CustomMessage as CustomMessageRecord
+import com.example.communect.infrastructure.db.record.Message as MessageRecord
 
 
 /** メッセージリポジトリ実装クラス */
 @Repository
 class MessageRepositoryImpl(
     private val customMessageMapper: CustomMessageMapper,
+    private val messageMapper: MessageMapper,
     @Value("\${messageRowCount}") private val messageLimit: Long
 ) : MessageRepository {
+    /**
+     *  メッセージIDによるメッセージ取得
+     *  @param messageId 検索メッセージID
+     *  @return メッセージ
+     */
+    private fun findByMessageId(messageId: String): Message?{
+        return customMessageMapper.selectByPrimaryKey(messageId)?.let { toModel(it) }
+    }
+
     /**
      *  トークIDによるメッセージ取得
      *  @param talkId 検索トークID
      *  @param lastMessageId 取得済み最古メッセージID(nullの場合最新のメッセージから取得)
-     *  @return 連絡リスト
+     *  @return メッセージリスト
      */
     override fun findByTalkId(talkId: String, lastMessageId: String?): List<Message> {
-        return customMessageMapper.selectByTalkIdAndMessageId(talkId, lastMessageId, messageLimit).map{
-            toModel(it)
-        }
+        return customMessageMapper.selectByTalkIdAndMessageId(talkId, lastMessageId, messageLimit).map{ toModel(it) }
     }
 
-    /** レコードの選択肢モデルへの変換 */
+    /**
+     *  メッセージ追加
+     *  @param message 追加メッセージ
+     *  @return 追加メッセージ
+     */
+    override fun insertMessage(message: MessageIns): Message? {
+        val record = toRecord(message)
+        messageMapper.insert(record)
+        return record.messageid?.let { findByMessageId(it) }
+    }
+
+
+    /** レコードのメッセージモデルへの変換 */
     private fun toModel(record: CustomMessageRecord): Message {
         return Message(
             record.messageid!!,
@@ -41,6 +68,17 @@ class MessageRepositoryImpl(
             }else{
                 record.groupnickname!!
             }
+        )
+    }
+
+    /** メッセージ追加モデルからレコードの変換 */
+    private fun toRecord(model: MessageIns): MessageRecord {
+        return MessageRecord(
+            UUID.randomUUID().toString(),
+            model.talkId,
+            model.userId,
+            model.message,
+            LocalDateTime.now()
         )
     }
 }
