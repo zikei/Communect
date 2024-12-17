@@ -26,5 +26,5 @@ interface TalkRepository {
     fun updateTalk(talk: TalkUpd)
 
     /** トーク削除 */
-    fun deleteTalk(talkId: String)
+    fun deleteByTalkId(talkId: String)
 }
