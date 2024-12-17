@@ -62,7 +62,7 @@ class GroupAPIController(
         bindingResult: BindingResult
     ): UpdGroupResponse {
         if (bindingResult.hasErrors()) throw BadRequestException()
-        val updGroup = GroupUpd(groupId, req.name, req.above)
+        val updGroup = GroupUpd(groupId, req.name)
 
         val group = groupService.updGroup(updGroup, loginUser.user.userId)
         return UpdGroupResponse(GroupInfo(group))
