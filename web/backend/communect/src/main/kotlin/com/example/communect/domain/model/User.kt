@@ -21,7 +21,9 @@ data class UserIns(
     /** パスワード */
     val password: String,
     /** メールアドレス */
-    val email: String
+    val email: String,
+    /** APIキー */
+    val apikey: String
 )
 
 /** 更新用ユーザエンティティ */
