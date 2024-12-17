@@ -22,12 +22,15 @@ interface UserRepository {
     /** ユーザIDによるユーザの取得 */
     fun findByUserId(userId: String): User?
 
+    /** ユーザIDによるapikeyの取得 */
+    fun findApikeyByUserId(userId: String): String?
+
     /** ユーザ追加 */
     fun insertUser(user: UserIns): User
 
     /** ユーザ更新 */
     fun updateUser(user: UserUpd)
 
-    /** ユーザ更新 */
+    /** ユーザ削除 */
     fun deleteByUserId(userId: String)
 }

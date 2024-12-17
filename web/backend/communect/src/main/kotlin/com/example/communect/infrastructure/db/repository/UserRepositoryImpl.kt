@@ -71,6 +71,18 @@ class UserRepositoryImpl(
     }
 
     /**
+     * ユーザIDによるApikeyの取得
+     * @param userId ユーザID
+     * @return apikey
+     */
+    override fun findApikeyByUserId(userId: String): String? {
+        val record = userMapper.selectOne {
+            where { UserSql.userid isEqualTo userId }
+        }
+        return record?.apikey
+    }
+
+    /**
      * ユーザ追加
      * @param user 追加ユーザ
      * @return 追加ユーザ
