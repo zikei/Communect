@@ -13,7 +13,7 @@ interface ContactService {
     /** 連絡投稿 */
     fun addContact(contact: ContactIns): Contact
     /** 連絡更新 */
-    fun updContact(contact: ContactUpd): Contact
+    fun updContact(contact: ContactUpd, choices: List<String>?): Contact
     /** 連絡削除 */
     fun deleteContact(contactId: String)
     /** リアクション */

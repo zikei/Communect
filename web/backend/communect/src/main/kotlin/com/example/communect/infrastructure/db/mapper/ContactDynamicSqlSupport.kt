@@ -17,6 +17,8 @@ object ContactDynamicSqlSupport {
 
     val noticegroupid = contact.noticegroupid
 
+    val userid = contact.userid
+
     val message = contact.message
 
     val contacttype = contact.contacttype
@@ -29,6 +31,8 @@ object ContactDynamicSqlSupport {
         val contactid = column<String>(name = "contactId", jdbcType = JDBCType.CHAR)
 
         val noticegroupid = column<String>(name = "noticeGroupId", jdbcType = JDBCType.CHAR)
+
+        val userid = column<String>(name = "userId", jdbcType = JDBCType.CHAR)
 
         val message = column<String>(name = "message", jdbcType = JDBCType.VARCHAR)
 

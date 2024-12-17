@@ -78,7 +78,7 @@ class GroupUserRepositoryImpl(
      * グループユーザ削除
      * @param groupUserId 削除対象グループユーザID
      */
-    override fun deleteGroupUser(groupUserId: String) {
+    override fun deleteByGroupUserId(groupUserId: String) {
         groupUserMapper.deleteByPrimaryKey(groupUserId)
     }
 

@@ -36,6 +36,12 @@ data class ContactInfo(
     val groupId: String,
     /** グループ名 */
     val groupName: String,
+    /** ユーザID */
+    val userId: String,
+    /** ユーザ名 */
+    val userName: String,
+    /** 表示名 */
+    val nickName: String,
     /** 選択肢リスト */
     val choices: List<ChoiceInfo>?
 ){
@@ -47,6 +53,9 @@ data class ContactInfo(
         contact.createTime,
         contact.groupId,
         contact.groupName,
+        contact.userId,
+        contact.userName,
+        contact.nickName,
         contact.choices?.map { ChoiceInfo(it) }
     )
 }

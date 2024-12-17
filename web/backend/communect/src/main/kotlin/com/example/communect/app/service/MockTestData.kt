@@ -32,7 +32,7 @@ object MockTestData {
     val user6 = User(UUID.randomUUID().toString(),"user6","テスト","test@example.com")
 
     private val groupUser1 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.NONE, false, false)
-    private val groupUser2 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user2.userId, user2.userName, user2.nickName, GroupRole.MEDIUM, false, true)
+    private val groupUser2 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user2.userId, user2.userName, user2.nickName, GroupRole.HIGH, false, true)
     private val groupUser3 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user3.userId, user3.userName, user3.nickName, GroupRole.NONE, false, false)
     private val groupUser4 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user4.userId, user4.userName, user4.nickName, GroupRole.NONE, false, false)
     private val groupUser5 = GroupUser(UUID.randomUUID().toString(), group1.groupId, user5.userId, user5.userName, user5.nickName, GroupRole.NONE, false, false)
@@ -44,7 +44,7 @@ object MockTestData {
     private val groupUser11 = GroupUser(UUID.randomUUID().toString(), group5.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
     private val groupUser12 = GroupUser(UUID.randomUUID().toString(), group6.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
     private val groupUser13 = GroupUser(UUID.randomUUID().toString(), group7.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
-    private val groupUser14 = GroupUser(UUID.randomUUID().toString(), group8.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
+    private val groupUser14 = GroupUser(UUID.randomUUID().toString(), group8.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.MEDIUM, false, false)
     private val groupUser15 = GroupUser(UUID.randomUUID().toString(), group9.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
     private val groupUser16 = GroupUser(UUID.randomUUID().toString(), group10.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.LOW, false, false)
 
@@ -75,8 +75,8 @@ object MockTestData {
     private val message2 = Message(UUID.randomUUID().toString(), "SYN/ACK", LocalDateTime.of(2024,11, 25,7,23, 0), individualTalk2.talkId, user1.userId, user1.userName, user1.nickName)
     private val message3 = Message(UUID.randomUUID().toString(), "ACK", LocalDateTime.of(2024,11, 25,7,24, 0), individualTalk2.talkId, user1.userId, user1.userName, user1.nickName)
 
-    private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group1.groupName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
-    private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
+    private val contact1 = Contact(UUID.randomUUID().toString(), group1.groupId, group1.groupName, user2.userId, user2.userName, user2.nickName, "本日は大雨のため休校です", ContactType.CONFIRM, Importance.HIGH, LocalDateTime.of(2024,11, 20,7,0), null)
+    private val contact2 = Contact(UUID.randomUUID().toString(), group8.groupId, group6.groupName, user1.userId, user1.userName, user1.nickName, "29日 9:30に卒業アルバム写真撮影", ContactType.INFORM, Importance.LOW, LocalDateTime.of(2024,11, 21,8,0), null)
 
     private val contact3Id = UUID.randomUUID().toString()
 
@@ -85,7 +85,7 @@ object MockTestData {
     private val choice3 = Choice(UUID.randomUUID().toString(), contact3Id, "コロナ ボーリング")
     private val choiceList = mutableListOf(choice1, choice2, choice3)
 
-    private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, "クラスレク", ContactType.CHOICE, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
+    private val contact3 = Contact(contact3Id, group8.groupId, group6.groupName, user1.userId, user1.userName, user1.nickName, "クラスレク", ContactType.CHOICE, Importance.MEDIUM, LocalDateTime.of(2024,11, 23,13,20), choiceList)
 
     private val reaction1 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,21, 50), null, user1.userId, user1.userName, user1.nickName)
     private val reaction2 = Reaction(UUID.randomUUID().toString(), contact1.contactId, LocalDateTime.of(2024,11, 20,7,22, 30), null, user2.userId, user2.userName, user2.nickName)

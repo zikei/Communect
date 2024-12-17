@@ -121,12 +121,14 @@ CREATE TABLE `message` (
 CREATE TABLE `contact` (
   `contactId` char(36) NOT NULL,
   `noticeGroupId` char(36) NOT NULL,
+  `userId` char(36) NOT NULL,
   `message` varchar(500) NOT NULL,
   `contactType` enum('CHOICE','CONFIRM','INFORM') NOT NULL,
   `importance` enum('HIGH','MEDIUM','LOW','SAFE') NOT NULL,
   `createTime` datetime NOT NULL,
   PRIMARY KEY (`contactId`),
-  FOREIGN KEY (`noticeGroupId`) REFERENCES `notice_group` (`noticeGroupId`) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (`noticeGroupId`) REFERENCES `notice_group` (`noticeGroupId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

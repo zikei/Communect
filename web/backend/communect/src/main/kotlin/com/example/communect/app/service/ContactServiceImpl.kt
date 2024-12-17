@@ -54,10 +54,11 @@ class ContactServiceImpl(
     override fun addContact(contact: ContactIns): Contact {
         if(contact.contactType == ContactType.CHOICE && contact.choices == null) throw BadRequestException()
         val group = MockTestData.groupList.find { it.groupId == contact.groupId } ?: throw BadRequestException()
+        val user = MockTestData.userList.find { it.userId == contact.userId } ?: throw BadRequestException()
 
         val contactId = UUID.randomUUID().toString()
         val postChoices = contact.choices?.map { Choice(UUID.randomUUID().toString(), contactId, it) }
-        val postContact = Contact(contactId, contact.groupId, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
+        val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
         return postContact
@@ -68,15 +69,15 @@ class ContactServiceImpl(
      *  @param contact 更新連絡情報
      *  @return 投稿連絡
      */
-    override fun updContact(contact: ContactUpd): Contact {
+    override fun updContact(contact: ContactUpd, choices: List<String>?): Contact {
         val index = MockTestData.contactList.indexOfFirst { it.contactId == contact.contactId }
         if(index == -1) throw BadRequestException()
 
         val contactType = contact.contactType ?: MockTestData.contactList[index].contactType
-        val choices = if(contactType == ContactType.CHOICE){
-            if(contact.choices != null){
+        val insChoices = if(contactType == ContactType.CHOICE){
+            if(choices != null){
                 MockTestData.reactionList.removeAll { it.contactId == contact.contactId }
-                contact.choices.map { Choice(UUID.randomUUID().toString(), MockTestData.contactList[index].groupId, it) }
+                choices.map { Choice(UUID.randomUUID().toString(), MockTestData.contactList[index].groupId, it) }
             }else{
                 MockTestData.contactList[index].choices ?: throw BadRequestException()
             }
@@ -84,9 +85,10 @@ class ContactServiceImpl(
             null
         }
         val updContact =
-            Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].groupName,
+            Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].userId,
+                MockTestData.contactList[index].userName, MockTestData.contactList[index].nickName, MockTestData.contactList[index].groupName,
                 contact.message ?: MockTestData.contactList[index].message, contactType,
-                contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, choices)
+                contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
         MockTestData.contactList[index] = updContact
         return MockTestData.contactList[index]

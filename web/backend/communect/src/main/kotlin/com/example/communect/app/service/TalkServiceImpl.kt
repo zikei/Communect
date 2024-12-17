@@ -20,7 +20,7 @@ class TalkServiceImpl : TalkService {
     }
 
     /**
-     *  グループトーク一覧取得
+     *  個人トーク一覧取得
      *  @param userId 検索対象ユーザID
      *  @return トークリスト
      */
