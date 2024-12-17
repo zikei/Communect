@@ -52,7 +52,5 @@ data class UpdGroupRequest(
     /** グループ名 */
     @get:NullOrNotBlank
     @get:Size(max = 20)
-    val name: String? = null,
-    /** 上位グループID */
-    val above: String? = null,
+    val name: String? = null
 )

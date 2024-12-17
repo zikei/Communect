@@ -109,12 +109,7 @@ class GroupServiceImpl(
         val index = MockTestData.groupList.indexOfFirst { it.groupId == group.groupId }
         if(index == -1) throw BadRequestException()
         val groupName = group.groupName ?: MockTestData.groupList[index].groupName
-        val aboveId = if(group.aboveId == ""){
-            null
-        }else{
-            group.aboveId ?: MockTestData.groupList[index].aboveId
-        }
-        MockTestData.groupList[index] = Group(group.groupId, groupName, aboveId)
+        MockTestData.groupList[index] = Group(group.groupId, groupName, MockTestData.groupList[index].aboveId)
 
         return MockTestData.groupList[index]
     }

@@ -23,7 +23,5 @@ data class GroupUpd(
     /** グループID */
     val groupId: String,
     /** グループ名 */
-    val groupName: String?,
-    /** 上位グループID */
-    val aboveId: String?
+    val groupName: String?
 )
