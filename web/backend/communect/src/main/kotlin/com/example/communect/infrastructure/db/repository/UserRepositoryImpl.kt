@@ -57,6 +57,19 @@ class UserRepositoryImpl(
         return records.map { toModel(it) }
     }
 
+    /**
+     * ユーザIDによるユーザの取得
+     * @param userId ユーザID
+     * @return 検索結果ユーザ
+     */
+    override fun findByUserId(userId: String): User? {
+        val record = userMapper.selectOne {
+            where { UserSql.userid isEqualTo userId }
+        }
+        return record?.let { toModel(it) }
+    }
+
+
     /** レコードのログインユーザモデルへの変換 */
     private fun toModelForLoginUser(record: UserRecord): LoginUser {
         return LoginUser(

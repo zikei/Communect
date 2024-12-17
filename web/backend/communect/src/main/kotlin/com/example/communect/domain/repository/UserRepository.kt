@@ -16,4 +16,7 @@ interface UserRepository {
      * @param keyword ユーザ名の部分一致 OR ユーザID
      */
     fun findByKeyword(keyword: String): List<User>
+
+    /** ユーザIDによるユーザの取得 */
+    fun findByUserId(userId: String): User?
 }
