@@ -50,7 +50,6 @@ function GroupTree({
                   グループ編集
                 </li>
                 <li className="plus-menu-item">ユーザ追加</li>
-                <li className="plus-menu-item">ユーザ削除</li>
               </ul>
             )}
           </div>

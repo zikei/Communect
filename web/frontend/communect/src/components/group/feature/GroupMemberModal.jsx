@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Modal, Button, Spinner } from "react-bootstrap";
+import { Modal, Button, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import EditGroupMemberModal from "./EditGroupMemberModal";
 import styles from "../../../css/module/groupMemberModal.module.css";
@@ -17,6 +17,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
 
   useEffect(() => {
@@ -57,7 +58,37 @@ function GroupMemberModal({ groupId, show, onClose }) {
           : member
       )
     );
-    setEditingMember(null); // 編集終了後にメンバーをリストに反映
+    setEditingMember(null);
+  };
+
+  const handleDeleteClick = async (groupUserId) => {
+    if (!groupUserId) return;
+
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
+        {
+          data: { groupUserId },
+        }
+      );
+
+      if (response.status === 200) {
+        setMembers((prev) =>
+          prev.filter((member) => member.groupUserId !== groupUserId)
+        );
+        setSuccessMessage("Member deleted successfully.");
+      } else {
+        throw new Error("Failed to delete member.");
+      }
+    } catch (err) {
+      console.error("Error deleting member:", err);
+      setError("Failed to delete member. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,15 +98,16 @@ function GroupMemberModal({ groupId, show, onClose }) {
           <Modal.Title>Group Members</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {loading ? (
+          {loading && (
             <div className="text-center">
               <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </Spinner>
             </div>
-          ) : error ? (
-            <div className="text-danger text-center">{error}</div>
-          ) : members.length > 0 ? (
+          )}
+          {error && <Alert variant="danger">{error}</Alert>}
+          {successMessage && <Alert variant="success">{successMessage}</Alert>}
+          {!loading && !error && members.length > 0 ? (
             <div className={styles.membersList}>
               {members.map((member) => (
                 <div key={member.groupUserId} className={styles.memberItem}>
@@ -100,11 +132,17 @@ function GroupMemberModal({ groupId, show, onClose }) {
                   >
                     ✎
                   </button>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteClick(member.groupUserId)}
+                  >
+                    🗑
+                  </button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center">No members found in this group.</div>
+            !loading && <div className="text-center">No members found in this group.</div>
           )}
         </Modal.Body>
         <Modal.Footer>
