@@ -3,6 +3,7 @@ package com.example.communect.domain.repository
 import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.model.Talk
+import com.example.communect.domain.model.TalkUpd
 
 /** トークリポジトリ */
 interface TalkRepository {
@@ -20,4 +21,10 @@ interface TalkRepository {
 
     /** 個人トーク追加 */
     fun insertIndividualTalk(talk: IndividualTalkIns): Talk
+
+    /** トーク編集 */
+    fun updateTalk(talk: TalkUpd)
+
+    /** トーク削除 */
+    fun deleteTalk(talkId: String)
 }

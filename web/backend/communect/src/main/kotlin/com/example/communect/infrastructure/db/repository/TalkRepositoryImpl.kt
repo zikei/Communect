@@ -4,6 +4,7 @@ import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.model.Talk
+import com.example.communect.domain.model.TalkUpd
 import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.infrastructure.db.mapper.*
 import org.springframework.stereotype.Repository
@@ -93,6 +94,23 @@ class TalkRepositoryImpl(
         return toModel(talkRecord)
     }
 
+    /**
+     *  トーク更新
+     *  @param talk 更新トーク
+     */
+    override fun updateTalk(talk: TalkUpd) {
+        val record = toRecord(talk)
+        talkMapper.updateByPrimaryKeySelective(record)
+    }
+
+    /**
+     *  トーク削除
+     *  @param talkId 削除対象トークID
+     */
+    override fun deleteTalk(talkId: String) {
+        talkMapper.deleteByPrimaryKey(talkId)
+    }
+
 
     /** レコードのトークモデルへの変換 */
     private fun toModel(record: TalkRecord): Talk {
@@ -132,5 +150,14 @@ class TalkRepositoryImpl(
             )
         }
         return Pair(talk, individualTalkList)
+    }
+
+    /** トーク更新モデルからレコードの変換 */
+    private fun toRecord(model: TalkUpd): TalkRecord {
+        return TalkRecord(
+            model.talkId,
+            model.talkName,
+            null
+        )
     }
 }
