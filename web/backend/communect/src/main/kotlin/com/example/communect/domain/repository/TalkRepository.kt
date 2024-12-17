@@ -7,7 +7,7 @@ import com.example.communect.domain.model.TalkUpd
 
 /** トークリポジトリ */
 interface TalkRepository {
-    /** グループIDによるグループトーク一覧の取得 */
+    /** トークIDによるグループトーク一覧の取得 */
     fun findByTalkId(talkId: String): Talk?
 
     /** グループIDによるグループトーク一覧の取得 */
