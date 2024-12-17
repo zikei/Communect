@@ -1,6 +1,7 @@
 package com.example.communect.domain.repository
 
 import com.example.communect.domain.model.LoginUser
+import com.example.communect.domain.model.User
 
 /** ユーザリポジトリ */
 interface UserRepository {
@@ -9,4 +10,10 @@ interface UserRepository {
 
     /** apikeyによるログインユーザモデルの取得 */
     fun findLoginUserByApikey(apikey: String): LoginUser?
+
+    /**
+     * キーワードによるユーザの取得
+     * @param keyword ユーザ名の部分一致 OR ユーザID
+     */
+    fun findByKeyword(keyword: String): List<User>
 }
