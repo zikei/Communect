@@ -13,7 +13,7 @@ function GroupTree({
   onDeleteGroup,
   onUpdateGroup,
   onEditGroup,
-  onShowMembers
+  onShowMembers,
 }) {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
 
@@ -40,7 +40,10 @@ function GroupTree({
             <i className="bi bi-plus-circle plus-icon"></i>
             {showPlusMenu && (
               <ul className="plus-menu">
-                <li className="plus-menu-item" onClick={() => onShowMembers(group.groupId)}>
+                <li
+                  className="plus-menu-item"
+                  onClick={() => onShowMembers(group.groupId)}
+                >
                   メンバー表示
                 </li>
                 <li className="plus-menu-item" onClick={handleEditClick}>
@@ -67,9 +70,7 @@ function GroupTree({
             onClick={() => toggleGroup(group.groupId)}
           >
             <span
-              className={`rotate-icon ${
-                expandedGroups[group.groupId] ? "rotated" : ""
-              }`}
+              className={`rotate-icon ${expandedGroups[group.groupId] ? "rotated" : ""}`}
             >
               &gt;
             </span>
