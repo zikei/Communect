@@ -69,7 +69,7 @@ class MessageRepositoryImpl(
      *  メッセージ削除
      *  @param messageId 削除対象メッセージID
      */
-    override fun deleteMessage(messageId: String) {
+    override fun deleteByMessageId(messageId: String) {
         messageMapper.deleteByPrimaryKey(messageId)
     }
 

@@ -107,7 +107,7 @@ class TalkRepositoryImpl(
      *  トーク削除
      *  @param talkId 削除対象トークID
      */
-    override fun deleteTalk(talkId: String) {
+    override fun deleteByTalkId(talkId: String) {
         talkMapper.deleteByPrimaryKey(talkId)
     }
 
