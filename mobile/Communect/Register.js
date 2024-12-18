@@ -3,26 +3,26 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [userName, setUsername] = useState('');
+  const [nickName, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
-    if (!username || !nickname || !email || !password) {
+    if (!userName || !nickName || !email || !password) {
       Alert.alert('エラー', 'すべてのフィールドを入力してください。');
       return;
     }
 
     try {
-      const response = await fetch('https://yourapi.com/user/register', {
+      const response = await fetch('http://api.localhost/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
-          nickname,
+          userName,
+          nickName,
           email,
           password,
         }),
@@ -60,13 +60,13 @@ const Register = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="ユーザー名"
-        value={username}
+        value={userName}
         onChangeText={setUsername}
       />
       <TextInput
         style={styles.input}
         placeholder="ニックネーム"
-        value={nickname}
+        value={nickName}
         onChangeText={setNickname}
       />
       <TextInput
