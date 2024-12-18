@@ -56,12 +56,24 @@ const Sidebar = ({
       return;
     }
     alert(`新しいグループ名: ${newGroupName}\n親グループ: ${selectedParentGroup ? selectedParentGroup : "なし"}`);
+
     handleCloseModal();
   };
 
   const renderGroupTree = (group, level = 0) => (
     <View key={group.groupId} style={{ paddingLeft: level * 8 }}>
       <View style={styles.groupRow}>
+
+
+        {/*＋アイコン*/}
+        <TouchableOpacity
+            style={styles.plusIconContainer}
+            onPress={handleOpenModal} // モーダル表示関数を呼び出す
+        >
+            <Text style={styles.plusIcon}>✚</Text>
+        </TouchableOpacity>
+
+        
         {/* グループ名 */}
         <TouchableOpacity onPress={() => handleGroupClick(group)} style={styles.groupNameContainer}>
           <Text style={styles.groupName}>{group.groupName}</Text>
@@ -327,6 +339,15 @@ const styles = StyleSheet.create({
   expandIcon: {
     fontSize: 16,
     color: "#555",
+  },
+  plusIconContainer: {
+    paddingHorizontal: 5, // アイコン間の余白
+    justifyContent: "right",
+    alignItems: "center",
+  },
+  plusIcon: {
+    fontSize: 16,
+ 
   },
   
 });
