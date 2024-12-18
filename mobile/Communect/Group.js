@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Button, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -55,9 +55,7 @@ function Group() {
 
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
-    if (!sidebarOpen) {
-      toggleSidebar();
-    }
+    setSidebarOpen(false); // グループがクリックされた時にサイドバーを閉じる
   };
 
   const getBreadcrumb = (groupId) => {
@@ -77,8 +75,8 @@ function Group() {
       const hierarchy = buildHierarchy(localGroupData);
       setGroups(hierarchy);
     } catch (err) {
-      console.error("Error initializing groups:", err);
-      setError("Failed to load groups.");
+      console.error("グループの初期化中にエラーが発生しました:", err);
+      setError("グループの読み込みに失敗しました。");
     }
   }, []);
 
@@ -108,35 +106,34 @@ function Group() {
           <ScrollView
             horizontal
             style={styles.breadcrumbContainer}
-            contentContainerStyle={styles.breadcrumbContent} // 修正箇所
-  >
+            contentContainerStyle={styles.breadcrumbContent}
+          >
             {breadcrumbs.map((group, index) => (
-            <TouchableOpacity
-              key={group.groupId}
-              onPress={() => handleGroupClick(group)}
-      >
-             <Text style={styles.breadcrumb}>
-                {group.groupName}
-                {index < breadcrumbs.length - 1 && " > "}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                key={group.groupId}
+                onPress={() => handleGroupClick(group)} // パンくずリストをクリックした時にもサイドバーを閉じる
+              >
+                <Text style={styles.breadcrumb}>
+                  {group.groupName}
+                  {index < breadcrumbs.length - 1 && " > "}
+                </Text>
+              </TouchableOpacity>
             ))}
-           </ScrollView>
+          </ScrollView>
         )}
-
 
         {currentGroup ? (
           <View>
             <Text style={styles.groupDetail}>
-              <Text style={styles.label}>Group Name:</Text> {currentGroup.groupName}
+              <Text style={styles.label}>グループ名:</Text> {currentGroup.groupName}
             </Text>
             <Text style={styles.groupDetail}>
-              <Text style={styles.label}>Group ID:</Text> {currentGroup.groupId}
+              <Text style={styles.label}>グループID:</Text> {currentGroup.groupId}
             </Text>
           </View>
         ) : (
           <Text style={styles.placeholderText}>
-            {sidebarOpen ? "Select a group from the sidebar." : "No group selected."}
+            {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
           </Text>
         )}
       </View>
@@ -157,23 +154,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#f9f9f9",
     borderRadius: 5,
-    borderRadius: 5,
-  paddingHorizontal: 5, // パディングを調整して範囲を縮小
-  marginVertical: 5, // 上下の余白を調整
-  maxHeight: 40, // 高さを制限
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    maxHeight: 40,
   },
-  
   breadcrumbContent: {
-    alignItems: "center", // 子要素のレイアウトをここに指定
+    alignItems: "center",
   },
-  
   breadcrumb: {
     fontSize: 16,
     color: "#007bff",
     paddingHorizontal: 5,
     paddingVertical: 2,
-  },  
-  
+  },
   placeholderText: { fontSize: 18, color: "gray" },
   groupDetail: { fontSize: 18, marginVertical: 5 },
   label: { fontWeight: "bold" },
