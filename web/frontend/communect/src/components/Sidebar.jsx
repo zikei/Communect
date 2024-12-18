@@ -15,7 +15,8 @@ function Sidebar({
   currentGroup,
   handleGroupDelete,
   onEditGroup,
-  onShowMembers
+  onShowMembers,
+  onOpenTalk,
 }) {
 
   return (
@@ -50,6 +51,7 @@ function Sidebar({
                     onDeleteGroup={handleGroupDelete}
                     onEditGroup={onEditGroup}
                     onShowMembers={onShowMembers}
+                    onOpenTalk={onOpenTalk}
                   />
                 ))}
               </ul>

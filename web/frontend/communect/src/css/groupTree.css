@@ -42,3 +42,14 @@
 .selected-group {
   background-color: #e9f7ff;
 }
+
+.talk-button {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.talk-button:hover {
+  background-color: #084298;
+}
