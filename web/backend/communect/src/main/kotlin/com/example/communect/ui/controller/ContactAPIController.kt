@@ -55,8 +55,8 @@ class ContactAPIController(
     ): ContactResponse {
         if (bindingResult.hasErrors()) throw BadRequestException()
 
-        val updContact = ContactUpd(contactId, req.message, req.contactType, req.importance, req.choices)
-        val contact = contactService.updContact(updContact)
+        val updContact = ContactUpd(contactId, req.message, req.contactType, req.importance)
+        val contact = contactService.updContact(updContact, req.choices)
         return ContactResponse(ContactInfo(contact))
     }
 

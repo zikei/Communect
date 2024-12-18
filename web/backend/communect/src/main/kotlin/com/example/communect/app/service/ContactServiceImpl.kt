@@ -69,15 +69,15 @@ class ContactServiceImpl(
      *  @param contact 更新連絡情報
      *  @return 投稿連絡
      */
-    override fun updContact(contact: ContactUpd): Contact {
+    override fun updContact(contact: ContactUpd, choices: List<String>?): Contact {
         val index = MockTestData.contactList.indexOfFirst { it.contactId == contact.contactId }
         if(index == -1) throw BadRequestException()
 
         val contactType = contact.contactType ?: MockTestData.contactList[index].contactType
-        val choices = if(contactType == ContactType.CHOICE){
-            if(contact.choices != null){
+        val insChoices = if(contactType == ContactType.CHOICE){
+            if(choices != null){
                 MockTestData.reactionList.removeAll { it.contactId == contact.contactId }
-                contact.choices.map { Choice(UUID.randomUUID().toString(), MockTestData.contactList[index].groupId, it) }
+                choices.map { Choice(UUID.randomUUID().toString(), MockTestData.contactList[index].groupId, it) }
             }else{
                 MockTestData.contactList[index].choices ?: throw BadRequestException()
             }
@@ -88,7 +88,7 @@ class ContactServiceImpl(
             Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].userId,
                 MockTestData.contactList[index].userName, MockTestData.contactList[index].nickName, MockTestData.contactList[index].groupName,
                 contact.message ?: MockTestData.contactList[index].message, contactType,
-                contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, choices)
+                contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
         MockTestData.contactList[index] = updContact
         return MockTestData.contactList[index]

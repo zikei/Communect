@@ -8,27 +8,12 @@ import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSuppo
 import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSupport.noticeGroup
 import com.example.communect.infrastructure.db.mapper.NoticeGroupDynamicSqlSupport.noticegroupid
 import com.example.communect.infrastructure.db.record.NoticeGroup
-import org.apache.ibatis.annotations.Mapper
-import org.apache.ibatis.annotations.Result
-import org.apache.ibatis.annotations.ResultMap
-import org.apache.ibatis.annotations.Results
-import org.apache.ibatis.annotations.SelectProvider
+import org.apache.ibatis.annotations.*
 import org.apache.ibatis.type.JdbcType
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter
-import org.mybatis.dynamic.sql.util.kotlin.CountCompleter
-import org.mybatis.dynamic.sql.util.kotlin.DeleteCompleter
-import org.mybatis.dynamic.sql.util.kotlin.KotlinUpdateBuilder
-import org.mybatis.dynamic.sql.util.kotlin.SelectCompleter
-import org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.deleteFrom
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insert
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.selectDistinct
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.selectList
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.selectOne
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.update
+import org.mybatis.dynamic.sql.util.kotlin.*
+import org.mybatis.dynamic.sql.util.kotlin.mybatis3.*
 import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper
 import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper
 import org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper
@@ -129,4 +114,10 @@ fun NoticeGroupMapper.updateByPrimaryKeySelective(row: NoticeGroup) =
         set(aboveid) equalToWhenPresent row::aboveid
         set(grouptitle) equalToWhenPresent row::grouptitle
         where { noticegroupid isEqualTo row.noticegroupid!! }
+    }
+
+fun NoticeGroupMapper.updateAboveIdToNullByPrimaryKey(id: String) =
+    update {
+        set(aboveid).equalToNull()
+        where { noticegroupid isEqualTo id }
     }
