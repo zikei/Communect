@@ -4,36 +4,53 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register = ({ navigation }) => {
   const [username, setUsername] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
-    if (!username || !password) {
-      Alert.alert('エラー', 'ユーザー名とパスワードを入力してください。');
+    if (!username || !nickname || !email || !password) {
+      Alert.alert('エラー', 'すべてのフィールドを入力してください。');
       return;
     }
 
     try {
-      const existingUsers = JSON.parse(await AsyncStorage.getItem('users')) || {};
+      const response = await fetch('https://yourapi.com/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          nickname,
+          email,
+          password,
+        }),
+      });
 
-      if (existingUsers[username]) {
-        Alert.alert('エラー', 'このユーザー名は既に登録されています。');
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'アカウント登録に失敗しました。');
       }
 
-      existingUsers[username] = password; // パスワードはセキュリティのためにハッシュ化推奨
-      await AsyncStorage.setItem('users', JSON.stringify(existingUsers));
+      // サーバーからAPIキーを取得して保存
+      const { apikey } = data;
+
+      // APIキーをローカルストレージに保存
+      await AsyncStorage.setItem('apiKey', apikey);
 
       Alert.alert('登録成功', 'アカウントが作成されました。ログインしてください。');
       navigation.replace('Login'); // ログイン画面に遷移
     } catch (error) {
       console.error('Error during registration:', error);
-      Alert.alert('エラー', 'アカウント作成に失敗しました。');
+      Alert.alert('エラー', error.message);
     }
   };
 
   useEffect(() => {
     navigation.setOptions({
-      headerShown: false, // ログイン画面ではヘッダー非表示
+      headerShown: false, // 登録画面ではヘッダー非表示
     });
   }, [navigation]);  
 
@@ -45,6 +62,19 @@ const Register = ({ navigation }) => {
         placeholder="ユーザー名"
         value={username}
         onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="ニックネーム"
+        value={nickname}
+        onChangeText={setNickname}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="メールアドレス"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
