@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AccountEdit = ({ navigation }) => {
   // 初期状態でユーザー情報をセット
   const [username, setUsername] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -72,6 +73,13 @@ const AccountEdit = ({ navigation }) => {
         placeholder="ユーザー名"
         value={username}
         onChangeText={setUsername}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="ニックネーム"
+        value={nickname}
+        onChangeText={setNickname}
       />
 
       {/* メールアドレス */}
