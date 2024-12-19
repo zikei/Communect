@@ -14,7 +14,7 @@ function GroupTree({
   onUpdateGroup,
   onEditGroup,
   onShowMembers,
-  onOpenTalk,
+  onOpenTalk, // onOpenTalkをプロパティとして受け取る
 }) {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [isTalkOpen, setIsTalkOpen] = useState(false); // トーク画面の状態を管理
@@ -28,13 +28,10 @@ function GroupTree({
   };
 
   const handleTalkToggle = () => {
-    console.log("トーク画面の表示を切り替えます");
     if (isTalkOpen) {
-      console.log("連絡画面に戻ります");
       setIsTalkOpen(false);
       onOpenTalk(null); // トーク画面を閉じる
     } else {
-      console.log("トーク画面を表示します");
       setIsTalkOpen(true);
       onOpenTalk(group); // トーク画面を開く
     }
@@ -95,9 +92,7 @@ function GroupTree({
             onClick={() => toggleGroup(group.groupId)}
           >
             <span
-              className={`rotate-icon ${
-                expandedGroups[group.groupId] ? "rotated" : ""
-              }`}
+              className={`rotate-icon ${expandedGroups[group.groupId] ? "rotated" : ""}`}
             >
               &gt;
             </span>

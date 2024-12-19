@@ -99,12 +99,11 @@ function Group() {
       let current = group;
       while (current) {
         trail.unshift(current);
-        current = findGroupById(current.aboveId, groups);
+        current = groups.find((g) => g.groupId === current.aboveId);
       }
       return trail;
     });
 
-    // 必要ならば選択グループを開く
     setExpandedGroups((prevState) => ({
       ...prevState,
       [group.groupId]: true,
@@ -183,7 +182,6 @@ function Group() {
     setSelectedGroupId(null);
   };
 
-  /* グループトーク関連 */
   const handleOpenTalk = (group) => {
     setTalkGroup(group);
     setIsGroupTalk(true);
@@ -222,7 +220,7 @@ function Group() {
         />
         <div className="maincontent flex-grow-1 ps-5 reset">
           {isGroupTalk && talkGroup ? (
-            <GroupTalk group={talkGroup} onBack={handleBackFromTalk} />
+            <GroupTalk group={talkGroup} onBack={handleBackFromTalk} currentGroup={currentGroup} />
           ) : (
             <>
               <Breadcrumb
