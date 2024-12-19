@@ -26,6 +26,15 @@ const Sidebar = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedParentGroup, setSelectedParentGroup] = useState(null);
+  const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
+
+const handleOpenPlusModal = () => {
+  setIsPlusModalVisible(true);
+};
+
+const handleClosePlusModal = () => {
+  setIsPlusModalVisible(false);
+};
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -63,41 +72,46 @@ const Sidebar = ({
   const renderGroupTree = (group, level = 0) => (
     <View key={group.groupId} style={{ paddingLeft: level * 8 }}>
       <View style={styles.groupRow}>
-
-
-        {/*＋アイコン*/}
-        <TouchableOpacity
-            style={styles.plusIconContainer}
-            onPress={handleOpenModal} // モーダル表示関数を呼び出す
-        >
-            <Text style={styles.plusIcon}>✚</Text>
-        </TouchableOpacity>
-
-        
-        {/* グループ名 */}
-        <TouchableOpacity onPress={() => handleGroupClick(group)} style={styles.groupNameContainer}>
-          <Text style={styles.groupName}>{group.groupName}</Text>
-        </TouchableOpacity>
-  
-        {/* 右側アイコンエリア */}
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* ゴミ箱ボタン */}
+        {/* グループ名と＋アイコン */}
+        <View style={styles.groupNameWrapper}>
+          {/* ＋アイコン */}
           <TouchableOpacity
-            onPress={() => handleDeleteGroup(group.groupId)} // 削除関数を呼び出す
+            style={styles.plusIconContainer}
+            onPress={handleOpenPlusModal}
+          >
+            <Text style={styles.plusIcon}>✚</Text>
+          </TouchableOpacity>
+
+          {/* グループ名 */}
+          <TouchableOpacity
+            onPress={() => handleGroupClick(group)}
+            style={styles.groupNameContainer}
+          >
+            <Text style={styles.groupName} numberOfLines={1} ellipsizeMode="tail">
+              {group.groupName}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ゴミ箱アイコンと展開記号 */}
+        <View style={styles.iconWrapper}>
+          <TouchableOpacity
+            onPress={() => handleDeleteGroup(group.groupId)}
             style={styles.trashIconContainer}
           >
             <Text style={styles.trashIcon}>🗑️</Text>
           </TouchableOpacity>
-
-  
-          {/* 展開記号 */}
-          <TouchableOpacity onPress={() => toggleGroup(group.groupId)} style={styles.expandIconContainer}>
+          <TouchableOpacity
+            onPress={() => toggleGroup(group.groupId)}
+            style={styles.expandIconContainer}
+          >
             <Text style={styles.expandIcon}>
               {expandedGroups[group.groupId] ? "▼" : "▶"}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
+
       {expandedGroups[group.groupId] &&
         group.children.map((child) => renderGroupTree(child, level + 1))}
     </View>
@@ -132,61 +146,90 @@ const Sidebar = ({
 
   return (
     <View style={[styles.sidebar, sidebarOpen ? styles.open : styles.closed]}>
-      <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
-        <Text style={styles.buttonText}>グループ作成</Text>
-      </TouchableOpacity>
+  <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
+    <Text style={styles.buttonText}>グループ作成</Text>
+  </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => alert("Direct Message!")}>
-        <Text style={styles.linkText}>Direct Message</Text>
-      </TouchableOpacity>
+  <TouchableOpacity onPress={() => alert("Direct Message!")}>
+    <Text style={styles.linkText}>Direct Message</Text>
+  </TouchableOpacity>
 
-      
+  <View style={styles.groupsSection}>
+    <Text style={styles.sectionTitle}>Groups</Text>
+    {Array.isArray(groups) && groups.length > 0 ? (
+      <FlatList
+        data={groups}
+        renderItem={({ item }) => renderGroupTree(item)}
+        keyExtractor={(item) => item.groupId}
+      />
+    ) : (
+      <Text style={styles.errorText}>{error || "Loading..."}</Text>
+    )}
+  </View>
 
-      <View style={styles.groupsSection}>
-        <Text style={styles.sectionTitle}>Groups</Text>
-        {Array.isArray(groups) && groups.length > 0 ? (
-          <FlatList
-            data={groups}
-            renderItem={({ item }) => renderGroupTree(item)}
-            keyExtractor={(item) => item.groupId}
-          />
-        ) : (
-          <Text style={styles.errorText}>{error || "Loading..."}</Text>
-        )}
-      </View>
+  {/* Settingボタンをグループリストの下に移動 */}
+  <TouchableOpacity onPress={() => navigation.navigate('Setting')} style={styles.settingButton}>
+    <Text style={styles.linkText}>設定</Text>
+  </TouchableOpacity>
 
+  <TouchableOpacity style={styles.toggleIcon} onPress={toggleSidebar}>
+    <Text style={styles.toggleText}>{sidebarOpen ? "←" : "→"}</Text>
+  </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-        <Text style={styles.linkText}>Setting</Text>
-      </TouchableOpacity>
-
-      
-      <TouchableOpacity style={styles.toggleIcon} onPress={toggleSidebar}>
-        <Text style={styles.toggleText}>{sidebarOpen ? "←" : "→"}</Text>
-      </TouchableOpacity>
-
-      {/* モーダル */}
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>グループ作成</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="グループ名"
-              value={newGroupName}
-              onChangeText={setNewGroupName}
-            />
-            <Text style={styles.label}>親グループ:</Text>
-            <View style={[styles.pickerContainer, styles.picker]}>
-              {renderParentGroups()}
-            </View>
-
-            <Button title="作成" onPress={handleCreateGroup} />
-            <Button title="キャンセル" onPress={handleCloseModal} color="red" />
-          </View>
+  {/* モーダル */}
+  <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>グループ作成</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="グループ名"
+          value={newGroupName}
+          onChangeText={setNewGroupName}
+        />
+        <Text style={styles.label}>親グループ:</Text>
+        <View style={[styles.pickerContainer, styles.picker]}>
+          {renderParentGroups()}
         </View>
-      </Modal>
+        <Button title="作成" onPress={handleCreateGroup} />
+        <Button title="キャンセル" onPress={handleCloseModal} color="red" />
+      </View>
     </View>
+  </Modal>
+
+  <Modal visible={isPlusModalVisible} animationType="slide" transparent={true}>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>グループ管理</Text>
+
+        {/* メンバー表示ボタン */}
+        <TouchableOpacity
+          style={styles.modalButton}
+          onPress={() => {
+            alert("メンバー表示");
+            handleClosePlusModal(); // モーダルを閉じる
+          }}
+        >
+          <Text style={styles.modalButtonText}>メンバー表示</Text>
+        </TouchableOpacity>
+
+        {/* グループ編集ボタン */}
+        <TouchableOpacity
+          style={styles.modalButton}
+          onPress={() => {
+            alert("グループ編集");
+            handleClosePlusModal(); // モーダルを閉じる
+          }}
+        >
+          <Text style={styles.modalButtonText}>グループ編集</Text>
+        </TouchableOpacity>
+
+        {/* キャンセルボタン */}
+        <Button title="閉じる" onPress={handleClosePlusModal} color="red" />
+      </View>
+    </View>
+  </Modal>
+</View>
   );
 };
 
@@ -261,13 +304,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 5,
+    paddingRight: 5, // アイコン間の余白
+  },
+  groupNameWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1, // グループ名エリアの柔軟性を確保
+    marginRight: 10, // アイコンとの余白
+  },
+  iconWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   groupNameContainer: {
-    flex: 0,
+    flex: 1,
   },
   groupName: {
     fontSize: 16,
     color: "#333",
+    flexShrink: 1, // 長い名前は縮小表示
   },
   expandIconContainer: {
     paddingHorizontal: 2,
@@ -323,18 +378,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   trashIconContainer: {
-    paddingHorizontal: 5, // アイコン間の余白
-    justifyContent: "right",
-    alignItems: "center",
+    marginRight: 5, // 展開記号との余白
   },
   trashIcon: {
     fontSize: 16,
     color: "#ff4d4d", // 赤色
   },
   expandIconContainer: {
-    paddingHorizontal: 0, // 展開記号周りの余白
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 5,
   },
   expandIcon: {
     fontSize: 16,
@@ -349,6 +400,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
  
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    width: 300,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  settingButton: {
+    marginTop: 10, // グループリストとの間隔
+  },
+  
+  
   
 });
 

@@ -122,20 +122,31 @@ function Group() {
           </ScrollView>
         )}
 
-        {currentGroup ? (
-          <View>
-            <Text style={styles.groupDetail}>
-              <Text style={styles.label}>グループ名:</Text> {currentGroup.groupName}
+
+      {currentGroup ? (
+        <View>
+          <View style={styles.groupHeader}>
+            {/* グループ名 */}
+            <Text style={styles.groupDetail} numberOfLines={1}>
+              <Text style={styles.label}></Text> {currentGroup.groupName}
             </Text>
-            <Text style={styles.groupDetail}>
-              <Text style={styles.label}>グループID:</Text> {currentGroup.groupId}
-            </Text>
+
+            {/* 投稿ボタン */}
+           <TouchableOpacity
+              style={styles.postButton}
+              onPress={() => alert(`${currentGroup.groupName}に投稿します`)}
+            >
+              <Text style={styles.postButtonText}>投稿</Text>
+            </TouchableOpacity>
           </View>
-        ) : (
-          <Text style={styles.placeholderText}>
-            {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
-          </Text>
-        )}
+        </View>
+      ) : (
+        <Text style={styles.placeholderText}>
+          {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
+        </Text>
+      )}
+
+
       </View>
 
       {!sidebarOpen && (
@@ -187,7 +198,39 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
-  sidebarToggleButtonText: { color: "white", fontSize: 24, fontWeight: "bold" },
+  sidebarToggleButtonText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold"
+  },
+  groupHeader: {
+    flexDirection: "row", // 横並び
+    alignItems: "center", // 垂直方向に中央揃え
+    justifyContent: "space-between", // 名前とボタンを端に配置
+    width: "100%", // コンテナ幅を画面幅に収める
+    overflow: "hidden", // 子要素がはみ出さないようにする
+    marginBottom: 10,
+  },
+  groupDetail: {
+    fontSize: 18,
+    marginRight: 10, // ボタンとの余白
+    flexShrink: 1, // 長いグループ名は省略表示
+  },
+  postButton: {
+    backgroundColor: "#007bff",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 5,
+    maxWidth: 80, // ボタンが大きすぎないようにする
+  },
+  postButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  
+  
 });
 
 export default Group;
