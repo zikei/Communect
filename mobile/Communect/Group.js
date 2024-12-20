@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput } from "react-native";
+import { Picker } from '@react-native-picker/picker'; // ドロップダウンリスト用
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -10,6 +11,11 @@ function Group() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedParentId, setSelectedParentId] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false); // モーダルの表示/非表示管理
+  const [inputText, setInputText] = useState(""); // テキストボックスの入力管理
+  const [selectedOption, setSelectedOption] = useState(""); // ドロップダウンリストの選択管理
+  const [secondSelectedOption, setSecondSelectedOption] = useState(""); // 2つ目のドロップダウンリストの選択管理
+
 
   const localGroupData = [
     { groupId: "1", groupName: "初星学園", aboveId: null },
@@ -82,6 +88,27 @@ function Group() {
 
   const breadcrumbs = currentGroup ? getBreadcrumb(currentGroup.groupId) : [];
 
+  // モーダルを開く関数
+  const openModal = () => {
+    setIsModalVisible(true);
+  };
+
+  // モーダルを閉じる関数
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setInputText(""); // テキストボックスの入力をリセット
+    setSelectedOption(""); // ドロップダウンリストの選択をリセット
+  };
+
+  const handlePostComplete = () => {
+    console.log("投稿完了");
+
+    // モーダルを閉じる
+    closeModal();
+  };
+
+
+
   return (
     <View style={styles.container}>
       {sidebarOpen && (
@@ -122,31 +149,86 @@ function Group() {
           </ScrollView>
         )}
 
+        {currentGroup ? (
+          <View>
+            <View style={styles.groupHeader}>
+              {/* グループ名 */}
+              <Text style={styles.groupDetail} numberOfLines={1}>
+                <Text style={styles.label}></Text> {currentGroup.groupName}
+              </Text>
 
-      {currentGroup ? (
-        <View>
-          <View style={styles.groupHeader}>
-            {/* グループ名 */}
-            <Text style={styles.groupDetail} numberOfLines={1}>
-              <Text style={styles.label}></Text> {currentGroup.groupName}
-            </Text>
-
-            {/* 投稿ボタン */}
-           <TouchableOpacity
-              style={styles.postButton}
-              onPress={() => alert(`${currentGroup.groupName}に投稿します`)}
-            >
-              <Text style={styles.postButtonText}>投稿</Text>
-            </TouchableOpacity>
+              {/* 投稿ボタン */}
+              <TouchableOpacity
+                style={styles.postButton}
+                onPress={openModal} // モーダルを開く
+              >
+                <Text style={styles.postButtonText}>投稿</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      ) : (
-        <Text style={styles.placeholderText}>
-          {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
-        </Text>
-      )}
+        ) : (
+          <Text style={styles.placeholderText}>
+            {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
+          </Text>
+        )}
 
+        {/* モーダル */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+         animationType="fade"
+         onRequestClose={closeModal} // モーダル外をクリックすると閉じる
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              {/* × ボタン */}
+              <TouchableOpacity style={styles.closeIcon} onPress={closeModal}>
+                 <Text style={styles.closeIconText}>×</Text>
+              </TouchableOpacity>
 
+              <Text style={styles.modalTitle}>投稿内容</Text>
+              <Text style={styles.pickerLabel}>メッセージ</Text>
+      
+              {/* テキストボックス */}
+              <TextInput
+                 style={styles.inputText}
+                 value={inputText}
+                 onChangeText={setInputText} // テキストボックスの内容を更新
+                 placeholder="投稿内容を入力してください"
+              />
+
+              {/* 最初のドロップダウンリスト */}
+              <Text style={styles.pickerLabel}>連絡タイプ</Text>
+              <Picker
+                 selectedValue={selectedOption}
+                 onValueChange={(itemValue) => setSelectedOption(itemValue)} // ドロップダウンリストの選択を更新
+                 style={styles.picker} // スタイルを追加
+               >
+                 <Picker.Item label="周知連絡" value="shuchi" />
+                 <Picker.Item label="確認連絡" value="kakunin" />
+                 <Picker.Item label="多岐連絡" value="taki" />
+               </Picker>
+
+               {/* 2つ目のドロップダウンリスト */}
+               <Text style={styles.pickerLabel}>重要度</Text>
+               <Picker
+                  selectedValue={secondSelectedOption}
+                 onValueChange={(itemValue) => setSecondSelectedOption(itemValue)}
+                 style={styles.picker}
+               >
+                 <Picker.Item label="低" value="tei" />
+                 <Picker.Item label="中" value="tyuy" />
+                 <Picker.Item label="高" value="kou" />
+                 <Picker.Item label="最低" value="saitei" />
+               </Picker>
+
+              {/* 投稿完了ボタン */}
+              <TouchableOpacity style={styles.closeButton} onPress={handlePostComplete}>
+                 <Text style={styles.closeButtonText}>投稿完了</Text>
+               </TouchableOpacity>
+              </View>
+           </View>
+        </Modal>
       </View>
 
       {!sidebarOpen && (
@@ -156,7 +238,9 @@ function Group() {
       )}
     </View>
   );
-}
+
+
+} 
 
 const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: "row" },
@@ -211,11 +295,6 @@ const styles = StyleSheet.create({
     overflow: "hidden", // 子要素がはみ出さないようにする
     marginBottom: 10,
   },
-  groupDetail: {
-    fontSize: 18,
-    marginRight: 10, // ボタンとの余白
-    flexShrink: 1, // 長いグループ名は省略表示
-  },
   postButton: {
     backgroundColor: "#007bff",
     paddingHorizontal: 15,
@@ -229,8 +308,91 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  inputText: {
+    width: "100%",
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingLeft: 10,
+  },
+  closeButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  picker: {
+    width: '100%',
+    height: 60, // 高さを指定
+    marginBottom: 0,
+  },
+  closeButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  pickerLabel: {
+    fontSize: 17,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1, // 他のコンテンツより前に表示
+    padding: 10,
+    borderRadius: 50, // 丸いボタン
+    backgroundColor: "rgba(0, 0, 0, 0.1)", // ボタン背景の色（透明度付き）
+  },
+  
+  closeIconText: {
+    fontSize: 24,
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  
+  // 他のスタイルもそのまま保持
   
   
+
+
 });
 
 export default Group;
