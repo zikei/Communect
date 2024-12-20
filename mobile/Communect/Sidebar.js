@@ -51,8 +51,8 @@ const handleClosePlusModal = () => {
         onValueChange={(itemValue) => setSelectedParentGroup(itemValue)}
         style={styles.picker}
       >
-        <Picker.Item label="親グループなし" value="" /> {/* value を空文字列に設定 */}
-        {groups.map((group) => (
+        <Picker.Item label="親グループなし" value="" />
+        {(groups || []).map((group) => (
           <Picker.Item key={group.groupId} label={group.groupName} value={group.groupId} />
         ))}
       </Picker>
