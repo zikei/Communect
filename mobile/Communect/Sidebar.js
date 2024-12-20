@@ -25,7 +25,7 @@ const Sidebar = ({
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
-  const [selectedParentGroup, setSelectedParentGroup] = useState(null);
+  const [selectedParentGroup, setSelectedParentGroup] = useState("");
   const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
 
 const handleOpenPlusModal = () => {
@@ -51,13 +51,14 @@ const handleClosePlusModal = () => {
         onValueChange={(itemValue) => setSelectedParentGroup(itemValue)}
         style={styles.picker}
       >
-        <Picker.Item label="親グループなし" value={null} />
+        <Picker.Item label="親グループなし" value="" /> {/* value を空文字列に設定 */}
         {groups.map((group) => (
           <Picker.Item key={group.groupId} label={group.groupName} value={group.groupId} />
         ))}
       </Picker>
     );
   };
+  
 
   const handleCreateGroup = () => {
     if (newGroupName.trim() === "") {
