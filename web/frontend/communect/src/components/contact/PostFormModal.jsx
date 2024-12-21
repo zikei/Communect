@@ -21,8 +21,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     }
   }, [initialData]);
 
-  console.log(initialData.choices);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));

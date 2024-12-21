@@ -48,13 +48,13 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
   return (
     <Modal show={show} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Member</Modal.Title>
+        <Modal.Title>メンバー編集</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>Nickname</Form.Label>
+            <Form.Label>ニックネーム</Form.Label>
             <Form.Control
               type="text"
               name="nickName"
@@ -63,14 +63,14 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Role</Form.Label>
+            <Form.Label>連絡権限</Form.Label>
             <Form.Control
               as="select"
               name="role"
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="">Select Role</option>
+              <option value="">選択してください</option>
               {Object.keys(ROLE_DISPLAY_MAP).map((role) => (
                 <option key={role} value={role}>
                   {ROLE_DISPLAY_MAP[role]}
@@ -98,10 +98,10 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
-          Cancel
+          やめる
         </Button>
         <Button variant="primary" onClick={handleSubmit}>
-          Save changes
+          保存
         </Button>
       </Modal.Footer>
     </Modal>
