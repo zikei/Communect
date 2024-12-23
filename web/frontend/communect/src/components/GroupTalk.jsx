@@ -57,10 +57,42 @@ const TalkRoom = ({ currentGroup, onSendMessage, onSelectTalk }) => {
     }
   }, [currentGroup?.groupId]);
 
+  const handleSendMessage = (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]); // メッセージリストに追加
+  };
+
   const handleSelectTalk = (talkId) => {
     setSelectedTalk(talkId);
     fetchMessages(talkId);
     if (onSelectTalk) onSelectTalk(talkId);
+  };
+
+  const handleEditMessage = async (messageId, updatedText) => {
+    try {
+      await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`, {
+        message: updatedText,
+      });
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.messageId === messageId
+            ? { ...message, message: updatedText }
+            : message
+        )
+      );
+    } catch (err) {
+      console.error("メッセージの編集に失敗しました。", err);
+    }
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`);
+      setMessages((prevMessages) =>
+        prevMessages.filter((message) => message.messageId !== messageId)
+      );
+    } catch (err) {
+      console.error("メッセージの削除に失敗しました。", err);
+    }
   };
 
   const scrollToBottom = () => {
@@ -88,6 +120,9 @@ const TalkRoom = ({ currentGroup, onSendMessage, onSelectTalk }) => {
           messages={messages}
           selectedTalk={selectedTalk}
           messagesEndRef={messagesEndRef}
+          onSendMessage={handleSendMessage}
+          onEditMessage={handleEditMessage}
+          onDeleteMessage={handleDeleteMessage}
         />
       </Row>
       <GroupTalkCreate

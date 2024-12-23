@@ -16,7 +16,7 @@ const MessageSender = ({ talkId, onMessageSent }) => {
 
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + `/talk/${talkId}/message`,
+        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`,
         { message: messageText }
       );
 
