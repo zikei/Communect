@@ -1,12 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, ListGroup, Form, Button, Alert, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  ListGroup,
+  Form,
+  Button,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
 import axios from "axios";
 import styles from "../css/module/groupTalk.module.css";
 import GroupTalkCreate from "./group/GroupTalkCreate";
+import MessageSender from "./message/MessageSender";
 
-const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) => {
+const TalkRoom = ({ currentGroup, onSendMessage, onSelectTalk }) => {
   const [messageText, setMessageText] = useState("");
   const [talks, setTalks] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [selectedTalk, setSelectedTalk] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +35,9 @@ const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) 
     setError(null);
 
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + `/group/${currentGroup.groupId}/talk`);
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + `/group/${currentGroup.groupId}/talk`
+      );
       if (response.data && response.data.talks) {
         setTalks(response.data.talks);
       } else {
@@ -38,9 +51,45 @@ const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) 
     }
   };
 
+  // メッセージ一覧の取得
+  const fetchMessages = async (talkId, lastMessageId = null) => {
+    if (!talkId) {
+      console.error("トークIDが設定されていません");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + `/talk/${talkId}/message`,
+        {
+          params: { messageId: lastMessageId },
+        }
+      );
+
+      if (response.data && response.data.messages) {
+        setMessages((prevMessages) => [
+          ...response.data.messages.reverse(),
+          ...prevMessages,
+        ]);
+      } else if (response.data.messages === null) {
+        console.log("読み込み可能なメッセージがありません。");
+      }
+    } catch (err) {
+      console.error("メッセージ一覧の取得に失敗しました:", err);
+      setError("メッセージ一覧の取得に失敗しました。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // トークルーム選択
   const handleSelectTalk = (talkId) => {
     setSelectedTalk(talkId);
+    setMessages([]); // メッセージをリセット
+    fetchMessages(talkId);
     if (typeof onSelectTalk === "function") {
       onSelectTalk(talkId);
     }
@@ -64,6 +113,12 @@ const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) 
 
     onSendMessage(currentGroup.groupId, newMessage);
     setMessageText("");
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  };
+
+  // メッセージ送信後の処理
+  const handleNewMessage = (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
 
   // スクロール制御
@@ -96,7 +151,10 @@ const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) 
               className="text-primary"
               onClick={() => setShowCreateModal(true)}
             >
-              <i className="bi bi-plus-circle" style={{ fontSize: "1.5rem" }}></i>
+              <i
+                className="bi bi-plus-circle"
+                style={{ fontSize: "1.5rem" }}
+              ></i>
             </Button>
           </div>
           {loading ? (
@@ -129,38 +187,37 @@ const TalkRoom = ({ currentGroup, messages = [], onSendMessage, onSelectTalk }) 
             {messages.length > 0 ? (
               messages.map((message) => (
                 <div
-                  key={message.id}
+                  key={message.messageId}
                   className={`${styles.message} ${
-                    message.user === "あなた" ? styles.own : styles.other
+                    message.userName === "あなた" ? styles.own : styles.other
                   }`}
                 >
                   <div className={styles["message-bubble"]}>
-                    <p className={styles["message-text"]}>{message.text}</p>
+                    <p className={styles["message-text"]}>{message.message}</p>
                     <p className={styles["message-info"]}>
-                      <small>{message.user}</small> | <small>{message.timestamp}</small>
+                      <small>{message.nickName || message.userName}</small> |{" "}
+                      <small>
+                        {new Date(message.createTime).toLocaleString()}
+                      </small>
                     </p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className={styles["no-messages"]}>まだメッセージはありません。</p>
+              <p className={styles["no-messages"]}>
+                まだメッセージはありません。
+              </p>
             )}
             <div ref={messagesEndRef}></div>
           </div>
 
           {/* メッセージ入力エリア */}
-          <div className={styles["message-input"]}>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              placeholder="メッセージを入力..."
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
+          {selectedTalk && (
+            <MessageSender
+              talkId={selectedTalk}
+              onMessageSent={handleNewMessage}
             />
-            <Button variant="primary" onClick={handleSendMessage}>
-              送信
-            </Button>
-          </div>
+          )}
         </Col>
       </Row>
 
