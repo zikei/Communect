@@ -1,139 +1,73 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  ListGroup,
-  Form,
-  Button,
-  Alert,
-  Spinner,
-} from "react-bootstrap";
+import { Container, Row, Col, Spinner, Alert, ListGroup, Button } from "react-bootstrap";
 import axios from "axios";
 import styles from "../css/module/groupTalk.module.css";
 import GroupTalkCreate from "./group/GroupTalkCreate";
-import MessageSender from "./message/MessageSender";
+import TalkSidebar from "./group/GroupTalkSidebar";
+import MessagesArea from "./message/MessagesArea";
 
 const TalkRoom = ({ currentGroup, onSendMessage, onSelectTalk }) => {
-  const [messageText, setMessageText] = useState("");
-  const [talks, setTalks] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [selectedTalk, setSelectedTalk] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [talks, setTalks] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // トークルーム一覧の取得
   const fetchTalks = async () => {
-    if (!currentGroup?.groupId) {
-      console.error("グループIDが設定されていません");
-      return;
-    }
+    if (!currentGroup?.groupId) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get(
-        import.meta.env.VITE_API_URL + `/group/${currentGroup.groupId}/talk`
+        `${import.meta.env.VITE_API_URL}/group/${currentGroup.groupId}/talk`
       );
-      if (response.data && response.data.talks) {
-        setTalks(response.data.talks);
-      } else {
-        setError("トークルーム一覧が取得できませんでした。");
-      }
+      setTalks(response.data.talks || []);
     } catch (err) {
-      console.error("トークルーム一覧の取得に失敗しました:", err);
       setError("トークルーム一覧の取得に失敗しました。");
     } finally {
       setLoading(false);
     }
   };
 
-  // メッセージ一覧の取得
-  const fetchMessages = async (talkId, lastMessageId = null) => {
-    if (!talkId) {
-      console.error("トークIDが設定されていません");
-      return;
-    }
+  const fetchMessages = async (talkId) => {
+    if (!talkId) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get(
-        import.meta.env.VITE_API_URL + `/talk/${talkId}/message`,
-        {
-          params: { messageId: lastMessageId },
-        }
+        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`
       );
-
-      if (response.data && response.data.messages) {
-        setMessages((prevMessages) => [
-          ...response.data.messages.reverse(),
-          ...prevMessages,
-        ]);
-      } else if (response.data.messages === null) {
-        console.log("読み込み可能なメッセージがありません。");
-      }
+      setMessages(response.data.messages || []);
     } catch (err) {
-      console.error("メッセージ一覧の取得に失敗しました:", err);
       setError("メッセージ一覧の取得に失敗しました。");
     } finally {
       setLoading(false);
     }
   };
 
-  // トークルーム選択
-  const handleSelectTalk = (talkId) => {
-    setSelectedTalk(talkId);
-    setMessages([]); // メッセージをリセット
-    fetchMessages(talkId);
-    if (typeof onSelectTalk === "function") {
-      onSelectTalk(talkId);
-    }
-  };
-
-  // トークルーム追加
-  const updateTalkList = (newTalk) => {
-    setTalks((prevTalks) => [...prevTalks, newTalk]);
-  };
-
-  // メッセージ送信
-  const handleSendMessage = () => {
-    if (!messageText.trim()) return;
-
-    const newMessage = {
-      id: messages.length + 1,
-      user: "あなた",
-      text: messageText,
-      timestamp: new Date().toLocaleString(),
-    };
-
-    onSendMessage(currentGroup.groupId, newMessage);
-    setMessageText("");
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
-
-  // メッセージ送信後の処理
-  const handleNewMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
-
-  // スクロール制御
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  // 初回レンダリング時とグループ変更時にトークルーム一覧を取得
   useEffect(() => {
     if (currentGroup?.groupId) {
       fetchTalks();
     }
   }, [currentGroup?.groupId]);
+
+  const handleSelectTalk = (talkId) => {
+    setSelectedTalk(talkId);
+    fetchMessages(talkId);
+    if (onSelectTalk) onSelectTalk(talkId);
+  };
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -142,91 +76,25 @@ const TalkRoom = ({ currentGroup, onSendMessage, onSelectTalk }) => {
   return (
     <Container fluid className={`${styles["talk-room"]} p-0`}>
       <Row className="m-0 h-100">
-        {/* サイドバー */}
-        <Col xs={3} className={`${styles.sidebar} p-0`}>
-          <div className="d-flex justify-content-between align-items-center">
-            <h5>トークルーム一覧</h5>
-            <Button
-              variant="link"
-              className="text-primary"
-              onClick={() => setShowCreateModal(true)}
-            >
-              <i
-                className="bi bi-plus-circle"
-                style={{ fontSize: "1.5rem" }}
-              ></i>
-            </Button>
-          </div>
-          {loading ? (
-            <div className="text-center mt-3">
-              <Spinner animation="border" role="status" />
-            </div>
-          ) : error ? (
-            <Alert variant="danger">{error}</Alert>
-          ) : talks.length > 0 ? (
-            <ListGroup>
-              {talks.map((talk) => (
-                <ListGroup.Item
-                  key={talk.talkId}
-                  action
-                  active={talk.talkId === selectedTalk}
-                  onClick={() => handleSelectTalk(talk.talkId)}
-                >
-                  {talk.talkName}
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          ) : (
-            <p className="text-center mt-3">トークルームがありません。</p>
-          )}
-        </Col>
-
-        {/* メッセージエリア */}
-        <Col xs={9} className={`${styles["messages-container"]} p-0`}>
-          <div className={`${styles.messages} flex-grow-1 overflow-auto`}>
-            {messages.length > 0 ? (
-              messages.map((message) => (
-                <div
-                  key={message.messageId}
-                  className={`${styles.message} ${
-                    message.userName === "あなた" ? styles.own : styles.other
-                  }`}
-                >
-                  <div className={styles["message-bubble"]}>
-                    <p className={styles["message-text"]}>{message.message}</p>
-                    <p className={styles["message-info"]}>
-                      <small>{message.nickName || message.userName}</small> |{" "}
-                      <small>
-                        {new Date(message.createTime).toLocaleString()}
-                      </small>
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className={styles["no-messages"]}>
-                まだメッセージはありません。
-              </p>
-            )}
-            <div ref={messagesEndRef}></div>
-          </div>
-
-          {/* メッセージ入力エリア */}
-          {selectedTalk && (
-            <MessageSender
-              talkId={selectedTalk}
-              onMessageSent={handleNewMessage}
-            />
-          )}
-        </Col>
+        <TalkSidebar
+          talks={talks}
+          loading={loading}
+          error={error}
+          onSelectTalk={handleSelectTalk}
+          setShowCreateModal={setShowCreateModal}
+          selectedTalk={selectedTalk}
+        />
+        <MessagesArea
+          messages={messages}
+          selectedTalk={selectedTalk}
+          messagesEndRef={messagesEndRef}
+        />
       </Row>
-
-      {/* グループトーク作成モーダル */}
       <GroupTalkCreate
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
-        onCreate={updateTalkList}
         groupId={currentGroup?.groupId}
+        onCreate={(newTalk) => setTalks((prevTalks) => [...prevTalks, newTalk])}
       />
     </Container>
   );
