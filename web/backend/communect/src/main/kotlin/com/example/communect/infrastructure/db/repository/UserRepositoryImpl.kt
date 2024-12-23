@@ -87,8 +87,8 @@ class UserRepositoryImpl(
      * @param user 追加ユーザ
      * @return 追加ユーザ
      */
-    override fun insertUser(user: UserIns): User {
-        val record = toRecord(user)
+    override fun insertUser(user: UserIns, apikey: String): User {
+        val record = toRecord(user, apikey)
         userMapper.insert(record)
         return toModel(record)
     }
@@ -145,14 +145,14 @@ class UserRepositoryImpl(
     }
 
     /** ユーザ追加モデルからレコードの変換 */
-    private fun toRecord(model: UserIns): UserRecord {
+    private fun toRecord(model: UserIns, apikey: String): UserRecord {
         return UserRecord(
             UUID.randomUUID().toString(),
             model.userName,
             model.nickName,
             model.password,
             model.email,
-            model.apikey
+            apikey
         )
     }
 
