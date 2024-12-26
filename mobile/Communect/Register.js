@@ -3,29 +3,30 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register = ({ navigation }) => {
-  const [userName, setUsername] = useState('');
-  const [nickName, setNickname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [RegisterData, setRegisterDate] = useState({
+    userName: '',
+    nickName: '',
+    password: '',
+    email: '',
+  });
+
+  const handleInputChange = (field, value) => {
+    setRegisterDate((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleRegister = async () => {
-    if (!userName || !nickName || !email || !password) {
+    if (!RegisterData.userName || !RegisterData.nickName || !RegisterData.email || !RegisterData.password) {
       Alert.alert('エラー', 'すべてのフィールドを入力してください。');
       return;
     }
 
     try {
-      const response = await fetch('http://api.localhost/user', {
+      const response = await fetch(`http://api.localhost/user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userName,
-          nickName,
-          email,
-          password,
-        }),
+        body: JSON.stringify(RegisterData),
       });
 
       const data = await response.json();
@@ -34,8 +35,21 @@ const Register = ({ navigation }) => {
         throw new Error(data.message || 'アカウント登録に失敗しました。');
       }
 
+      const apiKeyResponse = await fetch(`http://api.localhost/user/apikey`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const apiKeyData = await apiKeyResponse.json();
+
+      if (!apiKeyResponse.ok) {
+        throw new Error(apiKeyData.message || 'APIキーの取得に失敗しました。');
+      }
+
       // サーバーからAPIキーを取得して保存
-      const { apikey } = data;
+      const { apikey } = apiKeyData;
 
       // APIキーをローカルストレージに保存
       await AsyncStorage.setItem('apiKey', apikey);
@@ -52,7 +66,7 @@ const Register = ({ navigation }) => {
     navigation.setOptions({
       headerShown: false, // 登録画面ではヘッダー非表示
     });
-  }, [navigation]);  
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -60,28 +74,28 @@ const Register = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="ユーザー名"
-        value={userName}
-        onChangeText={setUsername}
+        value={RegisterData.userName}
+        onChangeText={(value) => handleInputChange('userName', value)}
       />
       <TextInput
         style={styles.input}
         placeholder="ニックネーム"
-        value={nickName}
-        onChangeText={setNickname}
+        value={RegisterData.nickName}
+        onChangeText={(value) => handleInputChange('nickName', value)}
       />
       <TextInput
         style={styles.input}
         placeholder="メールアドレス"
-        value={email}
-        onChangeText={setEmail}
+        value={RegisterData.email}
+        onChangeText={(value) => handleInputChange('email', value)}
         keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
         placeholder="パスワード"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={RegisterData.password}
+        onChangeText={(value) => handleInputChange('password', value)}
       />
       <Button title="登録" onPress={handleRegister} />
     </View>
@@ -92,6 +106,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   title: {
@@ -105,6 +120,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 4,
+    width: '100%',
     marginBottom: 15,
     paddingLeft: 10,
   },
