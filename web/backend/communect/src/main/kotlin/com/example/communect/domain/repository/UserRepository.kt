@@ -26,7 +26,7 @@ interface UserRepository {
     fun findApikeyByUserId(userId: String): String?
 
     /** ユーザ追加 */
-    fun insertUser(user: UserIns): User
+    fun insertUser(user: UserIns, apikey: String): User
 
     /** ユーザ更新 */
     fun updateUser(user: UserUpd)
