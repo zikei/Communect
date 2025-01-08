@@ -3,8 +3,12 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.ContactService
+import com.example.communect.ui.form.ContactInfo
+import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.UUID
@@ -12,6 +16,7 @@ import java.util.UUID
 /** 連絡処理実装クラス */
 @Service
 class ContactServiceImpl(
+    @Autowired private val messagingTemplate: SimpMessagingTemplate,
     @Value("\${contactRowCount}") private val contactLimit: Int
 ): ContactService {
     /**
@@ -61,6 +66,11 @@ class ContactServiceImpl(
         val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
+        messagingTemplate.convertAndSendToUser(
+            "87c6e905-41d5-484f-b7e1-14eb874a50ad",
+            "/topic/contact/${group.groupId}",
+            ContactResponse(ContactInfo(postContact))
+        )
         return postContact
     }
 

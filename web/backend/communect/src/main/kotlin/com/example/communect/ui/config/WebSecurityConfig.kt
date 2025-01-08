@@ -130,7 +130,7 @@ class WebSecurityConfig(
         @Value("\${frontFQDN}") front: String
     ): UrlBasedCorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("http://${front}", "https://${front}")
+        configuration.allowedOrigins = listOf("http://${front}", "https://${front}", "ws://${front}", "wss://${front}")
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
         configuration.allowedHeaders = listOf("*")
         configuration.allowCredentials = true

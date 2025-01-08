@@ -20,7 +20,7 @@ data class LoginUser(
 
 data class Login(val user: LoginUser)
     : User(
-        user.userName,
+        user.userId,
         user.password,
         AuthorityUtils.createAuthorityList("USER")
     )
