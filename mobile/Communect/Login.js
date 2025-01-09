@@ -35,7 +35,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
       setLoading(true);
 
       // サーバーにログインリクエストを送信
-      const response = await fetch('http://communect.localhost/login', {
+      const response = await fetch('http://api.localhost/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,19 +43,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
         body: JSON.stringify({ username, password }),
       });
 
+      const apiKeyResponse = await fetch(`http://api.localhost/user/apikey`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const apiKeyData = await apiKeyResponse.json();
+
+      if (!apiKeyResponse.ok) {
+        throw new Error(apiKeyData.message || 'APIキーの取得に失敗しました。');
+      }
+
+      // サーバーからAPIキーを取得して保存
+      const { apikey } = apiKeyData;
+
+      // APIキーをローカルストレージに保存
+      await AsyncStorage.setItem('apiKey', apikey);
+      await AsyncStorage.setItem('username', username);
+
       if (!response.ok) {
         throw new Error('ログインに失敗しました');
       }
-
-      const data = await response.json();
-
-      if (!data.apikey) {
-        throw new Error('APIキーが取得できませんでした');
-      }
-
-      // APIキーを保存
-      await AsyncStorage.setItem('apiKey', data.apikey);
-      await AsyncStorage.setItem('username', username);
 
       Alert.alert('ログイン成功', `ようこそ、${username}さん！`);
       navigation.replace('Group');
@@ -65,7 +75,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -157,7 +167,7 @@ const Login = ({ navigation }) => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     checkApiKey();
   }, [navigation]);
@@ -181,7 +191,7 @@ const Login = ({ navigation }) => {
       console.error('Error saving login information:', error);
       Alert.alert('エラー', 'ログインに失敗しました。');
     }
-  };
+  }
 
   // ログアウト処理は設定画面で行う前提のため、ここには含めない
 
@@ -217,7 +227,7 @@ const Login = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

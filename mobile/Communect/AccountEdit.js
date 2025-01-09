@@ -3,7 +3,6 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AccountEdit = ({ navigation }) => {
-  // 初期状態でユーザー情報をセット
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
@@ -16,81 +15,84 @@ const AccountEdit = ({ navigation }) => {
       try {
         const storedUsername = await AsyncStorage.getItem('username');
         const storedEmail = await AsyncStorage.getItem('email');
-        if (storedUsername) {
-          setUsername(storedUsername);
-        }
-        if (storedEmail) {
-          setEmail(storedEmail);
-        }
+        if (storedUsername) setUsername(storedUsername);
+        if (storedEmail) setEmail(storedEmail);
       } catch (error) {
         console.error('Error loading user information:', error);
       }
     };
-
     loadUserInfo();
   }, []);
 
-  // 入力のバリデーション
   const validateInput = () => {
     if (newPassword !== confirmPassword) {
       Alert.alert('エラー', '新しいパスワードと確認用パスワードが一致しません。');
       return false;
     }
-    if (newPassword.length < 8) {
+    if (newPassword && newPassword.length < 8) {
       Alert.alert('エラー', 'パスワードは8文字以上でなければなりません。');
       return false;
     }
     return true;
   };
 
-  // ユーザー情報の保存
   const handleSave = async () => {
-    if (validateInput()) {
-      try {
-        // ユーザー名、メールアドレス、パスワードの保存
-        await AsyncStorage.setItem('username', username);
-        await AsyncStorage.setItem('email', email);
-        if (newPassword) {
-          // 新しいパスワードを保存する
-          await AsyncStorage.setItem('password', newPassword);
-        }
+    if (!validateInput()) return;
 
+    const payload = {
+      userName: username || null,
+      nickName: nickname || null,
+      email: email || null,
+      password: newPassword || null,
+    };
+
+    try {
+      const response = await fetch('http://api.localhost/user', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // レスポンスに基づいてローカルデータを更新
+        await AsyncStorage.setItem('username', data.user.userName);
+        await AsyncStorage.setItem('email', data.user.email);
         Alert.alert('成功', 'アカウント情報が更新されました。');
-        navigation.goBack(); // 変更後に前の画面に戻る
-      } catch (error) {
-        console.error('Error saving user information:', error);
+        navigation.goBack(); // 前の画面に戻る
+      } else {
+        const errorData = await response.json();
+        Alert.alert('エラー', errorData.message || '更新に失敗しました。');
       }
+    } catch (error) {
+      console.error('Error updating user information:', error);
+      Alert.alert('エラー', 'サーバーに接続できません。');
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>アカウント編集</Text>
-
-      {/* ユーザー名 */}
       <TextInput
         style={styles.input}
         placeholder="ユーザー名"
         value={username}
         onChangeText={setUsername}
       />
-
       <TextInput
         style={styles.input}
         placeholder="ニックネーム"
         value={nickname}
         onChangeText={setNickname}
       />
-
-      {/* メールアドレス */}
       <TextInput
         style={styles.input}
         placeholder="メールアドレス"
         value={email}
         onChangeText={setEmail}
       />
-
-      {/* 現在のパスワード */}
       <TextInput
         style={styles.input}
         placeholder="現在のパスワード"
@@ -98,8 +100,6 @@ const AccountEdit = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
       />
-
-      {/* 新しいパスワード */}
       <TextInput
         style={styles.input}
         placeholder="新しいパスワード"
@@ -107,8 +107,6 @@ const AccountEdit = ({ navigation }) => {
         value={newPassword}
         onChangeText={setNewPassword}
       />
-
-      {/* 新しいパスワード確認 */}
       <TextInput
         style={styles.input}
         placeholder="新しいパスワード（確認用）"
@@ -116,8 +114,6 @@ const AccountEdit = ({ navigation }) => {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-
-      {/* 保存ボタン */}
       <Button title="保存" onPress={handleSave} />
     </View>
   );

@@ -28,7 +28,7 @@ const Setting = ({ navigation }) => {
     try {
       const apiKey = await AsyncStorage.getItem('apiKey');
 
-      const response = await fetch('http://communect.localhost/user', {
+      const response = await fetch('http://api.localhost/user', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
