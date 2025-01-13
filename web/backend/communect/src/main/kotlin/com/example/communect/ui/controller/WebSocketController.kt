@@ -2,8 +2,11 @@ package com.example.communect.ui.controller
 
 import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.model.ContactIns
+import com.example.communect.domain.model.ContactUpd
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.ContactPostRequest
+import com.example.communect.ui.form.WSDeleteContactRequest
+import com.example.communect.ui.form.WSUpdContactRequest
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -27,5 +30,26 @@ class WebSocketController(
 
         val postContact = ContactIns(req.groupId, MockTestData.user1.userId, req.message, req.contactType, req.importance, req.choices)
         contactService.addContact(postContact)
+    }
+
+    /** 連絡更新 ウェブソケット */
+    @MessageMapping("/contact/update")
+    fun updContact(
+        @Validated @Payload req: WSUpdContactRequest,
+        bindingResult: BindingResult
+    ){
+        if (bindingResult.hasErrors()) throw BadRequestException()
+
+        val updContact = ContactUpd(req.contactId, req.message, req.contactType, req.importance)
+        contactService.updContact(updContact, req.choices)
+    }
+
+    /** 連絡削除 ウェブソケット */
+    @MessageMapping("/contact/delete")
+    fun deleteContact(
+        @Validated @Payload req: WSDeleteContactRequest,
+        bindingResult: BindingResult
+    ) {
+        contactService.deleteContact(req.contactId)
     }
 }

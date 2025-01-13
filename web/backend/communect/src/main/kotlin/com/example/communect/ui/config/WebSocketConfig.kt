@@ -13,7 +13,7 @@ class WebSocketConfig(
     @Value("\${frontFQDN}") val front: String
 ): WebSocketMessageBrokerConfigurer {
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
-        registry.enableSimpleBroker("/topic/message", "/topic/contact")
+        registry.enableSimpleBroker("/topic", "/queue")
         registry.setApplicationDestinationPrefixes("/app")
     }
 

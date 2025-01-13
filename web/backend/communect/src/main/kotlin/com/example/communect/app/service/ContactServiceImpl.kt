@@ -3,6 +3,7 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.ContactService
+import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
 import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
@@ -66,9 +67,10 @@ class ContactServiceImpl(
         val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
-            "87c6e905-41d5-484f-b7e1-14eb874a50ad",
-            "/topic/contact/${group.groupId}",
+            userId,
+            "/queue/${userId}/contact/post",
             ContactResponse(ContactInfo(postContact))
         )
         return postContact
@@ -101,6 +103,14 @@ class ContactServiceImpl(
                 contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
         MockTestData.contactList[index] = updContact
+
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
+        messagingTemplate.convertAndSendToUser(
+            userId,
+            "/queue/${userId}/contact/update",
+            ContactResponse(ContactInfo(updContact))
+        )
+
         return MockTestData.contactList[index]
     }
 
@@ -111,6 +121,13 @@ class ContactServiceImpl(
     override fun deleteContact(contactId: String) {
         MockTestData.contactList.removeAll { it.contactId == contactId }
         MockTestData.reactionList.removeAll { it.contactId == contactId }
+
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
+        messagingTemplate.convertAndSendToUser(
+            userId,
+            "/queue/${userId}/contact/update",
+            ContactDeleteResponse(contactId)
+        )
     }
 
     /**

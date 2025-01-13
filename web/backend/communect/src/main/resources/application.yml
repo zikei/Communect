@@ -9,3 +9,10 @@ contactRowCount: ${CONTACT_ROW_COUNT}
 messageRowCount: ${MESSAGE_ROW_COUNT}
 frontFQDN: ${FRONT_FQDN}
 apikeyHeaderName: ${APIKEY_HEADER_NAME}
+
+logging:
+  level:
+    org:
+      springframework: TRACE
+      web:
+        socket: TRACE

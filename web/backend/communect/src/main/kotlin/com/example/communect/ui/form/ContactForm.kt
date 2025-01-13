@@ -17,8 +17,11 @@ data class ContactsResponse(val contacts: List<ContactInfo>?)
 /** 連絡詳細返却 */
 data class ContactAndReactionsResponse(val contact: ContactInfo, val reactions: List<ReactionInfo>?)
 
-/** 連絡作成返却 */
+/** 連絡返却 */
 data class ContactResponse(val contact: ContactInfo)
+
+/** 連絡削除返却 ウェブソケット */
+data class ContactDeleteResponse(val contactId: String)
 
 /** 連絡情報情報 */
 data class ContactInfo(
@@ -133,6 +136,32 @@ data class UpdContactRequest(
     val importance: Importance? = null,
     /** 選択肢リスト */
     val choices: List<String>? = null
+)
+
+/** 連絡更新リクエスト ウェブソケット */
+data class WSUpdContactRequest(
+    /** 連絡ID */
+    @get:NotBlank
+    @get:NotEmpty
+    val contactId: String,
+    /** メッセージ */
+    @get:NullOrNotBlank
+    @get:Size(max = 450)
+    val message: String? = null,
+    /** 連絡種別 */
+    val contactType: ContactType? = null,
+    /** 重要度 */
+    val importance: Importance? = null,
+    /** 選択肢リスト */
+    val choices: List<String>? = null
+)
+
+/** 連絡削除リクエスト ウェブソケット */
+data class WSDeleteContactRequest(
+    /** 連絡ID */
+    @get:NotBlank
+    @get:NotEmpty
+    val contactId: String
 )
 
 /** リアクションリクエスト */
