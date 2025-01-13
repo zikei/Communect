@@ -20,6 +20,9 @@ data class MessagesResponse(val messages: List<MessageInfo>?)
 /** メッセージ返却 */
 data class MessageResponse(val message: MessageInfo)
 
+/** メッセージ削除返却 */
+data class MessageDeleteResponse(val messageId: String)
+
 /** トークルーム情報 */
 data class TalkInfo(
     /** トークID */
@@ -95,10 +98,45 @@ data class PostMessageRequest(
     val message: String
 )
 
+/** メッセージ送信リクエスト ウェブソケット */
+data class WSPostMessageRequest(
+    /** トークID */
+    @get:NotBlank
+    @get:NotEmpty
+    val talkId: String,
+
+    /** メッセージ */
+    @get:NotBlank
+    @get:NotEmpty
+    @get:Size(max = 450)
+    val message: String
+)
+
 /** メッセージ更新リクエスト */
 data class UpdMessageRequest(
     /** メッセージ */
     @get:NullOrNotBlank
     @get:Size(max = 450)
     val message: String
+)
+
+/** メッセージ更新リクエスト ウェブソケット */
+data class WSUpdMessageRequest(
+    /** メッセージID */
+    @get:NotBlank
+    @get:NotEmpty
+    val messageId: String,
+
+    /** メッセージ */
+    @get:NullOrNotBlank
+    @get:Size(max = 450)
+    val message: String
+)
+
+/** メッセージ削除リクエスト ウェブソケット */
+data class WSDeleteMessageRequest(
+    /** メッセージID */
+    @get:NotBlank
+    @get:NotEmpty
+    val messageId: String
 )

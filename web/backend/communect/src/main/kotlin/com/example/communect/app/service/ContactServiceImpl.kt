@@ -125,7 +125,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/queue/${userId}/contact/update",
+            "/queue/${userId}/contact/delete",
             ContactDeleteResponse(contactId)
         )
     }

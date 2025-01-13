@@ -4,8 +4,13 @@ import com.example.communect.domain.model.Message
 import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.MessageUpd
 import com.example.communect.domain.service.MessageService
+import com.example.communect.ui.form.MessageDeleteResponse
+import com.example.communect.ui.form.MessageInfo
+import com.example.communect.ui.form.MessageResponse
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -13,6 +18,7 @@ import java.util.*
 /** メッセージ処理実装クラス */
 @Service
 class MessageServiceImpl(
+    @Autowired private val messagingTemplate: SimpMessagingTemplate,
     @Value("\${messageRowCount}") private val messageLimit: Int
 ): MessageService {
     /**
@@ -39,6 +45,14 @@ class MessageServiceImpl(
         val insMessage = Message(UUID.randomUUID().toString(), message.message, LocalDateTime.now(), message.talkId, user.userId, user.userName, user.nickName)
 
         MockTestData.messageList.add(insMessage)
+
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
+        messagingTemplate.convertAndSendToUser(
+            userId,
+            "/queue/${userId}/message/post",
+            MessageResponse(MessageInfo(insMessage))
+        )
+
         return insMessage
     }
 
@@ -57,6 +71,14 @@ class MessageServiceImpl(
                 MockTestData.messageList[index].userName, MockTestData.messageList[index].nickName)
 
         MockTestData.messageList[index] = updMessage
+
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
+        messagingTemplate.convertAndSendToUser(
+            userId,
+            "/queue/${userId}/message/post",
+            MessageResponse(MessageInfo(updMessage))
+        )
+
         return MockTestData.messageList[index]
     }
 
@@ -66,5 +88,12 @@ class MessageServiceImpl(
      */
     override fun deleteMessage(messageId: String) {
         MockTestData.messageList.removeAll { it.messageId == messageId }
+
+        val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
+        messagingTemplate.convertAndSendToUser(
+            userId,
+            "/queue/${userId}/message/delete",
+            MessageDeleteResponse(messageId)
+        )
     }
 }
