@@ -6,7 +6,7 @@ import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
 import GroupTalk from "./components/GroupTalk";
 import GroupContact from "./components/GroupContact";
-import "./css/group.css";
+import "./css/main.css";
 import axios from "axios";
 
 function Group() {
