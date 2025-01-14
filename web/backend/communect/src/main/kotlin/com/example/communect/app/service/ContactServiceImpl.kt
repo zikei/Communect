@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /** 連絡処理実装クラス */
 @Service
@@ -70,7 +70,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/queue/${userId}/contact/post",
+            "/contact/post",
             ContactResponse(ContactInfo(postContact))
         )
         return postContact
@@ -107,7 +107,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/queue/${userId}/contact/update",
+            "/contact/update",
             ContactResponse(ContactInfo(updContact))
         )
 
@@ -125,7 +125,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/queue/${userId}/contact/delete",
+            "/contact/delete",
             ContactDeleteResponse(contactId)
         )
     }
