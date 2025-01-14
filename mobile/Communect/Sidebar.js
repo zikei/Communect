@@ -433,6 +433,8 @@ const styles = StyleSheet.create({
   },
   settingButton: {
     marginTop: 10, // グループリストとの間隔
+    alignItems: "center", 
+    justifyContent: "center", 
   },
   
   
