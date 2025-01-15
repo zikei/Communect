@@ -49,7 +49,7 @@ class MessageServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/message/post",
+            "/queue/message/post",
             MessageResponse(MessageInfo(insMessage))
         )
 
@@ -75,7 +75,7 @@ class MessageServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/message/post",
+            "/queue/message/post",
             MessageResponse(MessageInfo(updMessage))
         )
 
@@ -92,7 +92,7 @@ class MessageServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/message/delete",
+            "/queue/message/delete",
             MessageDeleteResponse(messageId)
         )
     }

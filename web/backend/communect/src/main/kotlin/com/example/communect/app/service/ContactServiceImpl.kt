@@ -70,7 +70,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/contact/post",
+            "/queue/contact/post",
             ContactResponse(ContactInfo(postContact))
         )
         return postContact
@@ -107,7 +107,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/contact/update",
+            "/queue/contact/update",
             ContactResponse(ContactInfo(updContact))
         )
 
@@ -125,7 +125,7 @@ class ContactServiceImpl(
         val userId = "87c6e905-41d5-484f-b7e1-14eb874a50ad"
         messagingTemplate.convertAndSendToUser(
             userId,
-            "/contact/delete",
+            "/queue/contact/delete",
             ContactDeleteResponse(contactId)
         )
     }
