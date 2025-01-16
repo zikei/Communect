@@ -5,14 +5,19 @@ import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.MessageUpd
 import com.example.communect.domain.service.MessageService
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 /** メッセージ処理実装クラス */
 @Service
 class MessageServiceImpl(
+    @Autowired val emitterRepository: MessageSseEmitterRepository,
     @Value("\${messageRowCount}") private val messageLimit: Int
 ): MessageService {
     /**
@@ -66,5 +71,49 @@ class MessageServiceImpl(
      */
     override fun deleteMessage(messageId: String) {
         MockTestData.messageList.removeAll { it.messageId == messageId }
+    }
+
+    /**
+     * SSE登録
+     * @param userId SSE登録ユーザID
+     */
+    override fun addSse(userId: String): SseEmitter {
+        val emitter = emitterRepository.addEmitter(userId)
+        emitter.send(
+            SseEmitter.event()
+                .name("connection")
+                .data("message: Connection established successfully")
+        )
+
+        return emitter
+    }
+}
+
+@Component
+class MessageSseEmitterRepository(
+    @Value("\${sseTimeOutMinutes}") private val sseTimeOutMinutes: Long
+) {
+    private val emitters = ConcurrentHashMap<String, SseEmitter>()
+
+    fun addEmitter(userId: String): SseEmitter {
+        val emitter = SseEmitter(sseTimeOutMinutes * 60 * 1000)
+        emitter.onCompletion {
+            removeEmitter(userId)
+        }
+        emitter.onTimeout{
+            removeEmitter(userId)
+        }
+
+        emitters[userId] = emitter
+
+        return emitter
+    }
+
+    fun removeEmitter(userId: String) {
+        emitters.remove(userId)
+    }
+
+    fun getAllEmitters(): Map<String, SseEmitter> {
+        return emitters
     }
 }
