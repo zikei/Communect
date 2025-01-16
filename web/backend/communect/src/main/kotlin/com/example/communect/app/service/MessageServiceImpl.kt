@@ -113,7 +113,7 @@ class MessageSseEmitterRepository(
         emitters.remove(userId)
     }
 
-    fun getAllEmitters(): Map<String, SseEmitter> {
-        return emitters
+    fun getEmitter(userId: String): SseEmitter? {
+        return emitters[userId]
     }
 }
