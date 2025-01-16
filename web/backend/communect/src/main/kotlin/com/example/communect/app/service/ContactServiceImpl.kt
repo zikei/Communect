@@ -165,9 +165,7 @@ class ContactServiceImpl(
      * @param userId SSE登録ユーザID
      */
     override fun addSse(userId: String): SseEmitter {
-        val emitter = emitterRepository.addEmitter(userId)
-
-        return emitter
+        return emitterRepository.addEmitter(userId)
     }
 }
 
