@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { Picker } from '@react-native-picker/picker';  // 修正: Pickerを@react-native-picker/pickerからインポート
+import { FontAwesome } from 'react-native-vector-icons';
 
 const Sidebar = ({
   groups,
@@ -27,6 +28,7 @@ const Sidebar = ({
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedParentGroup, setSelectedParentGroup] = useState("");
   const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
 const handleOpenPlusModal = () => {
   setIsPlusModalVisible(true);
@@ -75,14 +77,15 @@ const handleClosePlusModal = () => {
       <View style={styles.groupRow}>
         {/* グループ名と＋アイコン */}
         <View style={styles.groupNameWrapper}>
-          {/* ＋アイコン */}
-          <TouchableOpacity
+          {/* プラスアイコン */}
+          {selectedGroupId === group.groupId && (
+            <TouchableOpacity
             style={styles.plusIconContainer}
             onPress={handleOpenPlusModal}
           >
-            <Text style={styles.plusIcon}>✚</Text>
+            <FontAwesome name="plus" size={24} color="black" />
           </TouchableOpacity>
-
+          )}
           {/* グループ名 */}
           <TouchableOpacity
             onPress={() => handleGroupClick(group)}
@@ -96,12 +99,14 @@ const handleClosePlusModal = () => {
 
         {/* ゴミ箱アイコンと展開記号 */}
         <View style={styles.iconWrapper}>
-          <TouchableOpacity
-            onPress={() => handleDeleteGroup(group.groupId)}
-            style={styles.trashIconContainer}
-          >
-            <Text style={styles.trashIcon}>🗑️</Text>
-          </TouchableOpacity>
+          {selectedGroupId === group.groupId && (
+            <TouchableOpacity
+              onPress={() => handleDeleteGroup(group.groupId)}
+              style={styles.trashIconContainer}
+            >
+              <FontAwesome name="trash" size={24} color="black" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => toggleGroup(group.groupId)}
             style={styles.expandIconContainer}
@@ -141,9 +146,6 @@ const handleClosePlusModal = () => {
     );
   };
   
-  
-  
-  
 
   return (
     <View style={[styles.sidebar, sidebarOpen ? styles.open : styles.closed]}>
@@ -170,11 +172,15 @@ const handleClosePlusModal = () => {
 
   {/* Settingボタンをグループリストの下に移動 */}
   <TouchableOpacity onPress={() => navigation.navigate('Setting')} style={styles.settingButton}>
-    <Text style={styles.linkText}>設定</Text>
+    <FontAwesome name="cog" size={24} color="#fff" />
   </TouchableOpacity>
 
   <TouchableOpacity style={styles.toggleIcon} onPress={toggleSidebar}>
-    <Text style={styles.toggleText}>{sidebarOpen ? "←" : "→"}</Text>
+    <FontAwesome
+      name={sidebarOpen ? "angle-left" : "angle-right"}
+      size={24}
+      color="#fff"
+    />
   </TouchableOpacity>
 
   {/* モーダル */}
@@ -236,20 +242,23 @@ const handleClosePlusModal = () => {
 
 const styles = StyleSheet.create({
   sidebar: {
-    position: "absolute",
+    position: "absolute", // 絶対配置
     left: 0,
     top: 0,
     bottom: 0,
+    width: 270, // 固定幅
     backgroundColor: "#f0f0f0",
     padding: 16,
     borderRightWidth: 1,
     borderRightColor: "#ccc",
+    zIndex: 10, // コンテンツの上に表示する
+    transform: [{ translateX: -270 }], // 初期状態で画面外に配置
   },
   open: {
-    width: 270,
+    transform: [{ translateX: 0 }], // 開いた状態で画面内に表示
   },
   closed: {
-    width: 0,
+    transform: [{ translateX: -270 }], // 閉じた状態で画面外に配置
   },
   button: {
     backgroundColor: "#007bff",
@@ -286,15 +295,21 @@ const styles = StyleSheet.create({
   },
   toggleIcon: {
     position: "absolute",
-    bottom: 20,
-    left: 10,
-    backgroundColor: "#007bff",
-    width: 40,
-    height: 40,
+    bottom: 20, // 画面下からの位置
+    left: 10,   // サイドバー側の位置
+    backgroundColor: "#007bff", // ボタン背景色
+    width: 45, // ボタンの幅
+    height: 45, // ボタンの高さ
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 20,
+    borderRadius: 25, // 丸い形状にする
+    shadowColor: "#000", // シャドウ効果
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5, // Android用シャドウ
   },
+  
   toggleText: {
     color: "#fff",
     fontSize: 18,
@@ -431,10 +446,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f0f0', // 必要に応じて背景色を設定
+  },
   settingButton: {
-    marginTop: 10, // グループリストとの間隔
-    alignItems: "center", 
-    justifyContent: "center", 
+    position: 'absolute',
+    bottom: 20, // サイドバーの下端からの距離
+    right: 20, // サイドバーの右端からの距離
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    backgroundColor: '#007bff', // ボタンの背景色
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5, // Android で影を追加
+    shadowColor: '#000', // iOS で影を追加
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   
   

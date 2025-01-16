@@ -9,6 +9,7 @@ import ChatScreen from './ChatScreen';
 import Setting from './Setting';
 import Register from './Register';
 import AccountEdit from './AccountEdit';
+import PasswordChange from './PasswordChange';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,7 @@ const App = () => {
         <Stack.Screen name="Setting" component={Setting} options={{ title: '設定' }} />
         <Stack.Screen name="Register" component={Register} options={{ title: 'アカウント登録' }} />
         <Stack.Screen name="AccountEdit" component={AccountEdit} options={{ title: 'アカウント設定' }} />
+        <Stack.Screen name="PasswordChange" component={PasswordChange} options={{ title: 'パスワード変更' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

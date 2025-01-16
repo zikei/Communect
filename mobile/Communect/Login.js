@@ -185,7 +185,6 @@ const Login = ({ navigation }) => {
       await AsyncStorage.setItem('username', username);
 
       setIsLoggedIn(true);
-      Alert.alert('ログイン成功', `ようこそ、${username}さん！`);
       navigation.replace('Group');
     } catch (error) {
       console.error('Error saving login information:', error);
