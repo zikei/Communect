@@ -3,6 +3,9 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.ContactService
+import com.example.communect.ui.form.ContactDeleteResponse
+import com.example.communect.ui.form.ContactInfo
+import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -66,6 +69,20 @@ class ContactServiceImpl(
         val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == group.groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            try {
+                emitterRepository.getEmitter(id)?.send(
+                    SseEmitter.event()
+                        .name("post")
+                        .data(ContactResponse(ContactInfo(postContact)))
+                )
+            }catch (e: Exception){
+                emitterRepository.removeEmitter(id)
+            }
+
+        }
+
         return postContact
     }
 
@@ -96,6 +113,16 @@ class ContactServiceImpl(
                 contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
         MockTestData.contactList[index] = updContact
+
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == updContact.groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            emitterRepository.getEmitter(id)?.send(
+                SseEmitter.event()
+                    .name("update")
+                    .data(ContactResponse(ContactInfo(updContact)))
+            )
+        }
+
         return MockTestData.contactList[index]
     }
 
@@ -104,8 +131,18 @@ class ContactServiceImpl(
      *  @param contactId 削除対象連絡ID
      */
     override fun deleteContact(contactId: String) {
+        val groupId = MockTestData.contactList.find { it.contactId == contactId }?.groupId ?: throw BadRequestException()
         MockTestData.contactList.removeAll { it.contactId == contactId }
         MockTestData.reactionList.removeAll { it.contactId == contactId }
+
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            emitterRepository.getEmitter(id)?.send(
+                SseEmitter.event()
+                    .name("delete")
+                    .data(ContactDeleteResponse(contactId))
+            )
+        }
     }
 
     /**
@@ -129,11 +166,6 @@ class ContactServiceImpl(
      */
     override fun addSse(userId: String): SseEmitter {
         val emitter = emitterRepository.addEmitter(userId)
-        emitter.send(
-            SseEmitter.event()
-                .name("connection")
-                .data("contact: Connection established successfully")
-        )
 
         return emitter
     }
@@ -156,10 +188,21 @@ class ContactSseEmitterRepository(
 
         emitters[userId] = emitter
 
+        emitter.send(
+            SseEmitter.event()
+                .name("connection")
+                .data("contact: Connection established successfully")
+        )
+
         return emitter
     }
 
     fun removeEmitter(userId: String) {
+        getEmitter(userId)?.send(
+            SseEmitter.event()
+                .name("disconnect")
+                .data("contact: Connection closed")
+        )
         emitters.remove(userId)
     }
 

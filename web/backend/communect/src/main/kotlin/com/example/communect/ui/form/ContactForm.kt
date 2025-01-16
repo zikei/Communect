@@ -20,6 +20,9 @@ data class ContactAndReactionsResponse(val contact: ContactInfo, val reactions: 
 /** 連絡作成返却 */
 data class ContactResponse(val contact: ContactInfo)
 
+/** 連絡削除返却 */
+data class ContactDeleteResponse(val contactId: String)
+
 /** 連絡情報情報 */
 data class ContactInfo(
     /** 連絡ID */
