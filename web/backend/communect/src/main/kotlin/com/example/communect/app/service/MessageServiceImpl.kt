@@ -50,7 +50,6 @@ class MessageServiceImpl(
         MockTestData.messageList.add(insMessage)
 
         val messageUserIds = getMessageUserIds(insMessage.messageId)
-        println(messageUserIds)
         messageUserIds.forEach { id ->
             emitterRepository.getEmitter(id)?.send(
                 SseEmitter.event()
