@@ -57,6 +57,7 @@ const Setting = ({ navigation }) => {
       <Text style={styles.title}>設定</Text>
 
       <Button title="アカウント編集" onPress={handleEditAccount} />
+      <Button title="パスワード変更" onPress={() => navigation.navigate('PasswordChange')}/>
       <Button title="ログアウト" onPress={handleLogout} color="red" />
       <Button title="アカウント削除" onPress={() => setModalVisible(true)} color="red" />
 

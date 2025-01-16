@@ -6,9 +6,6 @@ const AccountEdit = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     const loadUserInfo = async () => {
@@ -24,29 +21,14 @@ const AccountEdit = ({ navigation }) => {
     loadUserInfo();
   }, []);
 
-  const validateInput = () => {
-    if (newPassword !== confirmPassword) {
-      Alert.alert('エラー', '新しいパスワードと確認用パスワードが一致しません。');
-      return false;
-    }
-    if (newPassword && newPassword.length < 8) {
-      Alert.alert('エラー', 'パスワードは8文字以上でなければなりません。');
-      return false;
-    }
-    return true;
-  };
-
   const handleSave = async () => {
-    if (!validateInput()) return;
-
-    const payload = {
-      userName: username || null,
-      nickName: nickname || null,
-      email: email || null,
-      password: newPassword || null,
-    };
-
     try {
+      const payload = {
+        userName: username || null,
+        nickName: nickname || null,
+        email: email || null,
+      };
+
       const response = await fetch('http://api.localhost/user', {
         method: 'PUT',
         headers: {
@@ -57,11 +39,10 @@ const AccountEdit = ({ navigation }) => {
 
       if (response.ok) {
         const data = await response.json();
-        // レスポンスに基づいてローカルデータを更新
         await AsyncStorage.setItem('username', data.user.userName);
         await AsyncStorage.setItem('email', data.user.email);
         Alert.alert('成功', 'アカウント情報が更新されました。');
-        navigation.goBack(); // 前の画面に戻る
+        navigation.goBack();
       } else {
         const errorData = await response.json();
         Alert.alert('エラー', errorData.message || '更新に失敗しました。');
@@ -92,27 +73,6 @@ const AccountEdit = ({ navigation }) => {
         placeholder="メールアドレス"
         value={email}
         onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="現在のパスワード"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="新しいパスワード"
-        secureTextEntry
-        value={newPassword}
-        onChangeText={setNewPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="新しいパスワード（確認用）"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
       />
       <Button title="保存" onPress={handleSave} />
     </View>
