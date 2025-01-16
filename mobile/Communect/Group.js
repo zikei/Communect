@@ -15,7 +15,7 @@ function Group() {
   const [inputText, setInputText] = useState(""); // テキストボックスの入力管理
   const [selectedOption, setSelectedOption] = useState(""); // ドロップダウンリストの選択管理
   const [secondSelectedOption, setSecondSelectedOption] = useState(""); // 2つ目のドロップダウンリストの選択管理
-
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   const localGroupData = [
     { groupId: "1", groupName: "初星学園", aboveId: null },
@@ -61,6 +61,7 @@ function Group() {
 
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
+    setSelectedGroupId(group);
     setSidebarOpen(false); // グループがクリックされた時にサイドバーを閉じる
   };
 
@@ -123,12 +124,7 @@ function Group() {
         />
       )}
 
-      <View
-        style={[
-          styles.mainContent,
-          { marginLeft: sidebarOpen ? 250 : 0 },
-        ]}
-      >
+      <View style={styles.mainContent}>
         {breadcrumbs.length > 0 && (
           <ScrollView
             horizontal
@@ -168,7 +164,7 @@ function Group() {
           </View>
         ) : (
           <Text style={styles.placeholderText}>
-            {sidebarOpen ? "サイドバーからグループを選択してください。" : "グループが選択されていません。"}
+            {sidebarOpen ? "" : "グループが選択されていません。"}
           </Text>
         )}
 
@@ -204,9 +200,9 @@ function Group() {
                  onValueChange={(itemValue) => setSelectedOption(itemValue)} // ドロップダウンリストの選択を更新
                  style={styles.picker} // スタイルを追加
                >
-                 <Picker.Item label="周知連絡" value="shuchi" />
-                 <Picker.Item label="確認連絡" value="kakunin" />
-                 <Picker.Item label="多岐連絡" value="taki" />
+                 <Picker.Item label="周知連絡" value="INFORM" />
+                 <Picker.Item label="確認連絡" value="CONFIRM" />
+                 <Picker.Item label="多岐連絡" value="CHOICE" />
                </Picker>
 
                {/* 2つ目のドロップダウンリスト */}
@@ -216,10 +212,10 @@ function Group() {
                  onValueChange={(itemValue) => setSecondSelectedOption(itemValue)}
                  style={styles.picker}
                >
-                 <Picker.Item label="低" value="tei" />
-                 <Picker.Item label="中" value="tyuy" />
-                 <Picker.Item label="高" value="kou" />
-                 <Picker.Item label="最低" value="saitei" />
+                 <Picker.Item label="最低" value="SAFE" />
+                 <Picker.Item label="低" value="LOW" />
+                 <Picker.Item label="中" value="MEDIUM" />
+                 <Picker.Item label="高" value="HIGH" />
                </Picker>
 
               {/* 投稿完了ボタン */}
@@ -268,9 +264,9 @@ const styles = StyleSheet.create({
   sidebarToggleButton: {
     position: "absolute",
     bottom: 20,
-    left: 20,
-    width: 60,
-    height: 60,
+    left: 10,
+    width: 45,
+    height: 45,
     borderRadius: 30,
     backgroundColor: "#007bff",
     justifyContent: "center",
@@ -387,11 +383,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  
-  // 他のスタイルもそのまま保持
-  
-  
-
 
 });
 

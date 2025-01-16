@@ -5,13 +5,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 {/*const Login = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 初回チェック中のローディング状態
 
   useEffect(() => {
     const checkApiKey = async () => {
       try {
         const apiKey = await AsyncStorage.getItem('apiKey');
         if (apiKey) {
+          // APIキーが存在する場合、自動的にグループ画面に遷移
           navigation.replace('Group');
         }
       } catch (error) {
@@ -34,7 +35,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
       setLoading(true);
 
       // サーバーにログインリクエストを送信
-      const response = await fetch('http://api.localhost/login', { // 適切なサーバーURLに置き換え
+      const response = await fetch('http://api.localhost/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,17 +43,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      const apiKeyResponse = await fetch(`http://api.localhost/user/apikey`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'ログインに失敗しました');
+      const apiKeyData = await apiKeyResponse.json();
+
+      if (!apiKeyResponse.ok) {
+        throw new Error(apiKeyData.message || 'APIキーの取得に失敗しました。');
       }
 
-      const { apiKey } = data;
+      // サーバーからAPIキーを取得して保存
+      const { apikey } = apiKeyData;
 
       // APIキーをローカルストレージに保存
-      await AsyncStorage.setItem('apiKey', apiKey);
+      await AsyncStorage.setItem('apiKey', apikey);
       await AsyncStorage.setItem('username', username);
+
+      if (!response.ok) {
+        throw new Error('ログインに失敗しました');
+      }
 
       Alert.alert('ログイン成功', `ようこそ、${username}さん！`);
       navigation.replace('Group');
@@ -62,7 +75,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -90,6 +103,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
         onChangeText={setPassword}
       />
       <Button title="ログイン" onPress={handleLogin} />
+
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.registerText}>アカウントをお持ちでない方はこちら</Text>
       </TouchableOpacity>
@@ -171,7 +185,6 @@ const Login = ({ navigation }) => {
       await AsyncStorage.setItem('username', username);
 
       setIsLoggedIn(true);
-      Alert.alert('ログイン成功', `ようこそ、${username}さん！`);
       navigation.replace('Group');
     } catch (error) {
       console.error('Error saving login information:', error);
