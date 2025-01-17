@@ -1,8 +1,10 @@
 package com.example.communect.app.service
 
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.UserRepository
 import com.example.communect.domain.service.UserService
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.security.SecureRandom
 import java.util.*
@@ -10,6 +12,7 @@ import java.util.*
 /** ユーザ処理実装クラス */
 @Service
 class UserServiceImpl(
+    @Autowired val userRepository: UserRepository
 ): UserService {
     private val apikeyService = ApikeyService()
     /**
@@ -18,7 +21,7 @@ class UserServiceImpl(
      *  @return 検索結果ユーザリスト
      */
     override fun searchUser(keyword: String): List<User> {
-        return MockTestData.userList.filter { it.userId == keyword || it.userName.contains(keyword, ignoreCase = true) }
+        return userRepository.findByKeyword(keyword)
     }
 
     /**
