@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Spinner, Alert, ListGroup, Button } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import axios from "axios";
 import styles from "../css/module/groupTalk.module.css";
 import GroupTalkCreate from "./group/GroupTalkCreate";
@@ -58,7 +58,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   }, [currentGroup?.groupId]);
 
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]); // メッセージリストに追加
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
 
   const handleSelectTalk = (talkId) => {
@@ -95,6 +95,10 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     }
   };
 
+  const handleTalkUpdate = (updatedTalks) => {
+    setTalks(updatedTalks);
+  };
+
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -115,6 +119,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
           onSelectTalk={handleSelectTalk}
           setShowCreateModal={setShowCreateModal}
           selectedTalk={selectedTalk}
+          onTalksUpdate={handleTalkUpdate} // 追加
         />
         <MessagesArea
           messages={messages}
@@ -130,6 +135,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         onHide={() => setShowCreateModal(false)}
         groupId={currentGroup?.groupId}
         onCreate={(newTalk) => setTalks((prevTalks) => [...prevTalks, newTalk])}
+        talkType="group"
       />
     </Container>
   );

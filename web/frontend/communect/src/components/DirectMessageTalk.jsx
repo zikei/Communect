@@ -112,6 +112,7 @@ const TalkRoom = ({ onSelectTalk }) => {
           onSelectTalk={handleSelectTalk}
           setShowCreateModal={setShowCreateModal}
           selectedTalk={selectedTalk}
+          onTalksUpdate={(updatedTalks) => setTalks(updatedTalks)}
         />
         <MessagesArea
           messages={messages}
@@ -126,7 +127,7 @@ const TalkRoom = ({ onSelectTalk }) => {
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
         onCreate={(newTalk) => setTalks((prevTalks) => [...prevTalks, newTalk])}
-        isDirectMessage={true}
+        talkType="personal"
       />
     </Container>
   );

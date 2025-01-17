@@ -6,7 +6,7 @@ import DirectMessageTalk from "./components/DirectMessageTalk";
 function DirectMessage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [sidebarWidth, setSidebarWidth] = useState(300);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
