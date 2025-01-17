@@ -33,6 +33,52 @@ function GroupContact({ groupName, hasPermission, groupId }) {
     }
   };
 
+  // SSE接続
+  useEffect(() => {
+    if (!groupId) return;
+
+    const connectSSE = () => {
+      const sse = new EventSource(`${import.meta.env.VITE_API_URL}/contact/sse`, {
+        withCredentials: true,
+      });
+
+      // メッセージ受信時の処理
+      const onMessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("新しい投稿を受信:", data);
+          setPosts((prevPosts) => [...prevPosts, data]);
+        } catch (err) {
+          console.error("メッセージ解析中にエラーが発生しました:", err);
+        }
+      };
+
+      // エラー時の処理
+      const onError = (err) => {
+        console.error("SSE接続に問題が発生しました:", err);
+        sse.close(); // 接続を閉じる
+        setTimeout(connectSSE, 5000); // 5秒後に再接続
+      };
+
+      // イベントリスナーの登録
+      sse.addEventListener("message", onMessage);
+      sse.addEventListener("error", onError);
+
+      return () => {
+        // イベントリスナーの解除
+        sse.removeEventListener("message", onMessage);
+        sse.removeEventListener("error", onError);
+        sse.close(); // 接続の終了
+      };
+    };
+
+    const sse = connectSSE();
+
+    return () => {
+      sse.close();
+    };
+  }, [groupId]);
+
   // 投稿詳細とリアクションを取得
   const fetchPostDetails = async (contactId) => {
     try {
@@ -82,7 +128,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
       );
   
       if (!response.ok) throw new Error("投稿の編集に失敗しました。");
-  
       fetchPosts(); // 投稿一覧を再取得
     } catch (err) {
       alert(`エラー: ${err.message}`);
