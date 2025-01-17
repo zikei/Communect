@@ -30,7 +30,7 @@ class UserServiceImpl(
      *  @return 検索結果ユーザ
      */
     override fun getUser(userId: String): User? {
-        return MockTestData.userList.find { it.userId == userId }
+        return userRepository.findByUserId(userId)
     }
 
     /**
