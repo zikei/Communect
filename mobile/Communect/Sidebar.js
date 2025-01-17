@@ -29,6 +29,9 @@ const Sidebar = ({
   const [selectedParentGroup, setSelectedParentGroup] = useState("");
   const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [userInput, setUserInput] = useState(""); // ユーザー名入力用
+  const [loading, setLoading] = useState(false); // ローディング状態
+  const [apiError, setApiError] = useState(""); // エラー表示用
 
 const handleOpenPlusModal = () => {
   setIsPlusModalVisible(true);
@@ -78,14 +81,12 @@ const handleClosePlusModal = () => {
         {/* グループ名と＋アイコン */}
         <View style={styles.groupNameWrapper}>
           {/* プラスアイコン */}
-          {selectedGroupId === group.groupId && (
             <TouchableOpacity
             style={styles.plusIconContainer}
             onPress={handleOpenPlusModal}
           >
             <FontAwesome name="plus" size={24} color="black" />
           </TouchableOpacity>
-          )}
           {/* グループ名 */}
           <TouchableOpacity
             onPress={() => handleGroupClick(group)}
@@ -187,7 +188,12 @@ const handleClosePlusModal = () => {
   <Modal visible={isModalVisible} animationType="slide" transparent={true}>
     <View style={styles.modalOverlay}>
       <View style={styles.modalContent}>
+        {/* 閉じるボタン */}
+      <TouchableOpacity style={styles.closeButton} onPress={() => setIsModalVisible(false)}>
+        <Text style={styles.closeButtonText}>×</Text>
+      </TouchableOpacity>
         <Text style={styles.modalTitle}>グループ作成</Text>
+        <Text style={styles.label}>グループ名:</Text>
         <TextInput
           style={styles.input}
           placeholder="グループ名"
@@ -198,8 +204,22 @@ const handleClosePlusModal = () => {
         <View style={[styles.pickerContainer, styles.picker]}>
           {renderParentGroups()}
         </View>
-        <Button title="作成" onPress={handleCreateGroup} />
-        <Button title="キャンセル" onPress={handleCloseModal} color="red" />
+        <Text style={styles.label}>ユーザーの追加:</Text>
+        {/* ユーザー追加用テキストボックス */}
+      <TextInput
+        style={styles.input}
+        placeholder="ユーザー名を入力してください"
+        value={userInput} // 入力内容を状態で管理
+        onChangeText={setUserInput} // 入力内容の変更を反映
+      />
+
+        {/* エラー表示 */}
+        {apiError ? <Text style={styles.errorText}>{apiError}</Text> : null}
+
+        {/* ローディング中ならボタンを無効化 */}
+        <Button title="作成" onPress={handleCreateGroup} disabled={loading} />
+        
+
       </View>
     </View>
   </Modal>
@@ -241,6 +261,13 @@ const handleClosePlusModal = () => {
 };
 
 const styles = StyleSheet.create({
+  modalOverlay: { /* 既存のスタイル */ },
+  modalContent: { /* 既存のスタイル */ },
+  closeButton: { /* 既存のスタイル */ },
+  closeButtonText: { /* 既存のスタイル */ },
+  label: { fontSize: 16, marginBottom: 5 },
+  input: { borderWidth: 1, borderColor: "#ccc", padding: 8, marginBottom: 15, borderRadius: 5 },
+  errorText: { color: "red", fontSize: 14, marginBottom: 10 },
   sidebar: {
     position: "absolute", // 絶対配置
     left: 0,
@@ -427,6 +454,23 @@ const styles = StyleSheet.create({
     padding: 20,
     width: 300,
     borderRadius: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.1)", // 背景色（薄いグレー）
+    borderRadius: 15, // 丸みを持たせる
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "black",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   modalTitle: {
     fontSize: 18,
