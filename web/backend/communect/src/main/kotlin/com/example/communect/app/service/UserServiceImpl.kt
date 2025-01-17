@@ -65,7 +65,7 @@ class UserServiceImpl(
      *  @param userId 退会ユーザID
      */
     override fun deleteUser(userId: String) {
-        MockTestData.userList.removeAll { it.userId == userId }
+        userRepository.deleteByUserId(userId)
     }
 
     /**
