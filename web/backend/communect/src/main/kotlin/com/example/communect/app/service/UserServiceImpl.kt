@@ -83,8 +83,9 @@ class UserServiceImpl(
      *  @return apikey
      */
     override fun updApikey(userId: String): String? {
-        MockTestData.apikeys[userId] = apikeyService.generateApiKey()
-        return MockTestData.apikeys[userId]
+        val apikey = apikeyService.generateApiKey()
+        userRepository.updateApikeyByUserId(userId, apikey)
+        return apikey
     }
 
     /** apikey生成クラス */
