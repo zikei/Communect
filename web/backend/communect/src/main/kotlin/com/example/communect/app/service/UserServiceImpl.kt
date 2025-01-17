@@ -39,11 +39,9 @@ class UserServiceImpl(
      *  @return 登録ユーザ
      */
     override fun addUser(user: UserIns): User {
-        if(MockTestData.userList.any { it.userName == user.userName }) throw BadRequestException()
-        val insUser = User(UUID.randomUUID().toString(), user.userName, user.nickName, user.email)
-        MockTestData.userList.add(insUser)
-        MockTestData.apikeys[insUser.userId] = apikeyService.generateApiKey()
-        return insUser
+        if(userRepository.findByUserName(user.userName) != null) throw BadRequestException("username is used")
+        val apikey = apikeyService.generateApiKey()
+        return userRepository.insertUser(user, apikey)
     }
 
     /**
