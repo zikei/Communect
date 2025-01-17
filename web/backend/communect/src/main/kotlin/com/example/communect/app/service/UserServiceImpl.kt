@@ -74,7 +74,7 @@ class UserServiceImpl(
      *  @return apikey
      */
     override fun getApikey(userId: String): String? {
-        return MockTestData.apikeys[userId]
+        return userRepository.findApikeyByUserId(userId)
     }
 
     /**
