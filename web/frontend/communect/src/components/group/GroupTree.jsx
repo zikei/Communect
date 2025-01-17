@@ -14,8 +14,10 @@ function GroupTree({
   onUpdateGroup,
   onEditGroup,
   onShowMembers,
+  onOpenTalk, // onOpenTalkをプロパティとして受け取る
 }) {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
+  const [isTalkOpen, setIsTalkOpen] = useState(false); // トーク画面の状態を管理
 
   // 選択されたグループかどうかを判定
   const isSelected = currentGroup && currentGroup.groupId === group.groupId;
@@ -23,6 +25,16 @@ function GroupTree({
   const handleEditClick = () => {
     console.log("グループ編集ボタンが押されました");
     onEditGroup(group); // 親コンポーネントに通知
+  };
+
+  const handleTalkToggle = () => {
+    if (isTalkOpen) {
+      setIsTalkOpen(false);
+      onOpenTalk(null); // トーク画面を閉じる
+    } else {
+      setIsTalkOpen(true);
+      onOpenTalk(group); // トーク画面を開く
+    }
   };
 
   return (
@@ -60,7 +72,19 @@ function GroupTree({
           {group.groupName}
         </button>
         {isSelected && (
-          <DeleteButton groupId={group.groupId} onDelete={onDeleteGroup} />
+          <>
+            <DeleteButton groupId={group.groupId} onDelete={onDeleteGroup} />
+            <button
+              className="btn btn-sm btn-primary talk-button ms-2"
+              onClick={handleTalkToggle} // 状態切り替えロジック
+            >
+              {isTalkOpen ? (
+                <i className="bi bi-arrow-left-circle"></i> // 戻るアイコン
+              ) : (
+                <i className="bi bi-chat-dots"></i> // トークアイコン
+              )}
+            </button>
+          </>
         )}
         {group.children.length > 0 && (
           <button
@@ -88,8 +112,9 @@ function GroupTree({
               currentGroup={currentGroup}
               onDeleteGroup={onDeleteGroup}
               onUpdateGroup={onUpdateGroup}
-              onEditGroup={onEditGroup} // 子にも渡す
+              onEditGroup={onEditGroup}
               onShowMembers={onShowMembers}
+              onOpenTalk={onOpenTalk} // 子にも渡す
             />
           ))}
         </ul>
@@ -107,7 +132,9 @@ GroupTree.propTypes = {
   currentGroup: PropTypes.object,
   onDeleteGroup: PropTypes.func.isRequired,
   onUpdateGroup: PropTypes.func.isRequired,
-  onEditGroup: PropTypes.func.isRequired, // 追加
+  onEditGroup: PropTypes.func.isRequired,
+  onShowMembers: PropTypes.func.isRequired,
+  onOpenTalk: PropTypes.func.isRequired, // 新しいプロパティ
 };
 
 export default GroupTree;

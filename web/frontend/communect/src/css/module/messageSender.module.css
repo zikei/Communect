@@ -1,0 +1,49 @@
+.message-sender {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+  }
+  
+  .message-input {
+    resize: none;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+  
+  .message-input:focus {
+    border-color: #80bdff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+  }
+  
+  .send-button {
+    border-radius: 20px; /* 角丸 */
+    padding: 0 15px; /* 横幅を広げる */
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* アイコンと文字の間隔を確保 */
+    background-color: #007bff; /* プライマリ色 */
+    color: white;
+    border: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .send-button:hover {
+    background-color: #0056b3; /* ホバー時の色 */
+  }
+  
+  .send-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .text-danger {
+    font-size: 12px;
+    color: #dc3545;
+    margin-top: 4px;
+  }
+  

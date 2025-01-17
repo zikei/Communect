@@ -4,8 +4,9 @@ import EditGroupModal from "./components/group/feature/EditGroupModal";
 import GroupMemberModal from "./components/group/feature/GroupMemberModal";
 import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
+import GroupTalk from "./components/GroupTalk";
 import GroupContact from "./components/GroupContact";
-import "./css/group.css";
+import "./css/main.css";
 import axios from "axios";
 
 function Group() {
@@ -21,6 +22,8 @@ function Group() {
   const [editModalGroup, setEditModalGroup] = useState(null);
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [isGroupTalk, setIsGroupTalk] = useState(false); 
+  const [talkGroup, setTalkGroup] = useState(null);
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -96,12 +99,11 @@ function Group() {
       let current = group;
       while (current) {
         trail.unshift(current);
-        current = findGroupById(current.aboveId, groups);
+        current = groups.find((g) => g.groupId === current.aboveId);
       }
       return trail;
     });
 
-    // 必要ならば選択グループを開く
     setExpandedGroups((prevState) => ({
       ...prevState,
       [group.groupId]: true,
@@ -153,7 +155,6 @@ function Group() {
   };
 
   /* 編集関連 */
-
   const handleEditGroup = (group) => {
     setEditModalGroup(group); // 編集するグループをセット
   };
@@ -181,6 +182,16 @@ function Group() {
     setSelectedGroupId(null);
   };
 
+  const handleOpenTalk = (group) => {
+    setTalkGroup(group);
+    setIsGroupTalk(true);
+  };
+
+  const handleBackFromTalk = () => {
+    setIsGroupTalk(false);
+    setTalkGroup(null);
+  };
+
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -205,24 +216,31 @@ function Group() {
           handleGroupDelete={handleGroupDelete}
           onEditGroup={handleEditGroup}
           onShowMembers={handleShowMembers}
+          onOpenTalk={handleOpenTalk} // 新しいプロパティを渡す
         />
-        <div className="maincontent flex-grow-1 pt-2 px-5 reset">
-          <Breadcrumb
-            breadcrumb={breadcrumb}
-            handleGroupClick={handleGroupClick}
-          />
-          {currentGroup ? (
-            <div className="card">
-              <GroupContact
-                groupName={currentGroup.groupName}
-                hasPermission={true}
-                onFormSubmit={handleFormSubmit}
-                groupId={currentGroup.groupId}
-                posts={posts}
-              />
-            </div>
+        <div className="maincontent flex-grow-1 ps-5 reset">
+          {isGroupTalk && talkGroup ? (
+            <GroupTalk group={talkGroup} onBack={handleBackFromTalk} currentGroup={currentGroup} />
           ) : (
-            <p>Select a group to see details.</p>
+            <>
+              <Breadcrumb
+                breadcrumb={breadcrumb}
+                handleGroupClick={handleGroupClick}
+              />
+              {currentGroup ? (
+                <div className="card">
+                  <GroupContact
+                    groupName={currentGroup.groupName}
+                    hasPermission={true}
+                    onFormSubmit={handleFormSubmit}
+                    groupId={currentGroup.groupId}
+                    posts={posts}
+                  />
+                </div>
+              ) : (
+                <p>Select a group to see details.</p>
+              )}
+            </>
           )}
         </div>
       </main>
