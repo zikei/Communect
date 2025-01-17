@@ -3,15 +3,23 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.service.ContactService
+import com.example.communect.ui.form.ContactDeleteResponse
+import com.example.communect.ui.form.ContactInfo
+import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.time.LocalDateTime
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /** 連絡処理実装クラス */
 @Service
 class ContactServiceImpl(
+    @Autowired val emitterRepository: ContactSseEmitterRepository,
     @Value("\${contactRowCount}") private val contactLimit: Int
 ): ContactService {
     /**
@@ -61,6 +69,20 @@ class ContactServiceImpl(
         val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
         MockTestData.contactList.add(postContact)
 
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == group.groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            try {
+                emitterRepository.getEmitter(id)?.send(
+                    SseEmitter.event()
+                        .name("post")
+                        .data(ContactResponse(ContactInfo(postContact)))
+                )
+            }catch (e: Exception){
+                emitterRepository.removeEmitter(id)
+            }
+
+        }
+
         return postContact
     }
 
@@ -91,6 +113,16 @@ class ContactServiceImpl(
                 contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
         MockTestData.contactList[index] = updContact
+
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == updContact.groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            emitterRepository.getEmitter(id)?.send(
+                SseEmitter.event()
+                    .name("update")
+                    .data(ContactResponse(ContactInfo(updContact)))
+            )
+        }
+
         return MockTestData.contactList[index]
     }
 
@@ -99,8 +131,18 @@ class ContactServiceImpl(
      *  @param contactId 削除対象連絡ID
      */
     override fun deleteContact(contactId: String) {
+        val groupId = MockTestData.contactList.find { it.contactId == contactId }?.groupId ?: throw BadRequestException()
         MockTestData.contactList.removeAll { it.contactId == contactId }
         MockTestData.reactionList.removeAll { it.contactId == contactId }
+
+        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
+        groupUserIds.forEach { id ->
+            emitterRepository.getEmitter(id)?.send(
+                SseEmitter.event()
+                    .name("delete")
+                    .data(ContactDeleteResponse(contactId))
+            )
+        }
     }
 
     /**
@@ -116,5 +158,53 @@ class ContactServiceImpl(
             null
         }
         MockTestData.reactionList.add(Reaction(UUID.randomUUID().toString(), reaction.contactId, LocalDateTime.now(), insChoice, reaction.userId, user.userName, user.nickName))
+    }
+
+    /**
+     * SSE登録
+     * @param userId SSE登録ユーザID
+     */
+    override fun addSse(userId: String): SseEmitter {
+        return emitterRepository.addEmitter(userId)
+    }
+}
+
+@Component
+class ContactSseEmitterRepository(
+    @Value("\${sseTimeOutMinutes}") private val sseTimeOutMinutes: Long
+) {
+    private val emitters = ConcurrentHashMap<String, SseEmitter>()
+
+    fun addEmitter(userId: String): SseEmitter {
+        val emitter = SseEmitter(sseTimeOutMinutes * 60 * 1000)
+        emitter.onCompletion {
+            removeEmitter(userId)
+        }
+        emitter.onTimeout{
+            removeEmitter(userId)
+        }
+
+        emitters[userId] = emitter
+
+        emitter.send(
+            SseEmitter.event()
+                .name("connection")
+                .data("contact: Connection established successfully")
+        )
+
+        return emitter
+    }
+
+    fun removeEmitter(userId: String) {
+        getEmitter(userId)?.send(
+            SseEmitter.event()
+                .name("disconnect")
+                .data("contact: Connection closed")
+        )
+        emitters.remove(userId)
+    }
+
+    fun getEmitter(userId: String): SseEmitter? {
+        return emitters[userId]
     }
 }

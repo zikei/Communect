@@ -4,14 +4,19 @@ import com.example.communect.app.service.MockTestData
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.ContactIns
 import com.example.communect.domain.model.ContactUpd
+import com.example.communect.domain.model.Login
 import com.example.communect.domain.model.ReactionIns
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.*
+import jakarta.servlet.http.HttpServletResponse
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
 /** 連絡APIコントローラ */
 @RestController
@@ -75,5 +80,17 @@ class ContactAPIController(
         @RequestBody req: AddReactionRequest
     ) {
         contactService.addReaction(ReactionIns(contactId, req.choiceId, MockTestData.user1.userId))
+    }
+
+    /** 連絡SSE登録 */
+    @GetMapping("/sse", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun addSse(
+        @AuthenticationPrincipal loginUser: Login,
+        response: HttpServletResponse
+    ): SseEmitter{
+        response.setHeader("Cache-Control", "no-cache")
+        response.setHeader("X-Accel-Buffering", "no")
+
+        return contactService.addSse(loginUser.user.userId)
     }
 }
