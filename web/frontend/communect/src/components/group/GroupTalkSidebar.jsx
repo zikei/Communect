@@ -35,7 +35,6 @@ const TalkSidebar = ({
       setEditingTalk(null);
       setShowEditModal(false);
       setNewTalkName("");
-      window.Notification("トーク名を更新しました。");
     } catch (err) {
       console.error("トーク名の編集に失敗しました。", err);
     }
@@ -53,8 +52,6 @@ const TalkSidebar = ({
   
       const updatedTalks = talks.filter((talk) => talk.talkId !== talkId);
       onTalksUpdate(updatedTalks);
-  
-      alert("トークルームが削除されました。");
     } catch (err) {
       setDeleteError("トークルームの削除に失敗しました。");
       console.error("トークルームの削除に失敗しました。", err);
