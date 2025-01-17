@@ -35,18 +35,25 @@ const TalkSidebar = ({
       setEditingTalk(null);
       setShowEditModal(false);
       setNewTalkName("");
+      window.Notification("トーク名を更新しました。");
     } catch (err) {
       console.error("トーク名の編集に失敗しました。", err);
     }
   };
 
   const handleDeleteTalk = async (talkId) => {
+    const userConfirmed = window.confirm("本当に削除してもよろしいですか？");
+  
+    if (!userConfirmed) {
+      return; //　キャンセルを選択した場合は処理を中断
+    }
+  
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL}/talk/${talkId}`);
-
+  
       const updatedTalks = talks.filter((talk) => talk.talkId !== talkId);
       onTalksUpdate(updatedTalks);
-
+  
       alert("トークルームが削除されました。");
     } catch (err) {
       setDeleteError("トークルームの削除に失敗しました。");
