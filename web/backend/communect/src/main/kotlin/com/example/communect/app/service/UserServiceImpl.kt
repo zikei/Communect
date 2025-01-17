@@ -50,34 +50,14 @@ class UserServiceImpl(
      *  @return 更新ユーザ
      */
     override fun updUser(user: UserUpd): User {
-        if(MockTestData.userList.any { it.userName == user.userName }) throw BadRequestException()
-        val index = MockTestData.userList.indexOfFirst { it.userId == user.userId }
-        if(index == -1) throw BadRequestException()
-
-        val updUser = User(user.userId, user.userName ?: MockTestData.userList[index].userName,
-            user.nickName ?: MockTestData.userList[index].nickName, user.email ?: MockTestData.userList[index].email)
-
-        MockTestData.userList[index] = updUser
-        MockTestData.groupUserList.forEachIndexed { i, groupUser ->
-            if(groupUser.userId == user.userId){
-                MockTestData.groupUserList[i] = GroupUser(groupUser.groupUserId, groupUser.groupId, groupUser.userId,
-                    updUser.userName, groupUser.nickName, groupUser.role, groupUser.isAdmin, groupUser.isSubGroupCreate)
-            }
-        }
-        MockTestData.messageList.forEachIndexed { i, message ->
-            if(message.userId == user.userId){
-                MockTestData.messageList[i] = Message(message.messageId, message.message, message.createTime,
-                    message.talkId, updUser.userId, updUser.userName, updUser.nickName)
-            }
-        }
-        MockTestData.reactionList.forEachIndexed { i, reaction ->
-            if(reaction.userId == user.userId){
-                MockTestData.reactionList[i] = Reaction(reaction.reactionId, reaction.contactId, reaction.reactionTime,
-                    reaction.choice, updUser.userId, updUser.userName, updUser.nickName)
-            }
+        val oldUser = userRepository.findByUserId(user.userId) ?: throw BadRequestException("user does not exist")
+        if(user.userName != null && oldUser.userName != user.userName){
+            if(userRepository.findByUserName(user.userName) != null) throw BadRequestException("username is used")
         }
 
-        return MockTestData.userList[index]
+        userRepository.updateUser(user)
+
+        return getUser(user.userId)!!
     }
 
     /**
