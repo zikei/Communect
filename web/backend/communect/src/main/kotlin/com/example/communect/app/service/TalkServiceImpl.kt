@@ -57,15 +57,7 @@ class TalkServiceImpl(
      *  @return 作成トーク
      */
     override fun addIndividualTalk(talk: IndividualTalkIns): Talk {
-        val talkUsers = talk.userIds.map { id ->
-            MockTestData.userList.find { it.userId == id } ?: throw BadRequestException()
-        }
-        val insIndividualTalk = IndividualTalk(UUID.randomUUID().toString(), talk.talkName, talkUsers)
-        val insTalk = Talk(insIndividualTalk.talkId, insIndividualTalk.talkName, TalkType.INDIVIDUAL)
-        MockTestData.talkList.add(insTalk)
-        MockTestData.individualTalkList.add(insIndividualTalk)
-
-        return insTalk
+        return talkRepository.insertIndividualTalk(talk)
     }
 
     /**
