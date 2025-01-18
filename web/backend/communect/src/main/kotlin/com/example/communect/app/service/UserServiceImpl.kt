@@ -50,14 +50,14 @@ class UserServiceImpl(
      *  @return 更新ユーザ
      */
     override fun updUser(user: UserUpd): User {
-        val oldUser = userRepository.findByUserId(user.userId) ?: throw BadRequestException("user does not exist")
+        val oldUser = getUser(user.userId) ?: throw BadRequestException("user does not exist")
         if(user.userName != null && oldUser.userName != user.userName){
             if(userRepository.findByUserName(user.userName) != null) throw BadRequestException("username is used")
         }
 
         userRepository.updateUser(user)
 
-        return getUser(user.userId)!!
+        return getUser(user.userId) ?: throw BadRequestException("user does not exist")
     }
 
     /**
