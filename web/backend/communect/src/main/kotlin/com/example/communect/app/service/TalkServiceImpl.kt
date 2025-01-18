@@ -30,7 +30,7 @@ class TalkServiceImpl(
      *  @return トークリスト
      */
     override fun getIndividualTalks(userId: String): List<Talk> {
-        return MockTestData.individualTalkList.filter { it.users.any { user -> user.userId == userId } }.map { Talk(it.talkId, it.talkName, TalkType.GROUP) }
+        return talkRepository.findIndividualTalkByUserId(userId)
     }
 
     /**
