@@ -2,21 +2,26 @@ package com.example.communect.app.service
 
 import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.TalkRepository
+import com.example.communect.domain.repository.UserRepository
 import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
 
 /** トーク処理実装クラス */
 @Service
-class TalkServiceImpl : TalkService {
+class TalkServiceImpl(
+    @Autowired val talkRepository: TalkRepository
+) : TalkService {
     /**
      *  グループトーク一覧取得
      *  @param groupId 検索対象グループID
      *  @return トークリスト
      */
     override fun getGroupTalks(groupId: String): List<Talk> {
-        return MockTestData.groupTalkList.filter { it.groupId == groupId }.map { Talk(it.talkId, it.talkName, TalkType.GROUP) }
+        return talkRepository.findGroupTalkByGroupId(groupId)
     }
 
     /**
