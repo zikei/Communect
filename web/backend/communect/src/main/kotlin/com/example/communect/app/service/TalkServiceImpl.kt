@@ -1,14 +1,15 @@
 package com.example.communect.app.service
 
 import com.example.communect.domain.enums.TalkType
-import com.example.communect.domain.model.*
+import com.example.communect.domain.model.GroupTalkIns
+import com.example.communect.domain.model.IndividualTalkIns
+import com.example.communect.domain.model.Talk
+import com.example.communect.domain.model.TalkUpd
 import com.example.communect.domain.repository.TalkRepository
-import com.example.communect.domain.repository.UserRepository
 import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 /** トーク処理実装クラス */
 @Service
@@ -76,12 +77,7 @@ class TalkServiceImpl(
      *  @param talkId 削除対象トークID
      */
     override fun deleteTalk(talkId: String) {
-        val talk = MockTestData.talkList.find { it.talkId == talkId } ?: throw BadRequestException()
-        MockTestData.talkList.removeAll { it.talkId == talkId }
-        if(talk.talkType == TalkType.GROUP){
-            MockTestData.groupTalkList.removeAll { it.talkId == talkId }
-        }else if(talk.talkType == TalkType.INDIVIDUAL){
-            MockTestData.individualTalkList.removeAll { it.talkId == talkId }
-        }
+        getTalk(talkId) ?: throw BadRequestException("talk does not exist")
+        talkRepository.deleteByTalkId(talkId)
     }
 }
