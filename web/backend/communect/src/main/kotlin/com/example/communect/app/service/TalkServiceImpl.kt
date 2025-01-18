@@ -39,7 +39,7 @@ class TalkServiceImpl(
      *  @return トーク
      */
     override fun getTalk(talkId: String): Talk? {
-        return MockTestData.talkList.find { it.talkId == talkId }
+        return talkRepository.findByTalkId(talkId)
     }
 
     /**
