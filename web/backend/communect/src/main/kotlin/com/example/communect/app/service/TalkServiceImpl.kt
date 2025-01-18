@@ -44,16 +44,11 @@ class TalkServiceImpl(
 
     /**
      *  グループトーク作成
-     *  @param group 作成グループ情報
+     *  @param talk 作成グループ情報
      *  @return 作成トーク
      */
-    override fun addGroupTalk(group: GroupTalkIns): Talk {
-        val insGroupTalk = GroupTalk(UUID.randomUUID().toString(), group.talkName, group.groupId)
-        val insTalk = Talk(insGroupTalk.talkId, insGroupTalk.talkName, TalkType.GROUP)
-        MockTestData.talkList.add(insTalk)
-        MockTestData.groupTalkList.add(insGroupTalk)
-
-        return insTalk
+    override fun addGroupTalk(talk: GroupTalkIns): Talk {
+        return talkRepository.insertGroupTalk(talk)
     }
 
     /**

@@ -14,7 +14,7 @@ interface TalkService {
     fun getTalk(talkId: String): Talk?
 
     /** グループトーク作成 */
-    fun addGroupTalk(group: GroupTalkIns): Talk
+    fun addGroupTalk(talk: GroupTalkIns): Talk
 
     /** 個人トーク作成 */
     fun addIndividualTalk(talk: IndividualTalkIns): Talk
