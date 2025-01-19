@@ -3,6 +3,7 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.repository.ContactRepository
+import com.example.communect.domain.repository.ReactionRepository
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
@@ -22,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class ContactServiceImpl(
     @Autowired val contactRepository: ContactRepository,
+    @Autowired val reactionRepository: ReactionRepository,
     @Autowired val emitterRepository: ContactSseEmitterRepository
 ): ContactService {
     /**
@@ -49,7 +51,7 @@ class ContactServiceImpl(
      *  @return リアクションリスト
      */
     override fun getReactions(contactId: String): List<Reaction> {
-        return MockTestData.reactionList.filter { it.contactId == contactId }
+        return reactionRepository.findByContactId(contactId)
     }
 
     /**
