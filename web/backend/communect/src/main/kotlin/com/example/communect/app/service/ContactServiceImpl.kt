@@ -8,6 +8,7 @@ import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
 import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
+import org.apache.ibatis.javassist.NotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -39,7 +40,7 @@ class ContactServiceImpl(
      *  @return 連絡
      */
     override fun getContact(contactId: String): Contact? {
-        return MockTestData.contactList.find { it.contactId == contactId }
+        return contactRepository.findByContactId(contactId)
     }
 
     /**
