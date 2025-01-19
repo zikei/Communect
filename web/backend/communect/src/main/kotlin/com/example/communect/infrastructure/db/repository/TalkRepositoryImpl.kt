@@ -15,6 +15,7 @@ import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as T
 import com.example.communect.infrastructure.db.record.Talk as TalkRecord
 import com.example.communect.infrastructure.db.record.GroupTalk as GroupTalkRecord
 import com.example.communect.infrastructure.db.record.IndividualTalk as IndividualTalkRecord
+import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport as UserGroupSql
 
 /** トークリポジトリ実装クラス */
 @Repository
@@ -32,6 +33,35 @@ class TalkRepositoryImpl(
         return talkMapper.selectOne{
             where {
                 TalkSql.talkid isEqualTo talkId
+            }
+        }?.let { toModel(it) }
+    }
+
+    /**
+     *  トーク取得
+     *  @param talkId 検索対象トークID
+     *  @param userId トークにユーザの所属が必要
+     *  @return トーク
+     */
+    override fun findByTalkId(talkId: String, userId: String): Talk? {
+        return talkMapper.selectOne{
+            leftJoin(GroupTalkSql.groupTalk, "gt"){
+                on(TalkSql.talkid) equalTo GroupTalkSql.talkid
+            }
+            leftJoin(UserGroupSql.userGroup, "gu"){
+                on(GroupTalkSql.noticegroupid) equalTo UserGroupSql.noticegroupid
+            }
+            leftJoin(IndividualTalkSql.individualTalk, "it"){
+                on(TalkSql.talkid) equalTo IndividualTalkSql.talkid
+            }
+            where {
+                TalkSql.talkid isEqualTo talkId
+                and {
+                    UserGroupSql.userid isEqualTo userId
+                    or {
+                        IndividualTalkSql.userid isEqualTo userId
+                    }
+                }
             }
         }?.let { toModel(it) }
     }

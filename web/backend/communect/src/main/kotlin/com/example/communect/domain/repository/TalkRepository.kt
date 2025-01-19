@@ -10,6 +10,9 @@ interface TalkRepository {
     /** トークIDによるグループトーク一覧の取得 */
     fun findByTalkId(talkId: String): Talk?
 
+    /** トークIDによるグループトーク一覧の取得 トークにユーザの所属が必要 */
+    fun findByTalkId(talkId: String, userId: String): Talk?
+
     /** グループIDによるグループトーク一覧の取得 */
     fun findGroupTalkByGroupId(groupId: String): List<Talk>
 

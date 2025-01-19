@@ -8,6 +8,7 @@ import com.example.communect.domain.service.TalkService
 import com.example.communect.ui.form.*
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -125,6 +126,7 @@ class GroupAPIController(
     /** グループトーク追加 */
     @PostMapping("/{groupId}/talk")
     fun addGroupTalk(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String,
         @Validated @RequestBody req: AddGroupTalkRequest,
         bindingResult: BindingResult
@@ -132,7 +134,7 @@ class GroupAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insGroupTalk = GroupTalkIns(req.talkName, groupId)
 
-        val talk = talkService.addGroupTalk(insGroupTalk)
+        val talk = talkService.addGroupTalk(insGroupTalk, loginUser.user.userId)
         return TalkResponse(TalkInfo(talk))
     }
 
