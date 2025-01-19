@@ -1,10 +1,10 @@
 package com.example.communect.app.service
 
-import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.Message
 import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.MessageUpd
 import com.example.communect.domain.repository.MessageRepository
+import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.domain.service.MessageService
 import com.example.communect.ui.form.MessageDeleteResponse
 import com.example.communect.ui.form.MessageInfo
@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class MessageServiceImpl(
     @Autowired val messageRepository: MessageRepository,
+    @Autowired val talkRepository: TalkRepository,
     @Autowired val emitterRepository: MessageSseEmitterRepository
 ): MessageService {
     /**
@@ -93,17 +94,8 @@ class MessageServiceImpl(
     }
 
     private fun getMessageUserIds(messageId: String): List<String>{
-        val message = MockTestData.messageList.find { it.messageId == messageId } ?: return mutableListOf()
-        val talk = MockTestData.talkList.find { it.talkId == message.talkId } ?: return mutableListOf()
-        return when (talk.talkType) {
-            TalkType.GROUP -> {
-                val groupId = MockTestData.groupTalkList.find { it.talkId == talk.talkId }?.groupId ?: return mutableListOf()
-                MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
-            }
-            TalkType.INDIVIDUAL -> {
-                MockTestData.individualTalkList.find { it.talkId == talk.talkId }?.users?.map { it.userId } ?: return mutableListOf()
-            }
-        }
+        val message = messageRepository.findByMessageId(messageId) ?: return mutableListOf()
+        return talkRepository.findUserByTalkId(message.talkId).map { it.userId }
     }
 }
 
