@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.time.LocalDateTime
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /** メッセージ処理実装クラス */
@@ -56,22 +54,18 @@ class MessageServiceImpl(
      *  @param message 更新メッセージ情報
      *  @return 更新メッセージ情報
      */
-    override fun updMessage(message: MessageUpd): Message {
-        val index = MockTestData.messageList.indexOfFirst { it.messageId == message.messageId }
-        if(index == -1) throw BadRequestException()
+    override fun updMessage(message: MessageUpd, loginUserId: String): Message {
+        val oldMessage = messageRepository.findByMessageId(message.messageId) ?: throw BadRequestException()
+        if(oldMessage.userId != loginUserId) throw BadRequestException()
 
-        val updMessage =
-            Message(message.messageId, message.message ?: MockTestData.messageList[index].message, MockTestData.messageList[index].createTime,
-                MockTestData.messageList[index].talkId, MockTestData.messageList[index].userId,
-                MockTestData.messageList[index].userName, MockTestData.messageList[index].nickName)
+        messageRepository.updateMessage(message)
+        val updMessage = messageRepository.findByMessageId(message.messageId) ?: throw BadRequestException()
 
-        MockTestData.messageList[index] = updMessage
-
-        val messageUserIds = getMessageUserIds(updMessage.messageId)
+        val messageUserIds = getMessageUserIds(message.messageId)
         messageUserIds.forEach { id ->
             emitterRepository.send(id, "update", MessageResponse(MessageInfo(updMessage)))
         }
-        return MockTestData.messageList[index]
+        return updMessage
     }
 
     /**
