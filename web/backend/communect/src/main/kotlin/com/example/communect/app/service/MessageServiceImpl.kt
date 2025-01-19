@@ -4,6 +4,7 @@ import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.Message
 import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.MessageUpd
+import com.example.communect.domain.repository.MessageRepository
 import com.example.communect.domain.service.MessageService
 import com.example.communect.ui.form.MessageDeleteResponse
 import com.example.communect.ui.form.MessageInfo
@@ -21,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap
 /** メッセージ処理実装クラス */
 @Service
 class MessageServiceImpl(
-    @Autowired val emitterRepository: MessageSseEmitterRepository,
-    @Value("\${messageRowCount}") private val messageLimit: Int
+    @Autowired val messageRepository: MessageRepository,
+    @Autowired val emitterRepository: MessageSseEmitterRepository
 ): MessageService {
     /**
      *  メッセージ取得
@@ -31,11 +32,7 @@ class MessageServiceImpl(
      *  @return トーク
      */
     override fun getMessages(talkId: String, lastMessageId: String?): List<Message>? {
-        val message = lastMessageId?.let {id -> MockTestData.messageList.find { it.messageId == lastMessageId } }
-        val messages = MockTestData.messageList.filter {
-            it.talkId == talkId && ( message == null || it.createTime.isBefore(message.createTime) )
-        }.sortedBy { it.createTime }
-        return messages.take(messageLimit).sortedByDescending { it.createTime }
+        return messageRepository.findByTalkId(talkId, lastMessageId)
     }
 
     /**
