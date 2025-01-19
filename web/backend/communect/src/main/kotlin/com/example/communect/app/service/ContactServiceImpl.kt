@@ -71,16 +71,7 @@ class ContactServiceImpl(
 
         val groupUserIds = MockTestData.groupUserList.filter { it.groupId == group.groupId }.map { it.userId }
         groupUserIds.forEach { id ->
-            try {
-                emitterRepository.getEmitter(id)?.send(
-                    SseEmitter.event()
-                        .name("post")
-                        .data(ContactResponse(ContactInfo(postContact)))
-                )
-            }catch (e: Exception){
-                emitterRepository.removeEmitter(id)
-            }
-
+            emitterRepository.send(id, "post", ContactResponse(ContactInfo(postContact)))
         }
 
         return postContact
@@ -116,11 +107,7 @@ class ContactServiceImpl(
 
         val groupUserIds = MockTestData.groupUserList.filter { it.groupId == updContact.groupId }.map { it.userId }
         groupUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("update")
-                    .data(ContactResponse(ContactInfo(updContact)))
-            )
+            emitterRepository.send(id, "update", ContactResponse(ContactInfo(updContact)))
         }
 
         return MockTestData.contactList[index]
@@ -137,11 +124,7 @@ class ContactServiceImpl(
 
         val groupUserIds = MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
         groupUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("delete")
-                    .data(ContactDeleteResponse(contactId))
-            )
+            emitterRepository.send(id, "delete", ContactDeleteResponse(contactId))
         }
     }
 
@@ -173,18 +156,20 @@ class ContactServiceImpl(
 class ContactSseEmitterRepository(
     @Value("\${sseTimeOutMinutes}") private val sseTimeOutMinutes: Long
 ) {
-    private val emitters = ConcurrentHashMap<String, SseEmitter>()
+    private val emitters = ConcurrentHashMap<String, MutableSet<SseEmitter>>()
 
     fun addEmitter(userId: String): SseEmitter {
         val emitter = SseEmitter(sseTimeOutMinutes * 60 * 1000)
         emitter.onCompletion {
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
         emitter.onTimeout{
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
 
-        emitters[userId] = emitter
+        synchronized(this) {
+            emitters.computeIfAbsent(userId) { mutableSetOf() }.add(emitter)
+        }
 
         emitter.send(
             SseEmitter.event()
@@ -195,16 +180,36 @@ class ContactSseEmitterRepository(
         return emitter
     }
 
-    fun removeEmitter(userId: String) {
-        getEmitter(userId)?.send(
-            SseEmitter.event()
-                .name("disconnect")
-                .data("contact: Connection closed")
-        )
-        emitters.remove(userId)
+    fun removeEmitter(userId: String, emitter: SseEmitter) {
+        synchronized(this) {
+            emitters[userId]?.let { emitterSet ->
+                emitterSet.remove(emitter)
+                if (emitterSet.isEmpty()) {
+                    emitters.remove(userId)
+                }
+            }
+        }
+
+        try {
+            emitter.send(
+                SseEmitter.event()
+                    .name("disconnect")
+                    .data("contact: Connection closed")
+            )
+        } catch (_: Exception) { }
     }
 
-    fun getEmitter(userId: String): SseEmitter? {
-        return emitters[userId]
+    fun send(userId: String, name: String, data: Any){
+        emitters[userId]?.forEach { emitter ->
+            try {
+                emitter.send(
+                    SseEmitter.event()
+                        .name(name)
+                        .data(data)
+                )
+            }catch (e: Exception){
+                removeEmitter(userId, emitter)
+            }
+        }
     }
 }
