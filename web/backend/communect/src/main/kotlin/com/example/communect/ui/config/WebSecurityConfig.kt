@@ -45,7 +45,7 @@ class WebSecurityConfig(
         http {
             authorizeHttpRequests {
                 authorize(PathRequest.toStaticResources().atCommonLocations(), permitAll)
-                authorize(anyRequest, permitAll)
+                authorize(anyRequest, authenticated)
             }
 
             addFilterBefore<UsernamePasswordAuthenticationFilter>(apikeyAuthFilter())

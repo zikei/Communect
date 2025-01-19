@@ -51,11 +51,7 @@ class MessageServiceImpl(
 
         val messageUserIds = getMessageUserIds(insMessage.messageId)
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("post")
-                    .data(MessageResponse(MessageInfo(insMessage)))
-            )
+            emitterRepository.send(id, "post", MessageResponse(MessageInfo(insMessage)))
         }
 
         return insMessage
@@ -79,11 +75,7 @@ class MessageServiceImpl(
 
         val messageUserIds = getMessageUserIds(updMessage.messageId)
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("update")
-                    .data(MessageResponse(MessageInfo(updMessage)))
-            )
+            emitterRepository.send(id, "update", MessageResponse(MessageInfo(updMessage)))
         }
         return MockTestData.messageList[index]
     }
@@ -98,11 +90,7 @@ class MessageServiceImpl(
         MockTestData.messageList.removeAll { it.messageId == messageId }
 
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("delete")
-                    .data(MessageDeleteResponse(messageId))
-            )
+            emitterRepository.send(id, "delete", MessageDeleteResponse(messageId))
         }
     }
 
@@ -133,18 +121,20 @@ class MessageServiceImpl(
 class MessageSseEmitterRepository(
     @Value("\${sseTimeOutMinutes}") private val sseTimeOutMinutes: Long
 ) {
-    private val emitters = ConcurrentHashMap<String, SseEmitter>()
+    private val emitters = ConcurrentHashMap<String, MutableSet<SseEmitter>>()
 
     fun addEmitter(userId: String): SseEmitter {
         val emitter = SseEmitter(sseTimeOutMinutes * 60 * 1000)
         emitter.onCompletion {
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
         emitter.onTimeout{
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
 
-        emitters[userId] = emitter
+        synchronized(this) {
+            emitters.computeIfAbsent(userId) { mutableSetOf() }.add(emitter)
+        }
 
         emitter.send(
             SseEmitter.event()
@@ -155,16 +145,36 @@ class MessageSseEmitterRepository(
         return emitter
     }
 
-    fun removeEmitter(userId: String) {
-        getEmitter(userId)?.send(
-            SseEmitter.event()
-                .name("disconnect")
-                .data("message: Connection closed")
-        )
-        emitters.remove(userId)
+    fun removeEmitter(userId: String, emitter: SseEmitter) {
+        synchronized(this) {
+            emitters[userId]?.let { emitterSet ->
+                emitterSet.remove(emitter)
+                if (emitterSet.isEmpty()) {
+                    emitters.remove(userId)
+                }
+            }
+        }
+
+        try {
+            emitter.send(
+                SseEmitter.event()
+                    .name("disconnect")
+                    .data("contact: Connection closed")
+            )
+        } catch (_: Exception) { }
     }
 
-    fun getEmitter(userId: String): SseEmitter? {
-        return emitters[userId]
+    fun send(userId: String, name: String, data: Any){
+        emitters[userId]?.forEach { emitter ->
+            try {
+                emitter.send(
+                    SseEmitter.event()
+                        .name(name)
+                        .data(data)
+                )
+            }catch (e: Exception){
+                removeEmitter(userId, emitter)
+            }
+        }
     }
 }

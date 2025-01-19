@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
+import EditGroupModal from "./components/group/feature/EditGroupModal";
+import GroupMemberModal from "./components/group/feature/GroupMemberModal";
+import Breadcrumb from "./components/group/Breadcrumb";
 import GroupCreate from "./components/GroupCreate";
+import GroupTalk from "./components/GroupTalk";
 import GroupContact from "./components/GroupContact";
-import "./css/group.css";
+import "./css/main.css";
 import axios from "axios";
 
 function Group() {
@@ -15,6 +19,11 @@ function Group() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [posts, setPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editModalGroup, setEditModalGroup] = useState(null);
+  const [showMembersModal, setShowMembersModal] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [isGroupTalk, setIsGroupTalk] = useState(false); 
+  const [talkGroup, setTalkGroup] = useState(null);
 
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
@@ -57,10 +66,6 @@ function Group() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleResize = (e) => {
-    setSidebarWidth((prevWidth) => Math.max(200, prevWidth + e.movementX));
-  };
-
   const handleFormSubmit = (formData) => {
     setPosts((prevPosts) => [...prevPosts, formData]);
   };
@@ -73,7 +78,12 @@ function Group() {
     // Fetch groups from the API
     const fetchGroups = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/group");
+        const response = await axios.get(
+          import.meta.env.VITE_API_URL + "/group",
+          {credentials: "include",
+           withCredentials: true
+          }
+        );
         const hierarchy = buildHierarchy(response.data.groups);
         setGroups(hierarchy);
       } catch (err) {
@@ -87,46 +97,103 @@ function Group() {
 
   const handleGroupClick = (group) => {
     setCurrentGroup(group);
-    const trail = [];
-    let current = group;
-    while (current) {
-      trail.unshift(current);
-      current = findGroupById(current.aboveId, groups);
-    }
-    setBreadcrumb(trail);
+    setBreadcrumb((prev) => {
+      const trail = [];
+      let current = group;
+      while (current) {
+        trail.unshift(current);
+        current = groups.find((g) => g.groupId === current.aboveId);
+      }
+      return trail;
+    });
+
+    setExpandedGroups((prevState) => ({
+      ...prevState,
+      [group.groupId]: true,
+    }));
   };
 
-  const renderGroupTree = (group, level = 0) => (
-    <li key={group.groupId} className="list-group-item">
-      <div className="d-flex align-items-center">
-        <button
-          className="btn btn-link text-decoration-none w-100 text-start text-truncate"
-          onClick={() => handleGroupClick(group)}
-        >
-          {group.groupName}
-        </button>
-        {group.children.length > 0 && (
-          <button
-            className="btn btn-sm group-toggle-btn"
-            onClick={() => toggleGroup(group.groupId)}
-          >
-            <span
-              className={`rotate-icon ${
-                expandedGroups[group.groupId] ? "rotated" : ""
-              }`}
-            >
-              &gt;
-            </span>
-          </button>
-        )}
-      </div>
-      {group.children.length > 0 && expandedGroups[group.groupId] && (
-        <ul className="list-unstyled">
-          {group.children.map((child) => renderGroupTree(child, level + 1))}
-        </ul>
-      )}
-    </li>
-  );
+  /* 削除機能 */
+  const handleGroupDelete = async (deletedGroupId) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`,
+      );
+
+      // フロントエンド状態更新
+      const removeGroupFromHierarchy = (groups, groupIdToDelete) => {
+        return groups
+          .map((group) => {
+            if (group.children.length > 0) {
+              group.children = removeGroupFromHierarchy(
+                group.children,
+                groupIdToDelete
+              );
+            }
+            return group.groupId === groupIdToDelete ? null : group;
+          })
+          .filter((group) => group !== null);
+      };
+      const updatedGroups = removeGroupFromHierarchy(groups, deletedGroupId);
+      setGroups(updatedGroups);
+      // 現在選択されているグループが削除された場合、選択をリセット
+      if (currentGroup && currentGroup.groupId === deletedGroupId) {
+        setCurrentGroup(null);
+      }
+
+      // パンくずリストを更新（削除したグループが含まれている場合にリセット）
+      setBreadcrumb((prevBreadcrumb) =>
+        prevBreadcrumb.filter((b) => b.groupId !== deletedGroupId)
+      );
+
+      // 展開状態も削除されたグループに関連する部分をリセット
+      setExpandedGroups((prevExpandedGroups) => {
+        const updatedExpanded = { ...prevExpandedGroups };
+        delete updatedExpanded[deletedGroupId];
+        return updatedExpanded;
+      });
+    } catch (err) {
+      console.error("Error deleting group:", err);
+    }
+  };
+
+  /* 編集関連 */
+  const handleEditGroup = (group) => {
+    setEditModalGroup(group); // 編集するグループをセット
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalGroup(null); // モーダルを閉じる
+  };
+
+  const handleUpdateGroup = (groupId, updatedData) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((group) =>
+        group.groupId === groupId ? { ...group, ...updatedData } : group
+      )
+    );
+  };
+
+  /* メンバー表示機能 */
+  const handleShowMembers = (groupId) => {
+    setSelectedGroupId(groupId);
+    setShowMembersModal(true);
+  };
+
+  const handleCloseMembersModal = () => {
+    setShowMembersModal(false);
+    setSelectedGroupId(null);
+  };
+
+  const handleOpenTalk = (group) => {
+    setTalkGroup(group);
+    setIsGroupTalk(true);
+  };
+
+  const handleBackFromTalk = () => {
+    setIsGroupTalk(false);
+    setTalkGroup(null);
+  };
 
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
@@ -143,60 +210,67 @@ function Group() {
           expandedGroups={expandedGroups}
           toggleGroup={toggleGroup}
           handleGroupClick={handleGroupClick}
-          renderGroupTree={renderGroupTree}
           sidebarWidth={sidebarWidth}
           sidebarOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
           toggleModal={toggleModal}
           error={error}
+          currentGroup={currentGroup}
+          handleGroupDelete={handleGroupDelete}
+          onEditGroup={handleEditGroup}
+          onShowMembers={handleShowMembers}
+          onOpenTalk={handleOpenTalk} // 新しいプロパティを渡す
         />
-        <div className="maincontent flex-grow-1 pt-2 px-5 reset">
-          {breadcrumb.length > 0 && (
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb m-0 mx-3 my-2">
-                {breadcrumb.map((item, index) => (
-                  <li key={item.groupId} className="breadcrumb-item">
-                    {index === breadcrumb.length - 1 ? (
-                      <span>{item.groupName}</span>
-                    ) : (
-                      <a href="#" onClick={() => handleGroupClick(item)}>
-                        {item.groupName}
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          )}
-          {currentGroup ? (
-            <div className="card">
-              <GroupContact
-                groupName={currentGroup.groupName}
-                hasPermission={true}
-                onFormSubmit={handleFormSubmit}
-                groupId={currentGroup.groupId}
-                posts={posts}
-              />
-            </div>
+        <div className="maincontent flex-grow-1 ps-5 reset">
+          {isGroupTalk && talkGroup ? (
+            <GroupTalk group={talkGroup} onBack={handleBackFromTalk} currentGroup={currentGroup} />
           ) : (
-            <p>Select a group to see details.</p>
+            <>
+              <Breadcrumb
+                breadcrumb={breadcrumb}
+                handleGroupClick={handleGroupClick}
+              />
+              {currentGroup ? (
+                <div className="card">
+                  <GroupContact
+                    groupName={currentGroup.groupName}
+                    hasPermission={true}
+                    onFormSubmit={handleFormSubmit}
+                    groupId={currentGroup.groupId}
+                    posts={posts}
+                  />
+                </div>
+              ) : (
+                <p>Select a group to see details.</p>
+              )}
+            </>
           )}
         </div>
       </main>
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="btn-close" onClick={toggleModal}></button>
-            <GroupCreate
-              onSubmit={(newGroup) => {
-                console.log(newGroup);
-                toggleModal();
-              }}
-              availableGroups={[{ groupId: "1", groupName: "初星学園" }]} // Example
-              availableUsers={[{ userId: "1", nickName: "田中太郎", userName: "tanaka" }]} // Example
-            />
-          </div>
+          <GroupCreate
+            onSubmit={handleFormSubmit}
+            currentGroup={currentGroup}
+            toggleModal={toggleModal}
+          />
         </div>
+      )}
+
+      {editModalGroup && (
+            <EditGroupModal
+              group={editModalGroup}
+              onClose={handleCloseEditModal}
+              onUpdateGroup={handleUpdateGroup}
+            />
+      )}
+
+      {showMembersModal && selectedGroupId && (
+        <GroupMemberModal
+          groupId={selectedGroupId}
+          show={showMembersModal}
+          onClose={handleCloseMembersModal}
+        />
       )}
     </div>
   );

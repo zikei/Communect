@@ -6,7 +6,7 @@ import GroupTalkCreate from "./group/GroupTalkCreate";
 import TalkSidebar from "./group/GroupTalkSidebar";
 import MessagesArea from "./message/MessagesArea";
 
-const TalkRoom = ({ currentGroup, onSelectTalk }) => {
+const TalkRoom = ({ onSelectTalk }) => {
   const [selectedTalk, setSelectedTalk] = useState(null);
   const [messages, setMessages] = useState([]);
   const [talks, setTalks] = useState([]);
@@ -16,14 +16,13 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const messagesEndRef = useRef(null);
 
   const fetchTalks = async () => {
-    if (!currentGroup?.groupId) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/group/${currentGroup.groupId}/talk`
+        `${import.meta.env.VITE_API_URL}/talk`
       );
       setTalks(response.data.talks || []);
     } catch (err) {
@@ -51,14 +50,8 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     }
   };
 
-  useEffect(() => {
-    if (currentGroup?.groupId) {
-      fetchTalks();
-    }
-  }, [currentGroup?.groupId]);
-
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]); // メッセージリストに追加
   };
 
   const handleSelectTalk = (talkId) => {
@@ -95,15 +88,15 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     }
   };
 
-  const handleTalkUpdate = (updatedTalks) => {
-    setTalks(updatedTalks);
-  };
-
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  useEffect(() => {
+    fetchTalks();
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -119,7 +112,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
           onSelectTalk={handleSelectTalk}
           setShowCreateModal={setShowCreateModal}
           selectedTalk={selectedTalk}
-          onTalksUpdate={handleTalkUpdate} // 追加
+          onTalksUpdate={(updatedTalks) => setTalks(updatedTalks)}
         />
         <MessagesArea
           messages={messages}
@@ -133,9 +126,8 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
       <GroupTalkCreate
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
-        groupId={currentGroup?.groupId}
         onCreate={(newTalk) => setTalks((prevTalks) => [...prevTalks, newTalk])}
-        talkType="group"
+        talkType="personal"
       />
     </Container>
   );
