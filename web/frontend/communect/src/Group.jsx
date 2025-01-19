@@ -79,7 +79,10 @@ function Group() {
     const fetchGroups = async () => {
       try {
         const response = await axios.get(
-          import.meta.env.VITE_API_URL + "/group"
+          import.meta.env.VITE_API_URL + "/group",
+          {credentials: "include",
+           withCredentials: true
+          }
         );
         const hierarchy = buildHierarchy(response.data.groups);
         setGroups(hierarchy);
@@ -114,7 +117,7 @@ function Group() {
   const handleGroupDelete = async (deletedGroupId) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`
+        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`,
       );
 
       // フロントエンド状態更新
