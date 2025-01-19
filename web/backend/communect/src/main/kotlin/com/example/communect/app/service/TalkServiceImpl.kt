@@ -14,8 +14,7 @@ import org.springframework.stereotype.Service
 /** トーク処理実装クラス */
 @Service
 class TalkServiceImpl(
-    @Autowired val talkRepository: TalkRepository,
-    @Autowired val groupUserRepository: GroupUserRepository
+    @Autowired val talkRepository: TalkRepository
 ) : TalkService {
     /**
      *  グループトーク一覧取得
