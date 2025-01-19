@@ -34,42 +34,80 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
   // SSE接続
   useEffect(() => {
-    if (!groupId) return;
-    const sse = new EventSource(`${import.meta.env.VITE_API_URL}/contact/sse`, {
-      withCredentials: true,
-    });
-
-    const onMessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("新しい投稿を受信:", data);
-
-        if (data.type === "CREATE") {
+    let sse; // SSE接続用の変数
+    const connectSSE = () => {
+      sse = new EventSource(`${import.meta.env.VITE_API_URL}/contact/sse`, {
+        withCredentials: true,
+        credentials: "include",
+      });
+  
+      // 接続確認イベント
+      sse.addEventListener("connection", (event) => {
+        console.log("接続イベント:", event.data);
+      });
+  
+      // 新規データ追加イベント
+      sse.addEventListener("post", (event) => {
+        console.log("POSTイベント:", event.data);
+        try {
+          const data = JSON.parse(event.data);
           setPosts((prevPosts) => [...prevPosts, data.contact]);
-        } else if (data.type === "UPDATE") {
-          setPosts((prevPosts) => prevPosts.map(post => post.contactId === data.contact.contactId ? data.contact : post));
-        } else if (data.type === "DELETE") {
-          setPosts((prevPosts) => prevPosts.filter(post => post.contactId !== data.contactId));
+        } catch (err) {
+          console.error("POSTイベント解析エラー:", err);
         }
-      } catch (err) {
-        console.error("メッセージ解析中にエラーが発生しました:", err);
+      });
+  
+      // データ更新イベント
+      sse.addEventListener("update", (event) => {
+        console.log("UPDATEイベント:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post.contactId === data.contact.contactId ? data.contact : post
+            )
+          );
+        } catch (err) {
+          console.error("UPDATEイベント解析エラー:", err);
+        }
+      });
+  
+      // データ削除イベント
+      sse.addEventListener("delete", (event) => {
+        console.log("DELETEイベント:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          setPosts((prevPosts) =>
+            prevPosts.filter((post) => post.contactId !== data.contactId)
+          );
+        } catch (err) {
+          console.error("DELETEイベント解析エラー:", err);
+        }
+      });
+  
+      // エラー処理
+      sse.onerror = (event) => {
+        console.error("SSEエラーが発生しました:", event);
+        sse.close();
+        // 再接続ロジックを追加
+        setTimeout(() => {
+          console.log("SSE再接続を試みます...");
+          connectSSE();
+        }, 5000); // 5秒後に再接続
+      };
+    };
+  
+    connectSSE(); // 初回接続
+  
+    // クリーンアップ処理
+    return () => {
+      if (sse) {
+        console.log("SSE接続を閉じます");
+        sse.close();
       }
     };
-
-    const onError = () => {
-      console.error("SSE接続に問題が発生しました");
-      sse.close();
-    };
-
-    sse.addEventListener("message", onMessage);
-    sse.addEventListener("error", onError);
-
-    return () => {
-      sse.removeEventListener("message", onMessage);
-      sse.removeEventListener("error", onError);
-      sse.close();
-    };
-  }, [groupId]);
+  }, []);
+  
 
   // 投稿編集
   const handleEditPost = async (contactId, updatedData) => {
