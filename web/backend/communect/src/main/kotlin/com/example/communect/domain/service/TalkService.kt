@@ -17,14 +17,17 @@ interface TalkService {
     fun getTalk(talkId: String, loginUserId: String): Talk?
 
     /** グループトーク作成 */
-    fun addGroupTalk(talk: GroupTalkIns, loginUserId: String): Talk
+    fun addGroupTalk(talk: GroupTalkIns): Talk
 
     /** 個人トーク作成 */
     fun addIndividualTalk(talk: IndividualTalkIns): Talk
 
     /** トーク更新 */
-    fun updTalk(talk: TalkUpd, loginUserId: String): Talk
+    fun updTalk(talk: TalkUpd): Talk
 
     /** トーク削除 */
-    fun deleteTalk(talkId: String, loginUserId: String)
+    fun deleteTalk(talkId: String)
+
+    /** トーク所属確認 */
+    fun hasTalk(talkId: String, loginUserId: String): Boolean
 }

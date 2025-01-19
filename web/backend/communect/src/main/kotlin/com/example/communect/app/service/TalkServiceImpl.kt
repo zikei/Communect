@@ -49,8 +49,7 @@ class TalkServiceImpl(
      *  @param talk 作成グループ情報
      *  @return 作成トーク
      */
-    override fun addGroupTalk(talk: GroupTalkIns, loginUserId: String): Talk {
-        groupUserRepository.findByGroupIdAndUserId(talk.groupId, loginUserId) ?: throw BadRequestException()
+    override fun addGroupTalk(talk: GroupTalkIns): Talk {
         return talkRepository.insertGroupTalk(talk)
     }
 
@@ -68,8 +67,7 @@ class TalkServiceImpl(
      *  @param talk 更新トーク情報
      *  @return 更新トーク
      */
-    override fun updTalk(talk: TalkUpd, loginUserId: String): Talk {
-        if(!hasTalk(talk.talkId, loginUserId)) throw BadRequestException("talk does not exist")
+    override fun updTalk(talk: TalkUpd): Talk {
         talkRepository.updateTalk(talk)
         return talkRepository.findByTalkId(talk.talkId) ?: throw BadRequestException("talk does not exist")
     }
@@ -78,8 +76,7 @@ class TalkServiceImpl(
      *  トーク削除
      *  @param talkId 削除対象トークID
      */
-    override fun deleteTalk(talkId: String, loginUserId: String) {
-        if(!hasTalk(talkId, loginUserId)) throw BadRequestException("talk does not exist")
+    override fun deleteTalk(talkId: String) {
         talkRepository.deleteByTalkId(talkId)
     }
 
@@ -89,7 +86,7 @@ class TalkServiceImpl(
      * @param loginUserId 所属確認ユーザID
      * @return true: 所属 false: 未所属
      */
-    private fun hasTalk(talkId: String, loginUserId: String): Boolean {
+    override fun hasTalk(talkId: String, loginUserId: String): Boolean {
         return talkRepository.findByTalkId(talkId, loginUserId) != null
     }
 }

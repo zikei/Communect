@@ -47,6 +47,7 @@ class TalkAPIController(
         @PathVariable("talkId") talkId: String,
         messageId: String? = null
     ): MessagesResponse {
+        if(!talkService.hasTalk(talkId, loginUser.user.userId)) throw BadRequestException()
         val messages = messageService.getMessages(talkId, messageId)
         return MessagesResponse(messages?.map { MessageInfo(it) })
     }
@@ -73,10 +74,11 @@ class TalkAPIController(
         @Validated @RequestBody req: UpdTalkRequest,
         bindingResult: BindingResult
     ): TalkResponse {
+        if(!talkService.hasTalk(talkId, loginUser.user.userId)) throw BadRequestException()
         if (bindingResult.hasErrors()) throw BadRequestException()
         val updTalk = TalkUpd(talkId, req.talkName)
 
-        val talk = talkService.updTalk(updTalk, loginUser.user.userId)
+        val talk = talkService.updTalk(updTalk)
         return TalkResponse(TalkInfo(talk))
     }
 
@@ -86,7 +88,8 @@ class TalkAPIController(
         @AuthenticationPrincipal loginUser: Login,
         @PathVariable("talkId") talkId: String
     ) {
-        talkService.deleteTalk(talkId, loginUser.user.userId)
+        if(!talkService.hasTalk(talkId, loginUser.user.userId)) throw BadRequestException()
+        talkService.deleteTalk(talkId)
     }
 
     /** メッセージ送信 */
@@ -97,6 +100,7 @@ class TalkAPIController(
         @Validated @RequestBody req: PostMessageRequest,
         bindingResult: BindingResult
     ): MessageResponse {
+        if(!talkService.hasTalk(talkId, loginUser.user.userId)) throw BadRequestException()
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insMessage = MessageIns(req.message, talkId, loginUser.user.userId)
 
