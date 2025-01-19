@@ -31,7 +31,7 @@ class MessageServiceImpl(
      *  @return トーク
      */
     override fun getMessages(talkId: String, lastMessageId: String?): List<Message>? {
-        return messageRepository.findByTalkId(talkId, lastMessageId)
+        return messageRepository.findByTalkId(talkId, lastMessageId).takeIf { it.isNotEmpty() }
     }
 
     /**

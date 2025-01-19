@@ -134,7 +134,7 @@ class GroupAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insGroupTalk = GroupTalkIns(req.talkName, groupId)
 
-        val talk = talkService.addGroupTalk(insGroupTalk, loginUser.user.userId)
+        val talk = talkService.addGroupTalk(insGroupTalk)
         return TalkResponse(TalkInfo(talk))
     }
 

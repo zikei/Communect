@@ -2,6 +2,7 @@ package com.example.communect.app.service
 
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.ContactRepository
 import com.example.communect.domain.service.ContactService
 import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
@@ -19,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap
 /** 連絡処理実装クラス */
 @Service
 class ContactServiceImpl(
-    @Autowired val emitterRepository: ContactSseEmitterRepository,
-    @Value("\${contactRowCount}") private val contactLimit: Int
+    @Autowired val contactRepository: ContactRepository,
+    @Autowired val emitterRepository: ContactSseEmitterRepository
 ): ContactService {
     /**
      *  グループ連絡一覧取得
@@ -29,11 +30,7 @@ class ContactServiceImpl(
      *  @return 連絡リスト
      */
     override fun getContactsByGroupId(groupId: String, lastContactId: String?): List<Contact>? {
-        val contact = lastContactId?.let {id -> MockTestData.contactList.find { it.contactId ==  id} }
-        val contacts = MockTestData.contactList.filter {
-            it.groupId == groupId && ( contact == null || it.createTime.isBefore(contact.createTime) )
-        }.sortedBy { it.createTime }
-        return contacts.take(contactLimit).sortedByDescending { it.createTime }
+        return contactRepository.findByGroupId(groupId, lastContactId).takeIf { it.isNotEmpty() }
     }
 
     /**
