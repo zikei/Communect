@@ -93,6 +93,7 @@ class MessageServiceImpl(
         return emitterRepository.addEmitter(userId)
     }
 
+    /** メッセージのトークに所属するユーザIDリストを取得 */
     private fun getMessageUserIds(messageId: String): List<String>{
         val message = messageRepository.findByMessageId(messageId) ?: return mutableListOf()
         return talkRepository.findUserByTalkId(message.talkId).map { it.userId }

@@ -4,7 +4,6 @@ import com.example.communect.domain.model.GroupTalkIns
 import com.example.communect.domain.model.IndividualTalkIns
 import com.example.communect.domain.model.Talk
 import com.example.communect.domain.model.TalkUpd
-import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.domain.service.TalkService
 import org.apache.coyote.BadRequestException
