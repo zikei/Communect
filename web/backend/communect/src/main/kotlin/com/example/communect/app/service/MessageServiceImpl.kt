@@ -41,10 +41,7 @@ class MessageServiceImpl(
      *  @return 投稿メッセージ情報
      */
     override fun postMessage(message: MessageIns): Message {
-        val user = MockTestData.userList.find { it.userId == message.userId } ?: throw BadRequestException()
-        val insMessage = Message(UUID.randomUUID().toString(), message.message, LocalDateTime.now(), message.talkId, user.userId, user.userName, user.nickName)
-
-        MockTestData.messageList.add(insMessage)
+        val insMessage = messageRepository.insertMessage(message) ?: throw BadRequestException()
 
         val messageUserIds = getMessageUserIds(insMessage.messageId)
         messageUserIds.forEach { id ->
