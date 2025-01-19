@@ -3,8 +3,10 @@ package com.example.communect.app.service
 import com.example.communect.domain.enums.ContactType
 import com.example.communect.domain.model.*
 import com.example.communect.domain.repository.ContactRepository
+import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.repository.ReactionRepository
 import com.example.communect.domain.service.ContactService
+import com.example.communect.domain.service.UserService
 import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
 import com.example.communect.ui.form.ContactResponse
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
 class ContactServiceImpl(
     @Autowired val contactRepository: ContactRepository,
     @Autowired val reactionRepository: ReactionRepository,
+    @Autowired val groupUserRepository: GroupUserRepository,
     @Autowired val emitterRepository: ContactSseEmitterRepository
 ): ContactService {
     /**
@@ -60,16 +63,9 @@ class ContactServiceImpl(
      *  @return 投稿連絡
      */
     override fun addContact(contact: ContactIns): Contact {
-        if(contact.contactType == ContactType.CHOICE && contact.choices == null) throw BadRequestException()
-        val group = MockTestData.groupList.find { it.groupId == contact.groupId } ?: throw BadRequestException()
-        val user = MockTestData.userList.find { it.userId == contact.userId } ?: throw BadRequestException()
+        val postContact = contactRepository.insertContact(contact) ?: throw BadRequestException()
 
-        val contactId = UUID.randomUUID().toString()
-        val postChoices = contact.choices?.map { Choice(UUID.randomUUID().toString(), contactId, it) }
-        val postContact = Contact(contactId, contact.groupId, user.userId, user.userName, user.nickName, group.groupName, contact.message, contact.contactType, contact.importance, LocalDateTime.now(), postChoices)
-        MockTestData.contactList.add(postContact)
-
-        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == group.groupId }.map { it.userId }
+        val groupUserIds = getGroupUserIds(contact.groupId)
         groupUserIds.forEach { id ->
             emitterRepository.send(id, "post", ContactResponse(ContactInfo(postContact)))
         }
@@ -149,6 +145,11 @@ class ContactServiceImpl(
      */
     override fun addSse(userId: String): SseEmitter {
         return emitterRepository.addEmitter(userId)
+    }
+
+    /** グループに所属するユーザIDリストを取得 */
+    private fun getGroupUserIds(groupId: String): List<String>{
+        return groupUserRepository.findByGroupId(groupId).map { it.userId }
     }
 }
 
