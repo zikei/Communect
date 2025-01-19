@@ -72,10 +72,12 @@ class MessageServiceImpl(
      *  メッセージ削除
      *  @param messageId 削除対象メッセージID
      */
-    override fun deleteMessage(messageId: String) {
+    override fun deleteMessage(messageId: String, loginUserId: String) {
+        val oldMessage = messageRepository.findByMessageId(messageId) ?: throw BadRequestException()
+        if(oldMessage.userId != loginUserId) throw BadRequestException()
         val messageUserIds = getMessageUserIds(messageId)
 
-        MockTestData.messageList.removeAll { it.messageId == messageId }
+        messageRepository.deleteByMessageId(messageId)
 
         messageUserIds.forEach { id ->
             emitterRepository.send(id, "delete", MessageDeleteResponse(messageId))

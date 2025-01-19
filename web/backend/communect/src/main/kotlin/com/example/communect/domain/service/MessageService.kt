@@ -15,7 +15,7 @@ interface MessageService {
     fun updMessage(message: MessageUpd, loginUserId: String): Message
 
     /** メッセージ削除 */
-    fun deleteMessage(messageId: String)
+    fun deleteMessage(messageId: String, loginUserId: String)
 
     /** SSE登録 */
     fun addSse(userId: String): SseEmitter
