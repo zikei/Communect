@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.time.LocalDateTime
-import java.util.*
+import java.sql.SQLException
 import java.util.concurrent.ConcurrentHashMap
 
 /** 連絡処理実装クラス */
@@ -128,14 +127,16 @@ class ContactServiceImpl(
      *  @param reaction 追加リアクション情報
      */
     override fun addReaction(reaction: ReactionIns) {
-        val contact = MockTestData.contactList.find { it.contactId == reaction.contactId } ?: throw BadRequestException()
-        val user = MockTestData.userList.find { it.userId == reaction.userId } ?: throw BadRequestException()
-        val insChoice = if(contact.contactType == ContactType.CHOICE){
-            reaction.choiceId?.let { contact.choices?.find { choice -> choice.choiceId == it } } ?: throw BadRequestException()
-        }else{
-            null
+        if(reactionRepository.isReactionByContactIdAndUserId(reaction.contactId, reaction.userId)) throw BadRequestException()
+        val contact = contactRepository.findByContactId(reaction.contactId) ?: throw BadRequestException()
+        if(contact.contactType == ContactType.CHOICE){
+            reaction.choiceId ?: throw BadRequestException()
+            contact.choices?.find { it.choiceId == reaction.choiceId} ?: throw BadRequestException()
+        }else if(contact.contactType == ContactType.INFORM || reaction.choiceId != null){
+            throw BadRequestException()
         }
-        MockTestData.reactionList.add(Reaction(UUID.randomUUID().toString(), reaction.contactId, LocalDateTime.now(), insChoice, reaction.userId, user.userName, user.nickName))
+
+        reactionRepository.insertReaction(reaction)
     }
 
     /**

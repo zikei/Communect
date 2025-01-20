@@ -4,12 +4,10 @@ import com.example.communect.domain.model.Choice
 import com.example.communect.domain.model.Reaction
 import com.example.communect.domain.model.ReactionIns
 import com.example.communect.domain.repository.ReactionRepository
-import com.example.communect.infrastructure.db.mapper.ChoicereactionMapper
-import com.example.communect.infrastructure.db.mapper.ReactionMapper
+import com.example.communect.infrastructure.db.mapper.*
+import com.example.communect.infrastructure.db.mapper.ReactionDynamicSqlSupport
 import com.example.communect.infrastructure.db.mapper.custom.CustomReactionMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByContactId
-import com.example.communect.infrastructure.db.mapper.delete
-import com.example.communect.infrastructure.db.mapper.insert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.util.*
@@ -32,6 +30,23 @@ class ReactionRepositoryImpl(
      */
     override fun findByContactId(contactId: String): List<Reaction> {
         return customReactionMapper.selectByContactId(contactId).map { toModel(it) }
+    }
+
+    /**
+     *  連絡IDとユーザIDによるリアクション取得
+     *  @param contactId 連絡ID
+     *  @param userId ユーザID
+     *  @return リアクションの存在判定 true: 存在
+     */
+    override fun isReactionByContactIdAndUserId(contactId: String, userId: String): Boolean {
+        return reactionMapper.selectOne{
+            where {
+                ReactionSql.contactid isEqualTo contactId
+                and {
+                    ReactionSql.userid isEqualTo userId
+                }
+            }
+        } != null
     }
 
     /**

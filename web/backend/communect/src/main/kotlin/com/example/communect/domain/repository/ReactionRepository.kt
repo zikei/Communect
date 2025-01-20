@@ -8,6 +8,9 @@ interface ReactionRepository {
     /** 連絡IDによるリアクション取得 */
     fun findByContactId(contactId: String):List<Reaction>
 
+    /** 連絡IDとユーザIDによるリアクションの存在確認 */
+    fun isReactionByContactIdAndUserId(contactId: String, userId: String):Boolean
+
     /** リアクション追加 */
     fun insertReaction(reaction: ReactionIns)
 
