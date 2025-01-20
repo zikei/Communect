@@ -6,19 +6,17 @@ import com.example.communect.domain.repository.ContactRepository
 import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.repository.ReactionRepository
 import com.example.communect.domain.service.ContactService
-import com.example.communect.domain.service.UserService
 import com.example.communect.ui.form.ContactDeleteResponse
 import com.example.communect.ui.form.ContactInfo
 import com.example.communect.ui.form.ContactResponse
 import org.apache.coyote.BadRequestException
-import org.apache.ibatis.javassist.NotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /** 連絡処理実装クラス */
@@ -64,6 +62,7 @@ class ContactServiceImpl(
      *  @return 投稿連絡
      */
     override fun addContact(contact: ContactIns): Contact {
+        if(contact.contactType == ContactType.CHOICE && (contact.choices?.size ?: 0) < choiceMinCount) throw BadRequestException()
         val postContact = contactRepository.insertContact(contact) ?: throw BadRequestException()
 
         val groupUserIds = getGroupUserIds(contact.groupId)
@@ -87,6 +86,7 @@ class ContactServiceImpl(
 
         if (oldContact.contactType != contact.contactType) reactionRepository.deleteByContactId(contact.contactId)
         if (contact.contactType == ContactType.CHOICE && choices != null) {
+            if (choices.size < choiceMinCount) throw BadRequestException()
             if (oldContact.contactType == ContactType.CHOICE) {
                 contactRepository.deleteChoicesByContactId(contact.contactId)
             }
