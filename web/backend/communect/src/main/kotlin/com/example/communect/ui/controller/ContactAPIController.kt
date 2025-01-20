@@ -69,9 +69,10 @@ class ContactAPIController(
     /** 連絡削除 */
     @DeleteMapping("/{contactId}")
     fun deleteContact(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("contactId") contactId: String
     ) {
-        contactService.deleteContact(contactId)
+        contactService.deleteContact(contactId, loginUser.user.userId)
     }
 
     /** リアクション */

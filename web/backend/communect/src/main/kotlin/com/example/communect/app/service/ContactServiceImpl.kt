@@ -111,12 +111,13 @@ class ContactServiceImpl(
      *  連絡削除
      *  @param contactId 削除対象連絡ID
      */
-    override fun deleteContact(contactId: String) {
-        val groupId = MockTestData.contactList.find { it.contactId == contactId }?.groupId ?: throw BadRequestException()
-        MockTestData.contactList.removeAll { it.contactId == contactId }
-        MockTestData.reactionList.removeAll { it.contactId == contactId }
+    override fun deleteContact(contactId: String, loginUserId: String) {
+        val oldContact = contactRepository.findByContactId(contactId) ?: throw BadRequestException()
+        if(oldContact.userId != loginUserId) throw BadRequestException()
 
-        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
+        contactRepository.deleteByContactId(contactId)
+
+        val groupUserIds = getGroupUserIds(oldContact.groupId)
         groupUserIds.forEach { id ->
             emitterRepository.send(id, "delete", ContactDeleteResponse(contactId))
         }
