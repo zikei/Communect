@@ -1,181 +1,162 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, FlatList, Alert } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Picker, Alert } from 'react-native';
 
-const PostFormModal = ({ onClose, groupId, onPostCreated, initialData }) => {
-  const [formData, setFormData] = useState({
-    message: "",
-    contactType: "INFORM",
-    importance: "LOW",
-    choices: [],
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        message: initialData.message,
-        contactType: initialData.contactType,
-        importance: initialData.importance,
-        choices: initialData.choices || [],
-      });
-    }
-  }, [initialData]);
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+const PostFormModal = ({ groupId, onClose, onPostCreated }) => {
+  const [message, setMessage] = useState('');
+  const [contactType, setContactType] = useState('INFORM'); // デフォルト: 周知連絡
+  const [importance, setImportance] = useState('SAFE'); // デフォルト: 最低
+  const [choices, setChoices] = useState(['']); // 多肢連絡用選択肢
 
   const handleAddChoice = () => {
-    setFormData((prev) => ({
-      ...prev,
-      choices: [...prev.choices, ""],
-    }));
+    setChoices([...choices, '']);
   };
 
   const handleRemoveChoice = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      choices: prev.choices.filter((_, i) => i !== index),
-    }));
+    setChoices(choices.filter((_, i) => i !== index));
   };
 
-  const handleChoiceChange = (index, value) => {
-    setFormData((prev) => {
-      const updatedChoices = [...prev.choices];
-      updatedChoices[index] = value;
-      return { ...prev, choices: updatedChoices };
-    });
+  const handleChoiceChange = (text, index) => {
+    const updatedChoices = [...choices];
+    updatedChoices[index] = text;
+    setChoices(updatedChoices);
   };
 
-  const handleSubmit = async () => {
-    if (!formData.message.trim()) {
-      Alert.alert("エラー", "メッセージを入力してください");
+  const handlePostSubmit = async () => {
+    if (!message.trim()) {
+      Alert.alert('エラー', 'メッセージを入力してください。');
       return;
     }
-    if (formData.contactType === "CHOICE" && formData.choices.length < 2) {
-      Alert.alert("エラー", "選択肢は2つ以上必要です");
+
+    if (contactType === 'CHOICE' && choices.length < 2) {
+      Alert.alert('エラー', '多肢連絡には少なくとも2つの選択肢が必要です。');
       return;
     }
 
     try {
-      const response = await fetch(`http://api.localhost/contact${initialData ? `/${initialData.contactId}` : ""}`, {
-        method: initialData ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, groupId }),
+      const response = await fetch('http://api.localhost/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          contactType,
+          importance,
+          groupId,
+          choices: contactType === 'CHOICE' ? choices : null,
+        }),
       });
 
-      if (!response.ok) throw new Error("投稿に失敗しました");
-      const newPost = await response.json();
-      onPostCreated(newPost);
-      onClose();
+      if (!response.ok) {
+        throw new Error('投稿に失敗しました。');
+      }
+
+      const data = await response.json();
+      Alert.alert('成功', '投稿が完了しました。');
+      onPostCreated(data.contact); // 新しい投稿データをリストに追加
+      onClose(); // モーダルを閉じる
     } catch (error) {
-      Alert.alert("エラー", error.message);
+      console.error('Error posting contact:', error);
+      Alert.alert('エラー', '投稿中に問題が発生しました。');
     }
   };
 
   return (
     <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <Text style={styles.title}>{initialData ? "投稿を編集" : "新規投稿"}</Text>
+      <Text style={styles.title}>新しい投稿</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="メッセージを入力"
-          value={formData.message}
-          onChangeText={(value) => handleInputChange("message", value)}
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="メッセージを入力"
+        value={message}
+        onChangeText={setMessage}
+      />
 
-        <Text style={styles.label}>連絡タイプ</Text>
-        <Picker
-          selectedValue={formData.contactType}
-          onValueChange={(value) => handleInputChange("contactType", value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="周知連絡" value="INFORM" />
-          <Picker.Item label="確認連絡" value="CONFIRM" />
-          <Picker.Item label="多肢連絡" value="CHOICE" />
-        </Picker>
+      <Text>連絡タイプ:</Text>
+      <Picker
+        selectedValue={contactType}
+        onValueChange={(value) => setContactType(value)}
+        style={styles.picker}
+      >
+        <Picker.Item label="周知連絡" value="INFORM" />
+        <Picker.Item label="確認連絡" value="CONFIRM" />
+        <Picker.Item label="多肢連絡" value="CHOICE" />
+      </Picker>
 
-        <Text style={styles.label}>重要度</Text>
-        <Picker
-          selectedValue={formData.importance}
-          onValueChange={(value) => handleInputChange("importance", value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="最低" value="SAFE" />
-          <Picker.Item label="低" value="LOW" />
-          <Picker.Item label="中" value="MEDIUM" />
-          <Picker.Item label="高" value="HIGH" />
-        </Picker>
+      <Text>重要度:</Text>
+      <Picker
+        selectedValue={importance}
+        onValueChange={(value) => setImportance(value)}
+        style={styles.picker}
+      >
+        <Picker.Item label="最低" value="SAFE" />
+        <Picker.Item label="低" value="LOW" />
+        <Picker.Item label="中" value="MEDIUM" />
+        <Picker.Item label="高" value="HIGH" />
+      </Picker>
 
-        {formData.contactType === "CHOICE" && (
-          <View>
-            <Text style={styles.label}>選択肢</Text>
-            <FlatList
-              data={formData.choices}
-              renderItem={({ item, index }) => (
-                <View style={styles.choiceContainer}>
-                  <TextInput
-                    style={styles.input}
-                    value={item}
-                    onChangeText={(value) => handleChoiceChange(index, value)}
-                  />
-                  <Button title="削除" onPress={() => handleRemoveChoice(index)} color="red" />
-                </View>
-              )}
-              keyExtractor={(_, index) => index.toString()}
-            />
-            <Button title="選択肢を追加" onPress={handleAddChoice} />
-          </View>
-        )}
+      {contactType === 'CHOICE' && (
+        <View>
+          <Text>選択肢:</Text>
+          {choices.map((choice, index) => (
+            <View key={index} style={styles.choiceContainer}>
+              <TextInput
+                style={styles.choiceInput}
+                placeholder={`選択肢 ${index + 1}`}
+                value={choice}
+                onChangeText={(text) => handleChoiceChange(text, index)}
+              />
+              <Button
+                title="削除"
+                onPress={() => handleRemoveChoice(index)}
+                color="red"
+              />
+            </View>
+          ))}
+          <Button title="選択肢を追加" onPress={handleAddChoice} />
+        </View>
+      )}
 
-        <Button title={initialData ? "更新" : "投稿"} onPress={handleSubmit} />
-        <Button title="キャンセル" onPress={onClose} color="gray" />
-      </View>
+      <Button title="投稿する" onPress={handlePostSubmit} />
+      <Button title="キャンセル" onPress={onClose} color="gray" />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
     padding: 20,
+    backgroundColor: 'white',
     borderRadius: 10,
-    width: "80%",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   input: {
-    borderColor: "gray",
+    borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 10,
     padding: 10,
-    fontSize: 16,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   picker: {
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
+    height: 50,
+    width: '100%',
     marginBottom: 10,
   },
   choiceContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  choiceInput: {
+    flex: 1,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
   },
 });
 
