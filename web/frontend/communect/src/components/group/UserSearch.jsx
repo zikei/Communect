@@ -17,6 +17,7 @@ function UserSearch({ onAddUsers, singleSelect = false }) {
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL + `/user`, {
         params: { keyword },
+        withCredentials: true,
       });
       const users = response.data.users;
       if (Array.isArray(users)) {

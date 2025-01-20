@@ -118,6 +118,9 @@ function Group() {
     try {
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`,
+        {
+          withCredentials: true,
+        }
       );
 
       // フロントエンド状態更新

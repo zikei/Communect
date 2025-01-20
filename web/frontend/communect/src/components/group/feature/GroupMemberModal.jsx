@@ -30,7 +30,11 @@ function GroupMemberModal({ groupId, show, onClose }) {
       setError(null);
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/group/${groupId}/user`
+          `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
+          {
+            withCredentials: true,
+            credentials: "include",
+          }
         );
         if (response.data && Array.isArray(response.data.users)) {
           setMembers(response.data.users);
@@ -74,6 +78,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
         `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
         {
           data: { groupUserId },
+          withCredentials: true,
         }
       );
 
