@@ -30,12 +30,12 @@ const Sidebar = ({
   const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
   const [userInput, setUserInput] = useState(""); // ユーザー名入力用
-  const [loading, setLoading] = useState(false); // ローディング状態
-  const [apiError, setApiError] = useState(""); // エラー表示用
 
 const handleOpenPlusModal = () => {
   setIsPlusModalVisible(true);
 };
+
+
 
 const handleClosePlusModal = () => {
   setIsPlusModalVisible(false);
@@ -213,11 +213,10 @@ const handleClosePlusModal = () => {
         onChangeText={setUserInput} // 入力内容の変更を反映
       />
 
-        {/* エラー表示 */}
-        {apiError ? <Text style={styles.errorText}>{apiError}</Text> : null}
+        
 
         {/* ローディング中ならボタンを無効化 */}
-        <Button title="作成" onPress={handleCreateGroup} disabled={loading} />
+        <Button title="作成" onPress={handleCreateGroup} />
         
 
       </View>
@@ -261,13 +260,6 @@ const handleClosePlusModal = () => {
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: { /* 既存のスタイル */ },
-  modalContent: { /* 既存のスタイル */ },
-  closeButton: { /* 既存のスタイル */ },
-  closeButtonText: { /* 既存のスタイル */ },
-  label: { fontSize: 16, marginBottom: 5 },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 8, marginBottom: 15, borderRadius: 5 },
-  errorText: { color: "red", fontSize: 14, marginBottom: 10 },
   sidebar: {
     position: "absolute", // 絶対配置
     left: 0,
