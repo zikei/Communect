@@ -20,6 +20,9 @@ data class ContactAndReactionsResponse(val contact: ContactInfo, val reactions: 
 /** 連絡作成返却 */
 data class ContactResponse(val contact: ContactInfo)
 
+/** 連絡削除返却 */
+data class ContactDeleteResponse(val contactId: String)
+
 /** 連絡情報情報 */
 data class ContactInfo(
     /** 連絡ID */
@@ -36,6 +39,12 @@ data class ContactInfo(
     val groupId: String,
     /** グループ名 */
     val groupName: String,
+    /** ユーザID */
+    val userId: String,
+    /** ユーザ名 */
+    val userName: String,
+    /** 表示名 */
+    val nickName: String,
     /** 選択肢リスト */
     val choices: List<ChoiceInfo>?
 ){
@@ -47,6 +56,9 @@ data class ContactInfo(
         contact.createTime,
         contact.groupId,
         contact.groupName,
+        contact.userId,
+        contact.userName,
+        contact.nickName,
         contact.choices?.map { ChoiceInfo(it) }
     )
 }

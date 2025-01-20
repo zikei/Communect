@@ -7,6 +7,10 @@ ul li {
   list-style: none;
 }
 
+.group-contact {
+  max-height: auto;
+}
+
 .group-contact-header {
   display: flex;
   justify-content: space-between;
@@ -14,12 +18,25 @@ ul li {
   padding: 10px 20px;
   border-bottom: 1px solid #ccc;
   background-color: #f8f9fa;
+  position: relative; /* 必要に応じて z-index の競合を解消 */
+  z-index: 1; /* ボタンが背景に隠れるのを防ぐ */
+}
+
+.group-contact-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  flex: 1; /* ヘッダー全体のスペースを利用 */
+}
+
+.group-contact-header .btn {
+  margin-left: 10px; /* タイトルとの間隔を確保 */
+  font-size: 1rem; /* 適切なサイズに調整 */
 }
 
 .group-contact-content {
   padding: 20px;
   overflow-y: auto;
-  max-height: 600px;
+  max-height: 500px;
 }
 
 .group-contact-post {
@@ -46,7 +63,7 @@ ul li {
   background: #fff;
   padding: 20px;
   border-radius: 5px;
-  width: 500px;
+  min-width: 600px;
 }
 
 .btn-close {

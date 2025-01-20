@@ -9,7 +9,57 @@ import {
   Button,
 } from "react-native";
 
-const PostList = ({ posts, onEdit, onDelete, onReaction, currentUserId }) => {
+const PostList = ({ posts, fetchPosts, currentUserId }) => {
+  // 投稿の編集処理
+  const handleEdit = async (post) => {
+    // 編集モーダルを表示する処理を実装
+    Alert.alert("編集機能", `投稿ID: ${post.id} の編集画面を開きます。`);
+    // 必要なら編集モーダルを表示し、データ更新後にfetchPostsを呼び出す
+  };
+
+  // 投稿の削除処理
+  const handleDelete = async (postId) => {
+    try {
+      const response = await fetch(`http://api.localhost/contact/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("投稿の削除に失敗しました。");
+      }
+
+      Alert.alert("成功", "投稿が削除されました。");
+      fetchPosts(); // 投稿リストを更新
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      Alert.alert("エラー", "削除中に問題が発生しました。");
+    }
+  };
+
+  // リアクション処理
+  const handleReaction = async (postId, choice) => {
+    try {
+      const response = await fetch(`http://api.localhost/contact/${postId}/reaction`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ choiceId: choice }),
+      });
+
+      if (!response.ok) {
+        throw new Error("リアクションの送信に失敗しました。");
+      }
+
+      Alert.alert("成功", "リアクションが送信されました。");
+      fetchPosts(); // 投稿リストを更新
+    } catch (error) {
+      console.error("Error posting reaction:", error);
+      Alert.alert("エラー", "リアクション送信中に問題が発生しました。");
+    }
+  };
+
+  // 投稿リストの各アイテムの表示
   const renderItem = ({ item }) => {
     const isOwner = item.userId === currentUserId;
 
@@ -25,34 +75,37 @@ const PostList = ({ posts, onEdit, onDelete, onReaction, currentUserId }) => {
           連絡タイプ: {item.contactType} | 重要度: {item.importance}
         </Text>
 
+        {/* 確認ボタン */}
         {item.contactType === "CONFIRM" && (
           <TouchableOpacity
             style={styles.reactionButton}
-            onPress={() => onReaction(item.id, "confirm")}
+            onPress={() => handleReaction(item.id, null)}
           >
             <Text style={styles.reactionButtonText}>確認</Text>
           </TouchableOpacity>
         )}
 
+        {/* 多肢選択ボタン */}
         {item.contactType === "CHOICE" && (
           <View style={styles.choiceContainer}>
             {item.choices.map((choice, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.choiceButton}
-                onPress={() => onReaction(item.id, choice)}
+                onPress={() => handleReaction(item.id, choice.choiceId)}
               >
-                <Text style={styles.choiceText}>{choice}</Text>
+                <Text style={styles.choiceText}>{choice.choice}</Text>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
+        {/* 投稿者のみ表示する編集・削除ボタン */}
         {isOwner && (
           <View style={styles.ownerActions}>
             <Button
               title="編集"
-              onPress={() => onEdit(item)}
+              onPress={() => handleEdit(item)}
               color="#007bff"
             />
             <Button
@@ -63,7 +116,7 @@ const PostList = ({ posts, onEdit, onDelete, onReaction, currentUserId }) => {
                   "本当にこの投稿を削除しますか？",
                   [
                     { text: "キャンセル", style: "cancel" },
-                    { text: "削除", style: "destructive", onPress: () => onDelete(item.id) },
+                    { text: "削除", style: "destructive", onPress: () => handleDelete(item.id) },
                   ],
                   { cancelable: true }
                 );

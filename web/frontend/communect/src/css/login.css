@@ -16,3 +16,8 @@ h2 {
 a:hover {
   color: #00ffff;
 }
+
+.font {
+  font-family: "Mochiy Pop One", sans-serif;
+  font-size: 20px;
+}

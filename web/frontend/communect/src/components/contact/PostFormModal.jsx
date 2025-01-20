@@ -1,13 +1,27 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 
-function PostFormModal({ onClose, groupId, onPostCreated }) {
+function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   const [formData, setFormData] = useState({
     message: "",
     contactType: "INFORM",
     importance: "LOW",
+    choices: [],
   });
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        message: initialData.message,
+        contactType: initialData.contactType,
+        importance: initialData.importance,
+        choices: Array.isArray(initialData.choices)
+        ? initialData.choices.map((choice) => choice.choice)
+        : [],
+    });
+    }
+  }, [initialData]);
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -21,8 +35,8 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
     const requestData = { ...formData, groupId };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
-        method: "POST",
+      const response = await fetch( `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`, {
+        method: initialData ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
@@ -38,9 +52,9 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="btn-close" onClick={toggleModal}></button>
-        <h2>投稿フォーム</h2>
+      <div className="modal-content" style={{ maxWidth: "400px" }}>
+        <button className="btn-close" onClick={onClose}></button>
+        <h2>{initialData ? "投稿を編集" : "新規投稿"}</h2>
         <div className="form-group">
           <label>メッセージ</label>
           <textarea
@@ -78,7 +92,6 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
           </select>
         </div>
 
-        {/* 多肢連絡用の選択肢入力フォーム */}
         {formData.contactType === "CHOICE" && (
           <div className="form-group">
             <label>選択肢</label>
@@ -122,8 +135,8 @@ function PostFormModal({ onClose, groupId, onPostCreated }) {
             </button>
           </div>
         )}
-        <button className="btn btn-success" onClick={handleSubmit}>
-          投稿
+        <button className="btn btn-success mt-3" onClick={handleSubmit}>
+        {initialData ? "更新" : "投稿"}
         </button>
       </div>
     </div>

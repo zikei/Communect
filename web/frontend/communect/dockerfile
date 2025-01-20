@@ -11,3 +11,6 @@ RUN npm cache clean --force
 RUN npm install -g npm
 RUN npm install --nocache
 RUN npm install react-router-dom
+RUN npm install axios
+RUN npm install lodash
+RUN npm install react-bootstrap

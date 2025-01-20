@@ -1,6 +1,7 @@
 package com.example.communect.domain.service
 
 import com.example.communect.domain.model.*
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
 /** メッセージ処理インターフェース */
 interface MessageService {
@@ -15,4 +16,7 @@ interface MessageService {
 
     /** メッセージ削除 */
     fun deleteMessage(messageId: String)
+
+    /** SSE登録 */
+    fun addSse(userId: String): SseEmitter
 }

@@ -25,7 +25,7 @@ insert into notice_group (noticeGroupId, aboveId, groupTitle)
     values('176e28f1-fd68-4084-a91d-182a12aa0297', NULL, 'グループ'),
           ('b642d6fa-a719-45d2-929c-081e89384b94', NULL, 'グループ２'),
           ('eaab0304-42e7-473a-bada-539f8be3357a', '176e28f1-fd68-4084-a91d-182a12aa0297', '下位グループ');
-          
+
 --user_group
 insert into user_group (userGroupId, noticeGroupId, userId, nickname, role, subGroupCreateAuthority, groupAdmin)
     values('c37efa37-87ba-4f2e-9982-27aa3a8e89c7', '176e28f1-fd68-4084-a91d-182a12aa0297', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'ユーザー', 'HIGH', '1', '1'),
@@ -62,16 +62,16 @@ insert into message (messageId, talkId, userId, message, createTime)
           ('bb9d9138-9626-431a-bcfe-83945664cdbc', '3ff1b08a-5e59-4491-b274-78aef7e6f4b9', '87c6e905-41d5-484f-b7e1-14eb874a50ad', '個人テストメッセージ', '2001-01-01 11:11:11');
 
 --contact
-insert into contact (contactId, noticeGroupId, message, contactType, importance, createTime)
-    values('15f6e66b-09a1-4594-ac7f-8d731227cbcb', '176e28f1-fd68-4084-a91d-182a12aa0297', 'contactテストメッセージ', 'CHOICE', 'HIGH', '2000-01-01 00:00:00'),
-          ('90bff2b5-43d3-4a50-a905-805d3139c42f', 'b642d6fa-a719-45d2-929c-081e89384b94', 'contactテストメッセージ グループ２', 'CONFIRM', 'MEDIUM', '2000-01-02 00:00:00'),
-          ('73c6fa63-11f6-4499-9f04-27cc5b00de51', 'eaab0304-42e7-473a-bada-539f8be3357a', 'contactテストメッセージ 下位', 'INFORM', 'SAFE', '2010-01-01 00:00:00');
+insert into contact (contactId, noticeGroupId, userId, message, contactType, importance, createTime)
+    values('15f6e66b-09a1-4594-ac7f-8d731227cbcb', '176e28f1-fd68-4084-a91d-182a12aa0297', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'contactテストメッセージ', 'CHOICE', 'HIGH', '2000-01-01 00:00:00'),
+          ('90bff2b5-43d3-4a50-a905-805d3139c42f', 'b642d6fa-a719-45d2-929c-081e89384b94', '87c6e905-41d5-484f-b7e1-14eb874a50ad', 'contactテストメッセージ グループ２', 'CONFIRM', 'MEDIUM', '2000-01-02 00:00:00'),
+          ('73c6fa63-11f6-4499-9f04-27cc5b00de51', 'eaab0304-42e7-473a-bada-539f8be3357a', 'da872c4c-570e-454e-a66d-a8a6a63e62f8', 'contactテストメッセージ 下位', 'INFORM', 'SAFE', '2010-01-01 00:00:00');
 
 --reaction
 insert into reaction (reactionId, contactId, userId, reactionTime)
     values('e2ee46b7-6ac8-425d-8a59-c9ca760de4f7', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', '87c6e905-41d5-484f-b7e1-14eb874a50ad', '2000-01-01 00:02:53'),
           ('98847f47-10a2-4527-93a8-15bbaf9738bd', '90bff2b5-43d3-4a50-a905-805d3139c42f', '5da26136-975a-43fc-9a96-098ce55f1066', '2000-01-03 00:00:02');
-          
+
 --choicecontact
 insert into choicecontact (choicecontactId, contactId, choices)
     values('2c975e3b-72f4-45c0-9a48-00765cbcc4df', '15f6e66b-09a1-4594-ac7f-8d731227cbcb', 'はい'),
