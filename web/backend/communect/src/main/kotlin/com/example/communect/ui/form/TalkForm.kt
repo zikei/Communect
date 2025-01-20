@@ -20,6 +20,9 @@ data class MessagesResponse(val messages: List<MessageInfo>?)
 /** メッセージ返却 */
 data class MessageResponse(val message: MessageInfo)
 
+/** メッセージ削除返却 */
+data class MessageDeleteResponse(val messageId: String)
+
 /** トークルーム情報 */
 data class TalkInfo(
     /** トークID */

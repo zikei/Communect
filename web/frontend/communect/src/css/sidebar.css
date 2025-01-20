@@ -1,0 +1,41 @@
+.selected-group {
+  background-color: #d2eaff;
+  border-left: 5px solid #85c4ff;
+}
+
+/* ハイライトする要素のみに背景色を適用 */
+.selected-group > div {
+  background-color: #e6f7ff;
+  border-left: 5px solid #1890ff;
+  padding-left: 5px; /* テキスト部分との距離調整 */
+  border-radius: 4px; /* 少し丸みを付ける */
+}
+
+.list-group,
+.list-unstyled {
+  display: block;
+  padding-left: 20px;
+  text-align: left;
+}
+
+/* 各リストアイテムのデフォルト設定 */
+.list-group-item {
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  background: none; /* 親要素には背景色を適用しない */
+  border: none; /* 不要な枠線を削除 */
+}
+
+/* 子リストの余計な中央配置を防ぐ */
+.list-group-item > ul {
+  margin-left: 20px; /* 必要に応じて固定インデント */
+  padding-left: 0;
+  text-align: left;
+}
+
+/* 子リストの中央配置を防ぐ */
+.list-group-item > div {
+  display: flex;
+  align-items: center;
+}
