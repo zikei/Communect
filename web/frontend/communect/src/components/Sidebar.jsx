@@ -59,8 +59,8 @@ function Sidebar({
               <div>{error || "Loading..."}</div>
             )}
           </div>
-          <a href="/settings" className="nav-link">
-            Settings
+          <a href="/account" className="nav-link">
+          Account
           </a>
         </nav>
       </aside>
