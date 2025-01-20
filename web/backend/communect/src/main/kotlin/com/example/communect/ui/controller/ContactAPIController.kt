@@ -54,6 +54,7 @@ class ContactAPIController(
     /** 連絡更新 */
     @PutMapping("/{contactId}")
     fun updContact(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("contactId") contactId: String,
         @Validated @RequestBody req: UpdContactRequest,
         bindingResult: BindingResult
@@ -61,7 +62,7 @@ class ContactAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
 
         val updContact = ContactUpd(contactId, req.message, req.contactType, req.importance)
-        val contact = contactService.updContact(updContact, req.choices)
+        val contact = contactService.updContact(updContact, req.choices, loginUser.user.userId)
         return ContactResponse(ContactInfo(contact))
     }
 

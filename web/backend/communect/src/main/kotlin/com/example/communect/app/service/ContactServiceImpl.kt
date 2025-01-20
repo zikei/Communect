@@ -27,7 +27,8 @@ class ContactServiceImpl(
     @Autowired val contactRepository: ContactRepository,
     @Autowired val reactionRepository: ReactionRepository,
     @Autowired val groupUserRepository: GroupUserRepository,
-    @Autowired val emitterRepository: ContactSseEmitterRepository
+    @Autowired val emitterRepository: ContactSseEmitterRepository,
+    @Value("\${choiceMinCount}") private val choiceMinCount: Int
 ): ContactService {
     /**
      *  グループ連絡一覧取得
@@ -78,35 +79,32 @@ class ContactServiceImpl(
      *  @param contact 更新連絡情報
      *  @return 投稿連絡
      */
-    override fun updContact(contact: ContactUpd, choices: List<String>?): Contact {
-        val index = MockTestData.contactList.indexOfFirst { it.contactId == contact.contactId }
-        if(index == -1) throw BadRequestException()
+    override fun updContact(contact: ContactUpd, choices: List<String>?, loginUserId: String): Contact {
+        val oldContact = contactRepository.findByContactId(contact.contactId) ?: throw BadRequestException()
+        if (oldContact.userId != loginUserId) throw BadRequestException()
 
-        val contactType = contact.contactType ?: MockTestData.contactList[index].contactType
-        val insChoices = if(contactType == ContactType.CHOICE){
-            if(choices != null){
-                MockTestData.reactionList.removeAll { it.contactId == contact.contactId }
-                choices.map { Choice(UUID.randomUUID().toString(), MockTestData.contactList[index].groupId, it) }
-            }else{
-                MockTestData.contactList[index].choices ?: throw BadRequestException()
+        contactRepository.updateContact(contact)
+
+        if (oldContact.contactType != contact.contactType) reactionRepository.deleteByContactId(contact.contactId)
+        if (contact.contactType == ContactType.CHOICE && choices != null) {
+            if (oldContact.contactType == ContactType.CHOICE) {
+                contactRepository.deleteChoicesByContactId(contact.contactId)
             }
-        }else{
-            null
+            contactRepository.insertChoices(choices.map { ChoiceIns(contact.contactId, it) })
+        }else if(contact.contactType == ContactType.CHOICE && oldContact.contactType != ContactType.CHOICE){
+            throw BadRequestException()
+        }else if(oldContact.contactType == ContactType.CHOICE){
+            contactRepository.deleteChoicesByContactId(contact.contactId)
         }
-        val updContact =
-            Contact(contact.contactId, MockTestData.contactList[index].groupId, MockTestData.contactList[index].userId,
-                MockTestData.contactList[index].userName, MockTestData.contactList[index].nickName, MockTestData.contactList[index].groupName,
-                contact.message ?: MockTestData.contactList[index].message, contactType,
-                contact.importance ?: MockTestData.contactList[index].importance, MockTestData.contactList[index].createTime, insChoices)
 
-        MockTestData.contactList[index] = updContact
+        val updContact = contactRepository.findByContactId(contact.contactId) ?: throw BadRequestException()
 
-        val groupUserIds = MockTestData.groupUserList.filter { it.groupId == updContact.groupId }.map { it.userId }
+        val groupUserIds = getGroupUserIds(oldContact.groupId)
         groupUserIds.forEach { id ->
             emitterRepository.send(id, "update", ContactResponse(ContactInfo(updContact)))
         }
 
-        return MockTestData.contactList[index]
+        return updContact
     }
 
     /**
