@@ -1,0 +1,67 @@
+header {
+    position: fixed;
+    height: 70px; /* ヘッダーの高さを固定 */
+    top: 0;
+    left: 0;
+  }
+  
+  body {
+    overflow-y: scroll; /* 常にスクロールバーを表示 */
+  }
+  
+  main {
+    margin-top: 70px;
+    height: calc(100vh - 70px); /* 残り画面を埋める */
+    overflow: hidden;
+    display: flex;
+  }
+  
+  aside {
+    flex-shrink: 0;
+  }
+  
+  .maincontent {
+    background-color: rgb(235, 235, 235);
+  }
+  
+  .flex-grow-1 {
+    display: flex;
+    flex-direction: column; /* 子要素を縦並びにする */
+    width: auto;
+    overflow: hidden; /* 子要素のオーバーフローを防止 */
+  }
+  
+  .card {
+    display: flex;
+    flex-direction: column; /* GroupTalk用の縦並び */
+    --bs-card-border-width: 0;
+  }
+  
+  .group-toggle-btn {
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    margin-left: auto; /* ボタンを右端に配置 */
+  }
+  
+  .rotate-icon {
+    display: inline-block; /* 回転を適用可能にする */
+    transition: transform 0.2s ease;
+  }
+  
+  .rotated {
+    transform: rotate(90deg); /* 折りたたみ表示 */
+  }
+  
+  /* サイドバー開閉アイコン */
+  .sidebar-toggle-icon {
+    background-color: #007bff;
+    color: white;
+    padding: 18px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+  
+  .sidebar-toggle-icon:hover {
+    background-color: #0056b3;
+  }

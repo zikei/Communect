@@ -14,8 +14,10 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         message: initialData.message,
         contactType: initialData.contactType,
         importance: initialData.importance,
-        choices: initialData.choices || [],
-      });
+        choices: Array.isArray(initialData.choices)
+        ? initialData.choices.map((choice) => choice.choice)
+        : [],
+    });
     }
   }, [initialData]);
 
@@ -50,7 +52,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className="modal-content" style={{ maxWidth: "400px" }}>
         <button className="btn-close" onClick={onClose}></button>
         <h2>{initialData ? "投稿を編集" : "新規投稿"}</h2>
         <div className="form-group">

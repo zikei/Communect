@@ -24,7 +24,7 @@ object MockTestData {
     private val group9 = Group(UUID.randomUUID().toString(), "国試対策", group6.groupId)
     private val group10 = Group(UUID.randomUUID().toString(), "高度対策クラス", group9.groupId)
 
-    val user1 = User(UUID.randomUUID().toString(),"user1","プロデューサー","P@example.com")
+    val user1 = User("87c6e905-41d5-484f-b7e1-14eb874a50ad","user1","プロデューサー","P@example.com")
     val user2 = User(UUID.randomUUID().toString(),"user2","根緒亜紗里","asari@example.com")
     val user3 = User(UUID.randomUUID().toString(),"user3","十王邦夫","juo@example.com")
     val user4 = User(UUID.randomUUID().toString(),"user4","篠澤広","hiro@example.com")

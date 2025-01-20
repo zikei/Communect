@@ -3,7 +3,7 @@ import React from "react";
 function ReactionsModal({ reactions, post, onClose }) {
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className="modal-content" style={{ width: "400px" }}>
         <button className="btn-close" onClick={onClose}></button>
         <h2>リアクション詳細</h2>
         <p>{post?.message}</p>
