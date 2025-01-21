@@ -6,10 +6,19 @@ function DeleteButton({ groupId, onDelete }) {
     if (!window.confirm("このグループを削除しますか？")) return;
 
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/group/${groupId}`, { method: "DELETE" });
-        if (!response.ok) {
-          throw new Error("Failed to delete group");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}`,
+        {
+          method: "DELETE",
+          credentials: "include", // クッキー認証を有効にする
+          headers: {
+            "Content-Type": "application/json", // 必要に応じて追加
+          },
         }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete group");
+      }
       onDelete(groupId); // UI更新を親コンポーネントに通知
     } catch (err) {
       console.error("Error deleting group:", err);

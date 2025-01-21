@@ -20,7 +20,11 @@ const MessagesArea = ({
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login");
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login",
+          {
+            withCredentials: true,
+          }
+        );
         setCurrentUser(response.data.user);
       } catch (error) {
         console.error("ログインユーザー情報の取得に失敗しました:", error);

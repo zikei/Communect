@@ -35,8 +35,10 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/group`,
-        newGroup
+        `${import.meta.env.VITE_API_URL}/group`, newGroup ,{
+          withCredentials: true,
+          credentials: "include",
+        }
       );
       alert("グループが作成されました。再読み込みを行ってください。");
 

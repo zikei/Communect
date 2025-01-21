@@ -20,8 +20,11 @@ function EditGroupModal({ group, onClose, onUpdateGroup }) {
   /* その最上位親グループの中のグループを取得する処理をここで実装するのは現実的ではないので一旦保留。*/
   const fetchGroupOptions = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + "/group");
-      console.log("APIレスポンス:", response.data);
+      const response = await axios.get(import.meta.env.VITE_API_URL + "/group" ,
+        {
+          withCredentials: true,
+        }
+      );
   
       const groups = response.data.groups;
   
@@ -48,7 +51,9 @@ function EditGroupModal({ group, onClose, onUpdateGroup }) {
         above: isParentGroup ? null : above.trim() || null,
       };
 
-      const response = await axios.put(import.meta.env.VITE_API_URL + `/group/${group.groupId}`, payload);
+      const response = await axios.put(import.meta.env.VITE_API_URL + `/group/${group.groupId}`, payload ,{
+        withCredentials: true,
+      });
       if (response.status === 200) {
         alert("グループが更新されました。再読み込みを行ってください。");
         onUpdateGroup(group.groupId, payload); // 親に通知

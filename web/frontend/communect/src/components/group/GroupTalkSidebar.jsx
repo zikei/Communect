@@ -23,7 +23,8 @@ const TalkSidebar = ({
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/talk/${editingTalk.talkId}`,
-        { talkName: newTalkName }
+        { talkName: newTalkName },
+        { withCredentials: true },
       );
       const updatedTalk = response.data.talk;
 

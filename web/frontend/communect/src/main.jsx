@@ -5,6 +5,7 @@ import Top from './Top.jsx';
 import Login from './Login.jsx';
 import Group from './Group.jsx';
 import DirectMessage from './DirectMessage.jsx';
+import AccountProfile from './AccountProfile.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/login" element={<Login />} />
         <Route path="/group" element={<Group />} />
         <Route path="/dm" element={<DirectMessage />}></Route>
+        <Route path="/account" element={<AccountProfile />} />
       </Routes>
     </Router>
   </StrictMode>
