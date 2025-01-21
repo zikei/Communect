@@ -3,6 +3,7 @@ package com.example.communect.app.service
 import com.example.communect.app.service.MockTestData.user1
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.GroupRepository
 import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
@@ -13,7 +14,8 @@ import java.util.UUID
 /** グループ処理実装クラス */
 @Service
 class GroupServiceImpl(
-    @Autowired val groupUserRepository: GroupUserRepository
+    @Autowired val groupRepository : GroupRepository,
+    @Autowired val groupUserRepository : GroupUserRepository
 ): GroupService {
     /**
      *  グループ一覧取得
@@ -21,7 +23,7 @@ class GroupServiceImpl(
      *  @return ユーザが所属するグループリスト
      */
     override fun getGroups(userId: String): List<Group> {
-        return MockTestData.groupList
+        return groupRepository.findByUserId(userId)
     }
 
     /**
@@ -30,7 +32,7 @@ class GroupServiceImpl(
      *  @return 検索結果
      */
     override fun getGroup(groupId: String): Group? {
-        return MockTestData.groupList.find { it.groupId == groupId }
+        return groupRepository.findByGroupId(groupId)
     }
 
     /**
@@ -39,7 +41,7 @@ class GroupServiceImpl(
      *  @return 検索結果ユーザリスト
      */
     override fun getGroupUsers(groupId: String): List<GroupUser> {
-        return MockTestData.groupUserList.filter { it.groupId == groupId }
+        return groupUserRepository.findByGroupId(groupId)
     }
 
     /**
@@ -49,11 +51,12 @@ class GroupServiceImpl(
      *  @return 検索結果ユーザ
      */
     override fun getGroupUser(groupId: String, userId: String): GroupUser? {
-        return MockTestData.groupUserList.find{ it.groupId == groupId && it.userId == userId }
+        return groupUserRepository.findByGroupIdAndUserId(groupId, userId)
     }
 
     /**
      *  グループ作成
+     *  サブグループの場合親グループでユーザにサブグループ作成権限が必要
      *  @param group 登録グループ
      *  @param loginUserId 作成者ID（ログインユーザID）
      *  @param userIds 登録ユーザIDリスト
@@ -97,10 +100,12 @@ class GroupServiceImpl(
 
     /**
      *  グループ更新
+     *  ユーザに管理者権限が必要
+     *  本人の場合はnicknameのみ管理者権限なしで変更可能
      *  @param group 更新情報
      *  @return 更新グループ
      */
-    override fun updGroup(group: GroupUpd): Group {
+    override fun updGroup(group: GroupUpd, loginUserId: String): Group {
         val index = MockTestData.groupList.indexOfFirst { it.groupId == group.groupId }
         if(index == -1) throw BadRequestException()
         val groupName = group.groupName ?: MockTestData.groupList[index].groupName
@@ -116,11 +121,12 @@ class GroupServiceImpl(
 
     /**
      *  グループ削除
+     *  ユーザに管理者権限が必要
      *  @param groupId 削除対象グループID
      */
-    override fun deleteGroup(groupId: String) {
+    override fun deleteGroup(groupId: String, loginUserId: String) {
         MockTestData.groupList.filter { it.aboveId == groupId }.forEach {
-            deleteGroup(it.groupId)
+            deleteGroup(it.groupId, loginUserId)
         }
         MockTestData.groupList.removeAll { it.groupId == groupId }
         MockTestData.groupUserList.removeAll { it.groupId == groupId }
@@ -128,10 +134,11 @@ class GroupServiceImpl(
 
     /**
      *  グループユーザ追加
+     *  ユーザに管理者権限が必要
      *  @param user 登録ユーザ情報
      *  @return 登録ユーザ
      */
-    override fun addGroupUser(user: GroupUserIns): GroupUser {
+    override fun addGroupUser(user: GroupUserIns, loginUserId: String): GroupUser {
         val targetUser = MockTestData.userList.find { it.userId == user.userId } ?: throw BadRequestException()
         val group = getGroup(user.groupId) ?: throw BadRequestException()
         val insUser = if(group.aboveId == null){
@@ -147,10 +154,11 @@ class GroupServiceImpl(
 
     /**
      *  グループユーザ更新
+     *  ユーザに管理者権限が必要
      *  @param user 更新ユーザ情報
      *  @return 更新ユーザ
      */
-    override fun updGroupUser(user: GroupUserUpd): GroupUser {
+    override fun updGroupUser(user: GroupUserUpd, loginUserId: String): GroupUser {
         val index = MockTestData.groupUserList.indexOfFirst { it.groupUserId == user.groupUserId }
         if(index == -1) throw BadRequestException()
 
@@ -165,15 +173,17 @@ class GroupServiceImpl(
 
     /**
      *  グループユーザ削除
+     *  ユーザに管理者権限が必要
+     *  同ユーザが下位グループにも属する場合そのユーザも削除
      *  @param groupUserId 削除グループユーザID
      */
-    override fun deleteGroupUser(groupUserId: String) {
+    override fun deleteGroupUser(groupUserId: String, loginUserId: String) {
         val groupUser = MockTestData.groupUserList.find { it.groupUserId == groupUserId } ?: throw BadRequestException()
         val group = MockTestData.groupList.find { it.groupId == groupUser.groupId } ?: throw BadRequestException()
 
         MockTestData.groupList.filter { it.aboveId == group.groupId }.forEach { subGroup ->
             getGroupUsers(subGroup.groupId).find { it.userId == groupUser.userId }?.let {
-                deleteGroupUser(it.groupUserId)
+                deleteGroupUser(it.groupUserId, loginUserId)
             }
         }
 

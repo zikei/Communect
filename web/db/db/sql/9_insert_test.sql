@@ -3,7 +3,7 @@ use communect;
 --user
 --password=userName
 insert into user (userId, userName, nickname, password, email, apikey)
-    values('87c6e905-41d5-484f-b7e1-14eb874a50ad', 'user', 'ユーザー', ':$2y$05$KMtYOY1TKvjUviZyjR.NDu.1HmC7IXAN.Dgh3Yw5j7jQteqT.kMAO', 'user@user.com', 'user-api'),
+    values('87c6e905-41d5-484f-b7e1-14eb874a50ad', 'user', 'ユーザー', '$2y$05$KMtYOY1TKvjUviZyjR.NDu.1HmC7IXAN.Dgh3Yw5j7jQteqT.kMAO', 'user@user.com', 'user-api'),
           ('7b914ed7-b528-4236-8137-b0fa6c7b1cec', 'user2', 'ユーザー２', "$2y$05$q1m4UVdf3gd6BlfJGhWtru9Sfi00SDZOpXrE7ltyHbe/gcckdl3US", 'user2@user.com', 'user2-api'),
           ('da872c4c-570e-454e-a66d-a8a6a63e62f8', 'user3', 'ユーザー３', "$2y$05$uXICN/CBJh/0Y0rTXfGkCO.wObeZeADLSXeugC5ULHsEUBPIbOwXi", 'user3@user.com', 'user3-api'),
           ('5da26136-975a-43fc-9a96-098ce55f1066', 'user4', 'ユーザー４', '$2y$05$awPFx5lh.fs3aPNGe1Nw6O9Fs4WOnmCli5gQuujbYXx1iy1FvZHLW', 'user4@user.com', 'user4-api'),
