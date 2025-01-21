@@ -21,13 +21,18 @@ const GroupTalkCreate = ({ show, onHide, onCreate, groupId, talkType }) => {
         // グループトークの作成
         response = await axios.post(
           `${import.meta.env.VITE_API_URL}/group/${groupId}/talk`,
-          { talkName: talkName.trim() }
+          { talkName: talkName.trim() },
+          { withCredentials: true },
+          { credentials: "include" }
         );
       } else if (talkType === "personal" && selectedUser) {
         // 個人トークの作成
         response = await axios.post(`${import.meta.env.VITE_API_URL}/talk`, {
           talkName: talkName.trim(),
           userId: selectedUser.userId,
+        }, {
+          withCredentials: true,
+          credentials: "include",
         });
       } else {
         setError("個人トークを作成するにはユーザを選択してください。");

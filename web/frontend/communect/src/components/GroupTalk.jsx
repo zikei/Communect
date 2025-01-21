@@ -23,7 +23,11 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/group/${currentGroup.groupId}/talk`
+        `${import.meta.env.VITE_API_URL}/group/${currentGroup.groupId}/talk`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
       );
       setTalks(response.data.talks || []);
     } catch (err) {
@@ -41,7 +45,11 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`
+        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
       );
       setMessages(response.data.messages || []);
     } catch (err) {
@@ -69,9 +77,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleEditMessage = async (messageId, updatedText) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`, {
-        message: updatedText,
-      });
+      await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
+        { message: updatedText},
+        {
+          withCredentials: true
+        }      
+      );
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
           message.messageId === messageId
@@ -86,7 +97,11 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setMessages((prevMessages) =>
         prevMessages.filter((message) => message.messageId !== messageId)
       );

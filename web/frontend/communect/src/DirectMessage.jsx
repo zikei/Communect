@@ -42,7 +42,7 @@ function DirectMessage() {
                         Direct Message
                       </h5>
                       <a href="/group" className ="nav-link">Groups</a>
-                      <a href="/settings" className="nav-link">Settings</a>
+                      <a href="/account" className="nav-link">Account</a>
                     </nav>
                   </aside>
                   <div
