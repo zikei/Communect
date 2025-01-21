@@ -22,5 +22,5 @@ interface ContactService {
     /** SSE登録 */
     fun addSse(userId: String): SseEmitter
     /** グループ所属確認 */
-    fun hasGroup(contactId: String, loginUserId: String): Boolean
+    fun hasGroupByContactId(contactId: String, loginUserId: String): Boolean
 }

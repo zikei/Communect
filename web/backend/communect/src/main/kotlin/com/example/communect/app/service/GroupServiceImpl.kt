@@ -3,14 +3,18 @@ package com.example.communect.app.service
 import com.example.communect.app.service.MockTestData.user1
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.*
+import com.example.communect.domain.repository.GroupUserRepository
 import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 /** グループ処理実装クラス */
 @Service
-class GroupServiceImpl(): GroupService {
+class GroupServiceImpl(
+    @Autowired val groupUserRepository: GroupUserRepository
+): GroupService {
     /**
      *  グループ一覧取得
      *  @param userId 所属グループを検索するユーザID
@@ -174,5 +178,15 @@ class GroupServiceImpl(): GroupService {
         }
 
         MockTestData.groupUserList.removeAll { it.groupUserId == groupUserId }
+    }
+
+    /**
+     * グループ所属確認
+     * @param groupId グループID
+     * @param loginUserId 所属確認ユーザID
+     * @return true: 所属 false: 未所属
+     */
+    override fun hasGroupByGroupId(groupId: String, loginUserId: String): Boolean {
+        return groupUserRepository.findByGroupIdAndUserId(groupId, loginUserId) != null
     }
 }

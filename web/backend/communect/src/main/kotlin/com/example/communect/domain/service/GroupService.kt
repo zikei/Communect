@@ -33,4 +33,7 @@ interface GroupService {
 
     /** グループユーザ削除 */
     fun deleteGroupUser(groupUserId: String)
+
+    /** グループ所属確認 */
+    fun hasGroupByGroupId(groupId: String, loginUserId: String): Boolean
 }

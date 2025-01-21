@@ -153,7 +153,7 @@ class ContactServiceImpl(
      * @param loginUserId 所属確認ユーザID
      * @return true: 所属 false: 未所属
      */
-    override fun hasGroup(contactId: String, loginUserId: String): Boolean {
+    override fun hasGroupByContactId(contactId: String, loginUserId: String): Boolean {
         val contact = contactRepository.findByContactId(contactId) ?: return false
         return groupUserRepository.findByGroupIdAndUserId(contact.groupId, loginUserId) != null
     }
