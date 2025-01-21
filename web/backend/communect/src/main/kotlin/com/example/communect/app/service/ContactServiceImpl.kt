@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.sql.SQLException
 import java.util.concurrent.ConcurrentHashMap
 
 /** 連絡処理実装クラス */
@@ -129,6 +128,7 @@ class ContactServiceImpl(
     override fun addReaction(reaction: ReactionIns) {
         if(reactionRepository.isReactionByContactIdAndUserId(reaction.contactId, reaction.userId)) throw BadRequestException()
         val contact = contactRepository.findByContactId(reaction.contactId) ?: throw BadRequestException()
+
         if(contact.contactType == ContactType.CHOICE){
             reaction.choiceId ?: throw BadRequestException()
             contact.choices?.find { it.choiceId == reaction.choiceId} ?: throw BadRequestException()
@@ -145,6 +145,17 @@ class ContactServiceImpl(
      */
     override fun addSse(userId: String): SseEmitter {
         return emitterRepository.addEmitter(userId)
+    }
+
+    /**
+     * グループ所属確認
+     * @param contactId 連絡ID
+     * @param loginUserId 所属確認ユーザID
+     * @return true: 所属 false: 未所属
+     */
+    override fun hasGroup(contactId: String, loginUserId: String): Boolean {
+        val contact = contactRepository.findByContactId(contactId) ?: return false
+        return groupUserRepository.findByGroupIdAndUserId(contact.groupId, loginUserId) != null
     }
 
     /** グループに所属するユーザIDリストを取得 */

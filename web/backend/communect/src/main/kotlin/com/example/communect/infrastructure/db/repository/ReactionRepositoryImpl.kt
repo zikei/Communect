@@ -5,7 +5,6 @@ import com.example.communect.domain.model.Reaction
 import com.example.communect.domain.model.ReactionIns
 import com.example.communect.domain.repository.ReactionRepository
 import com.example.communect.infrastructure.db.mapper.*
-import com.example.communect.infrastructure.db.mapper.ReactionDynamicSqlSupport
 import com.example.communect.infrastructure.db.mapper.custom.CustomReactionMapper
 import com.example.communect.infrastructure.db.mapper.custom.selectByContactId
 import org.springframework.stereotype.Repository
