@@ -61,10 +61,10 @@ function Sidebar({
             )}
           </div>
           <a href="/account" className="nav-link">
-          Account
+            Account
           </a>
         </nav>
-        <div><Logout /></div>
+        <Logout />
       </aside>
       <div
         className="resizer"

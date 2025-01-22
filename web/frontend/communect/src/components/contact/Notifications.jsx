@@ -61,24 +61,29 @@ function Notifications({ notifications, onRemoveNotification }) {
                   👍 ＯＫ
                 </Button>
               )}
-              {notif.contactType === "CHOICE" && Array.isArray(notif.choices) && (
-                <div>
-                  {notif.choices.map((choice, idx) => (
-                    <Button
-                      key={idx}
-                      variant="secondary"
-                      size="sm"
-                      className="me-1"
-                      onClick={async () => {
-                        await handleNotificationReaction(notif.postId, choice);
-                        onRemoveNotification(notif.postId);
-                      }}
-                    >
-                      {choice}
-                    </Button>
-                  ))}
-                </div>
-              )}
+              {notif.contactType === "CHOICE" &&
+                Array.isArray(notif.choices) && (
+                  <div>
+                    {notif.choices.map((choiceObj, idx) => (
+                      <Button
+                        key={idx}
+                        variant="secondary"
+                        size="sm"
+                        className="me-1"
+                        onClick={async () => {
+                          await handleNotificationReaction(
+                            notif.postId,
+                            choiceObj.choiceId
+                          ); // choiceIdを利用
+                          onRemoveNotification(notif.postId);
+                        }}
+                      >
+                        {choiceObj.choice || "不明な選択肢"}{" "}
+                        {/* choiceを表示 */}
+                      </Button>
+                    ))}
+                  </div>
+                )}
             </div>
           </Toast.Body>
         </Toast>

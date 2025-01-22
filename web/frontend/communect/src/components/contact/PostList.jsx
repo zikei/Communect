@@ -122,15 +122,6 @@ function PostList({
                       >
                         {choice.choice}
                       </button>
-
-                      <button
-                        className="btn btn-sm btn-outline-info"
-                        onClick={() =>
-                          handleShowReactions(choiceReactions, choice.choice)
-                        }
-                      >
-                        リアクションを見る ({choiceReactions.length})
-                      </button>
                     </div>
                   );
                 })}

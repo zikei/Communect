@@ -11,15 +11,18 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   useEffect(() => {
     if (initialData) {
       setFormData({
-        message: initialData.message,
-        contactType: initialData.contactType,
-        importance: initialData.importance,
-        choices: initialData.choices
-          ? initialData.choices.map((choice) => choice.choice)
+        message: initialData.message || "",
+        contactType: initialData.contactType || "INFORM",
+        importance: initialData.importance || "LOW",
+        choices: Array.isArray(initialData.choices)
+          ? initialData.choices.map((choiceObj) =>
+              typeof choiceObj === "object" ? choiceObj.choice || "" : choiceObj
+            )
           : ["", ""],
       });
     }
   }, [initialData]);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +56,9 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`,
+        `${import.meta.env.VITE_API_URL}/contact${
+          initialData ? `/${initialData.contactId}` : ""
+        }`,
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -106,7 +111,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
                 <input
                   type="text"
                   className="form-control me-2"
-                  value={choice}
+                  value={typeof choice === "string" ? choice : ""}
                   onChange={(e) => handleChoiceChange(index, e.target.value)}
                 />
                 {index >= 2 && (

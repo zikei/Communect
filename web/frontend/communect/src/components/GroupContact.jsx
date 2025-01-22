@@ -56,18 +56,30 @@ function GroupContact({ groupName, hasPermission, groupId }) {
         console.log("POSTイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
-          setPosts((prevPosts) => [...prevPosts, data.contact]);
+      
+          // データ構造を検証
+          const contact = data.contact || {};
+          if (!contact.contactId || !contact.contactType) {
+            console.error("無効なデータ形式:", data);
+            return;
+          }
+      
+          const validatedChoices = Array.isArray(contact.choices) && contact.choices.every(c => typeof c === 'object' && c.choice)
+            ? contact.choices
+            : [];
+          
+          setPosts((prevPosts) => [...prevPosts, contact]);
+      
           addNotification(
-            data.contact.message || "タイトル未設定",
-            data.contact.contactId,
-            data.contact.contactType,
-            data.contact.choices || []
+            contact.message || "タイトル未設定",
+            contact.contactId,
+            contact.contactType,
+            validatedChoices
           );
         } catch (err) {
           console.error("POSTイベント解析エラー:", err);
         }
       });
-
       // データ更新イベント
       sse.addEventListener("update", (event) => {
         console.log("UPDATEイベント:", event.data);
@@ -190,9 +202,14 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
   // 通知機能
   const addNotification = (message, postId, contactType, choices = []) => {
+    // choicesが配列であり、各要素がオブジェクトであるか確認
+    const validatedChoices = Array.isArray(choices) && choices.every(c => typeof c === 'object' && c.choice)
+      ? choices
+      : [];
+      
     setNotifications((prev) => [
       ...prev,
-      { message, postId, contactType: contactType || "UNKNOWN", choices },
+      { message, postId, contactType: contactType || "UNKNOWN", choices: validatedChoices }
     ]);
   };
 
