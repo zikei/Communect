@@ -95,22 +95,16 @@ class GroupServiceImpl(
     /**
      *  グループ更新
      *  ユーザに管理者権限が必要
-     *  本人の場合はnicknameのみ管理者権限なしで変更可能
      *  @param group 更新情報
      *  @return 更新グループ
      */
     override fun updGroup(group: GroupUpd, loginUserId: String): Group {
-        val index = MockTestData.groupList.indexOfFirst { it.groupId == group.groupId }
-        if(index == -1) throw BadRequestException()
-        val groupName = group.groupName ?: MockTestData.groupList[index].groupName
-        val aboveId = if(group.aboveId == ""){
-            null
-        }else{
-            group.aboveId ?: MockTestData.groupList[index].aboveId
-        }
-        MockTestData.groupList[index] = Group(group.groupId, groupName, aboveId)
+        val user = groupUserRepository.findByGroupIdAndUserId(group.groupId, loginUserId) ?: throw BadRequestException()
+        if(!user.isAdmin) throw BadRequestException()
 
-        return MockTestData.groupList[index]
+        groupRepository.updateGroup(group)
+
+        return groupRepository.findByGroupId(group.groupId) ?: throw BadRequestException()
     }
 
     /**
@@ -119,11 +113,10 @@ class GroupServiceImpl(
      *  @param groupId 削除対象グループID
      */
     override fun deleteGroup(groupId: String, loginUserId: String) {
-        MockTestData.groupList.filter { it.aboveId == groupId }.forEach {
-            deleteGroup(it.groupId, loginUserId)
-        }
-        MockTestData.groupList.removeAll { it.groupId == groupId }
-        MockTestData.groupUserList.removeAll { it.groupId == groupId }
+        val user = groupUserRepository.findByGroupIdAndUserId(groupId, loginUserId) ?: throw BadRequestException()
+        if(!user.isAdmin) throw BadRequestException()
+
+        groupRepository.deleteByGroupId(groupId)
     }
 
     /**
@@ -136,7 +129,10 @@ class GroupServiceImpl(
         val targetUser = MockTestData.userList.find { it.userId == user.userId } ?: throw BadRequestException()
         val group = getGroup(user.groupId) ?: throw BadRequestException()
         val insUser = if(group.aboveId == null){
-            GroupUser(UUID.randomUUID().toString(), user.groupId, targetUser.userId, targetUser.userName, targetUser.nickName, GroupRole.NONE, false, false)
+            GroupUser(UUID.randomUUID().toString(), user.groupId, targetUser.userId, targetUser.userName, targetUser.nickName, GroupRole.NONE,
+                isAdmin = false,
+                isSubGroupCreate = false
+            )
         }else{
             val above = MockTestData.groupUserList.find { it.groupId == group.aboveId && it.userId == user.userId } ?: throw BadRequestException()
             GroupUser(UUID.randomUUID().toString(), user.groupId, above.userId, above.userName, above.nickName, above.role, above.isAdmin, above.isSubGroupCreate)
@@ -149,6 +145,7 @@ class GroupServiceImpl(
     /**
      *  グループユーザ更新
      *  ユーザに管理者権限が必要
+     *  本人の場合はnicknameのみ管理者権限なしで変更可能
      *  @param user 更新ユーザ情報
      *  @return 更新ユーザ
      */
