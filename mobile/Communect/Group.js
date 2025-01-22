@@ -29,6 +29,23 @@ function Group() {
     { groupId: "9", groupName: "国試対策", aboveId: "6" },
   ];
 
+  const App = () => {
+    const [groups, setGroups] = useState([]);
+  
+    return (
+      <Sidebar
+        groups={groups}
+        setGroups={setGroups}
+        expandedGroups={{}}
+        toggleGroup={() => {}}
+        handleGroupClick={() => {}}
+        sidebarOpen={true}
+        toggleSidebar={() => {}}
+        error={null}
+      />
+    );
+  };
+
   const buildHierarchy = (groups) => {
     const groupMap = new Map();
     const roots = [];
