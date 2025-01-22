@@ -1,6 +1,5 @@
 package com.example.communect.app.service
 
-import com.example.communect.app.service.MockTestData.user1
 import com.example.communect.domain.enums.GroupRole
 import com.example.communect.domain.model.*
 import com.example.communect.domain.repository.GroupRepository
@@ -9,7 +8,7 @@ import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 /** グループ処理実装クラス */
 @Service
@@ -67,33 +66,28 @@ class GroupServiceImpl(
         loginUserId: String,
         userIds: List<String>?
     ): Pair<Group, List<GroupUser>> {
-        val insGroup = Group(UUID.randomUUID().toString(), group.groupName, group.aboveId)
-        MockTestData.groupList.add(insGroup)
+        val groupLoginUser = group.aboveId?.let { getGroupUser(it, loginUserId) ?: throw BadRequestException()}
+        val isSubGroup = (groupLoginUser != null)
+        if(isSubGroup && !groupLoginUser!!.isSubGroupCreate) throw BadRequestException()
 
-        val insUsers = if(group.aboveId == null){
-            val loginGroupUser = GroupUser(UUID.randomUUID().toString(), insGroup.groupId, user1.userId, user1.userName, user1.nickName, GroupRole.HIGH, true, true)
-            val userList = userIds?.mapNotNull { userId ->
-                val user = MockTestData.userList.find { it.userId == userId }
-                user?.let {
-                    GroupUser(UUID.randomUUID().toString(), insGroup.groupId, user.userId, user.userName, user.nickName, GroupRole.NONE, false, false)
-                }
-            }?.toMutableList() ?: mutableListOf()
-            userList.add(loginGroupUser)
-            userList
-        }else{
-            val aboveGroupUserList = getGroupUsers(group.aboveId)
-            val loginGroupUser = aboveGroupUserList.find { it.userId == loginUserId }?.let {
-                GroupUser(UUID.randomUUID().toString(), insGroup.groupId, it.userId, it.userName, it.nickName, GroupRole.HIGH, true, true)
-            } ?: throw BadRequestException()
-            val userList = userIds?.mapNotNull { userId ->
-                aboveGroupUserList.find { it.userId == userId }?.let {
-                    GroupUser(UUID.randomUUID().toString(), insGroup.groupId, it.userId, it.userName, it.nickName, it.role, it.isAdmin, it.isSubGroupCreate)
-                }
-            }?.toMutableList() ?: mutableListOf()
-            userList.add(loginGroupUser)
-            userList
+        val insGroup = groupRepository.insertGroup(group) ?: throw BadRequestException()
+
+        val loginGroupUser = GroupUserIns(insGroup.groupId, loginUserId, groupLoginUser?.nickName, GroupRole.HIGH,
+            isAdmin = true,
+            isSubGroupCreate = true
+        )
+        val insLoginGroupUser = groupUserRepository.insertGroupUser(loginGroupUser) ?: throw BadRequestException()
+        val userList = mutableListOf(insLoginGroupUser)
+        userIds?.forEach {
+            val user = if (isSubGroup){
+                val aboveGroupUser = groupUserRepository.findByGroupIdAndUserId(group.aboveId!!, it) ?: throw BadRequestException()
+                GroupUserIns(insGroup.groupId, it, aboveGroupUser.nickName, aboveGroupUser.role, aboveGroupUser.isAdmin, aboveGroupUser.isSubGroupCreate)
+            }else{
+                GroupUserIns(insGroup.groupId, it)
+            }
+            val insUser = groupUserRepository.insertGroupUser(user) ?: throw BadRequestException()
+            userList.add(insUser)
         }
-        MockTestData.groupUserList.addAll(insUsers)
 
         return Pair(insGroup, getGroupUsers(insGroup.groupId))
     }
