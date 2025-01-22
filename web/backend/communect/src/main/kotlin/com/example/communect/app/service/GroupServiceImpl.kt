@@ -126,20 +126,10 @@ class GroupServiceImpl(
      *  @return 登録ユーザ
      */
     override fun addGroupUser(user: GroupUserIns, loginUserId: String): GroupUser {
-        val targetUser = MockTestData.userList.find { it.userId == user.userId } ?: throw BadRequestException()
-        val group = getGroup(user.groupId) ?: throw BadRequestException()
-        val insUser = if(group.aboveId == null){
-            GroupUser(UUID.randomUUID().toString(), user.groupId, targetUser.userId, targetUser.userName, targetUser.nickName, GroupRole.NONE,
-                isAdmin = false,
-                isSubGroupCreate = false
-            )
-        }else{
-            val above = MockTestData.groupUserList.find { it.groupId == group.aboveId && it.userId == user.userId } ?: throw BadRequestException()
-            GroupUser(UUID.randomUUID().toString(), user.groupId, above.userId, above.userName, above.nickName, above.role, above.isAdmin, above.isSubGroupCreate)
-        }
-        MockTestData.groupUserList.add(insUser)
+        val groupUser = groupUserRepository.findByGroupIdAndUserId(user.groupId, loginUserId) ?: throw BadRequestException()
+        if(!groupUser.isAdmin) throw BadRequestException()
 
-        return insUser
+        return groupUserRepository.insertGroupUser(user) ?: throw BadRequestException()
     }
 
     /**
