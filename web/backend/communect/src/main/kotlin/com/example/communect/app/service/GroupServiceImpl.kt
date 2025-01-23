@@ -157,16 +157,13 @@ class GroupServiceImpl(
      *  @param groupUserId 削除グループユーザID
      */
     override fun deleteGroupUser(groupUserId: String, loginUserId: String) {
-        val groupUser = MockTestData.groupUserList.find { it.groupUserId == groupUserId } ?: throw BadRequestException()
-        val group = MockTestData.groupList.find { it.groupId == groupUser.groupId } ?: throw BadRequestException()
-
-        MockTestData.groupList.filter { it.aboveId == group.groupId }.forEach { subGroup ->
-            getGroupUsers(subGroup.groupId).find { it.userId == groupUser.userId }?.let {
-                deleteGroupUser(it.groupUserId, loginUserId)
-            }
+        val groupUser = groupUserRepository.findByGroupUserId(groupUserId) ?: throw BadRequestException()
+        val groupLoginUser = groupUserRepository.findByGroupIdAndUserId(groupUser.groupId, loginUserId) ?: throw BadRequestException()
+        if(!groupLoginUser.isAdmin){
+            if(groupUser.userId != loginUserId) throw BadRequestException()
         }
 
-        MockTestData.groupUserList.removeAll { it.groupUserId == groupUserId }
+        deleteSubGroupUser(groupUserId, groupUser.groupId, groupUser.userId)
     }
 
     /**
@@ -177,5 +174,20 @@ class GroupServiceImpl(
      */
     override fun hasGroupByGroupId(groupId: String, loginUserId: String): Boolean {
         return groupUserRepository.findByGroupIdAndUserId(groupId, loginUserId) != null
+    }
+
+    /**
+     * 指定グループを含む下位グループの指定グループユーザを削除
+     * @param groupUserId 削除対象グループユーザID
+     * @param groupId グループID
+     * @param userId ユーザID
+     */
+    private fun deleteSubGroupUser(groupUserId: String, groupId: String, userId: String) {
+        groupRepository.findByAboveId(groupId).forEach {subGroup ->
+            groupUserRepository.findByGroupIdAndUserId(subGroup.groupId, userId)?.let {
+                deleteSubGroupUser(it.groupUserId, it.groupId, userId)
+            }
+        }
+        groupUserRepository.deleteByGroupUserId(groupUserId)
     }
 }
