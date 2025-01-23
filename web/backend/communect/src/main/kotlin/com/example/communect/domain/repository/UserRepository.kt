@@ -22,6 +22,9 @@ interface UserRepository {
     /** ユーザIDによるユーザの取得 */
     fun findByUserId(userId: String): User?
 
+    /** ユーザIDによるユーザの取得 */
+    fun findByUserName(name: String): User?
+
     /** ユーザIDによるapikeyの取得 */
     fun findApikeyByUserId(userId: String): String?
 

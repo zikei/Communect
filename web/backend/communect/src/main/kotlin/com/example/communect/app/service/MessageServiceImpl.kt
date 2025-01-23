@@ -1,9 +1,10 @@
 package com.example.communect.app.service
 
-import com.example.communect.domain.enums.TalkType
 import com.example.communect.domain.model.Message
 import com.example.communect.domain.model.MessageIns
 import com.example.communect.domain.model.MessageUpd
+import com.example.communect.domain.repository.MessageRepository
+import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.domain.service.MessageService
 import com.example.communect.ui.form.MessageDeleteResponse
 import com.example.communect.ui.form.MessageInfo
@@ -14,15 +15,14 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.time.LocalDateTime
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /** メッセージ処理実装クラス */
 @Service
 class MessageServiceImpl(
-    @Autowired val emitterRepository: MessageSseEmitterRepository,
-    @Value("\${messageRowCount}") private val messageLimit: Int
+    @Autowired val messageRepository: MessageRepository,
+    @Autowired val talkRepository: TalkRepository,
+    @Autowired val emitterRepository: MessageSseEmitterRepository
 ): MessageService {
     /**
      *  メッセージ取得
@@ -31,11 +31,7 @@ class MessageServiceImpl(
      *  @return トーク
      */
     override fun getMessages(talkId: String, lastMessageId: String?): List<Message>? {
-        val message = lastMessageId?.let {id -> MockTestData.messageList.find { it.messageId == lastMessageId } }
-        val messages = MockTestData.messageList.filter {
-            it.talkId == talkId && ( message == null || it.createTime.isBefore(message.createTime) )
-        }.sortedBy { it.createTime }
-        return messages.take(messageLimit).sortedByDescending { it.createTime }
+        return messageRepository.findByTalkId(talkId, lastMessageId).takeIf { it.isNotEmpty() }
     }
 
     /**
@@ -44,18 +40,11 @@ class MessageServiceImpl(
      *  @return 投稿メッセージ情報
      */
     override fun postMessage(message: MessageIns): Message {
-        val user = MockTestData.userList.find { it.userId == message.userId } ?: throw BadRequestException()
-        val insMessage = Message(UUID.randomUUID().toString(), message.message, LocalDateTime.now(), message.talkId, user.userId, user.userName, user.nickName)
-
-        MockTestData.messageList.add(insMessage)
+        val insMessage = messageRepository.insertMessage(message) ?: throw BadRequestException()
 
         val messageUserIds = getMessageUserIds(insMessage.messageId)
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("post")
-                    .data(MessageResponse(MessageInfo(insMessage)))
-            )
+            emitterRepository.send(id, "post", MessageResponse(MessageInfo(insMessage)))
         }
 
         return insMessage
@@ -66,43 +55,33 @@ class MessageServiceImpl(
      *  @param message 更新メッセージ情報
      *  @return 更新メッセージ情報
      */
-    override fun updMessage(message: MessageUpd): Message {
-        val index = MockTestData.messageList.indexOfFirst { it.messageId == message.messageId }
-        if(index == -1) throw BadRequestException()
+    override fun updMessage(message: MessageUpd, loginUserId: String): Message {
+        val oldMessage = messageRepository.findByMessageId(message.messageId) ?: throw BadRequestException()
+        if(oldMessage.userId != loginUserId) throw BadRequestException()
 
-        val updMessage =
-            Message(message.messageId, message.message ?: MockTestData.messageList[index].message, MockTestData.messageList[index].createTime,
-                MockTestData.messageList[index].talkId, MockTestData.messageList[index].userId,
-                MockTestData.messageList[index].userName, MockTestData.messageList[index].nickName)
+        messageRepository.updateMessage(message)
+        val updMessage = messageRepository.findByMessageId(message.messageId) ?: throw BadRequestException()
 
-        MockTestData.messageList[index] = updMessage
-
-        val messageUserIds = getMessageUserIds(updMessage.messageId)
+        val messageUserIds = getMessageUserIds(message.messageId)
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("update")
-                    .data(MessageResponse(MessageInfo(updMessage)))
-            )
+            emitterRepository.send(id, "update", MessageResponse(MessageInfo(updMessage)))
         }
-        return MockTestData.messageList[index]
+        return updMessage
     }
 
     /**
      *  メッセージ削除
      *  @param messageId 削除対象メッセージID
      */
-    override fun deleteMessage(messageId: String) {
+    override fun deleteMessage(messageId: String, loginUserId: String) {
+        val oldMessage = messageRepository.findByMessageId(messageId) ?: throw BadRequestException()
+        if(oldMessage.userId != loginUserId) throw BadRequestException()
+
+        messageRepository.deleteByMessageId(messageId)
+
         val messageUserIds = getMessageUserIds(messageId)
-
-        MockTestData.messageList.removeAll { it.messageId == messageId }
-
         messageUserIds.forEach { id ->
-            emitterRepository.getEmitter(id)?.send(
-                SseEmitter.event()
-                    .name("delete")
-                    .data(MessageDeleteResponse(messageId))
-            )
+            emitterRepository.send(id, "delete", MessageDeleteResponse(messageId))
         }
     }
 
@@ -114,18 +93,10 @@ class MessageServiceImpl(
         return emitterRepository.addEmitter(userId)
     }
 
+    /** メッセージのトークに所属するユーザIDリストを取得 */
     private fun getMessageUserIds(messageId: String): List<String>{
-        val message = MockTestData.messageList.find { it.messageId == messageId } ?: return mutableListOf()
-        val talk = MockTestData.talkList.find { it.talkId == message.talkId } ?: return mutableListOf()
-        return when (talk.talkType) {
-            TalkType.GROUP -> {
-                val groupId = MockTestData.groupTalkList.find { it.talkId == talk.talkId }?.groupId ?: return mutableListOf()
-                MockTestData.groupUserList.filter { it.groupId == groupId }.map { it.userId }
-            }
-            TalkType.INDIVIDUAL -> {
-                MockTestData.individualTalkList.find { it.talkId == talk.talkId }?.users?.map { it.userId } ?: return mutableListOf()
-            }
-        }
+        val message = messageRepository.findByMessageId(messageId) ?: return mutableListOf()
+        return talkRepository.findUserByTalkId(message.talkId).map { it.userId }
     }
 }
 
@@ -133,18 +104,20 @@ class MessageServiceImpl(
 class MessageSseEmitterRepository(
     @Value("\${sseTimeOutMinutes}") private val sseTimeOutMinutes: Long
 ) {
-    private val emitters = ConcurrentHashMap<String, SseEmitter>()
+    private val emitters = ConcurrentHashMap<String, MutableSet<SseEmitter>>()
 
     fun addEmitter(userId: String): SseEmitter {
         val emitter = SseEmitter(sseTimeOutMinutes * 60 * 1000)
         emitter.onCompletion {
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
         emitter.onTimeout{
-            removeEmitter(userId)
+            removeEmitter(userId, emitter)
         }
 
-        emitters[userId] = emitter
+        synchronized(this) {
+            emitters.computeIfAbsent(userId) { mutableSetOf() }.add(emitter)
+        }
 
         emitter.send(
             SseEmitter.event()
@@ -155,16 +128,36 @@ class MessageSseEmitterRepository(
         return emitter
     }
 
-    fun removeEmitter(userId: String) {
-        getEmitter(userId)?.send(
-            SseEmitter.event()
-                .name("disconnect")
-                .data("message: Connection closed")
-        )
-        emitters.remove(userId)
+    fun removeEmitter(userId: String, emitter: SseEmitter) {
+        synchronized(this) {
+            emitters[userId]?.let { emitterSet ->
+                emitterSet.remove(emitter)
+                if (emitterSet.isEmpty()) {
+                    emitters.remove(userId)
+                }
+            }
+        }
+
+        try {
+            emitter.send(
+                SseEmitter.event()
+                    .name("disconnect")
+                    .data("contact: Connection closed")
+            )
+        } catch (_: Exception) { }
     }
 
-    fun getEmitter(userId: String): SseEmitter? {
-        return emitters[userId]
+    fun send(userId: String, name: String, data: Any){
+        emitters[userId]?.forEach { emitter ->
+            try {
+                emitter.send(
+                    SseEmitter.event()
+                        .name(name)
+                        .data(data)
+                )
+            }catch (e: Exception){
+                removeEmitter(userId, emitter)
+            }
+        }
     }
 }

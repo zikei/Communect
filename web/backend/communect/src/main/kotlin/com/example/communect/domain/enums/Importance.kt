@@ -7,6 +7,6 @@ package com.example.communect.domain.enums
  * LOW： 低
  * SAFE： 最低
  */
-enum class Importance {
-    HIGH, MEDIUM, LOW, SAFE
+enum class Importance(val weight: Int) {
+    HIGH(4), MEDIUM(3), LOW(2), SAFE(1)
 }

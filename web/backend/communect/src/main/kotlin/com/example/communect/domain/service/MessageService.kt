@@ -12,10 +12,10 @@ interface MessageService {
     fun postMessage(message: MessageIns): Message
 
     /** メッセージ更新 */
-    fun updMessage(message: MessageUpd): Message
+    fun updMessage(message: MessageUpd, loginUserId: String): Message
 
     /** メッセージ削除 */
-    fun deleteMessage(messageId: String)
+    fun deleteMessage(messageId: String, loginUserId: String)
 
     /** SSE登録 */
     fun addSse(userId: String): SseEmitter

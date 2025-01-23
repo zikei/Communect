@@ -25,6 +25,7 @@ class MessageAPIController(
     /** メッセージ更新 */
     @PutMapping("/{messageId}")
     fun postMessage(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("messageId") messageId: String,
         @Validated @RequestBody req: UpdMessageRequest,
         bindingResult: BindingResult
@@ -32,16 +33,17 @@ class MessageAPIController(
         if (bindingResult.hasErrors()) throw BadRequestException()
         val updMessage = MessageUpd(messageId, req.message)
 
-        val message = messageService.updMessage(updMessage)
+        val message = messageService.updMessage(updMessage, loginUser.user.userId)
         return MessageResponse(MessageInfo(message))
     }
 
     /** メッセージ削除 */
     @DeleteMapping("/{messageId}")
     fun deleteMessage(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("messageId") messageId: String
     ) {
-        messageService.deleteMessage(messageId)
+        messageService.deleteMessage(messageId, loginUser.user.userId)
     }
 
     /** 連絡SSE登録 */

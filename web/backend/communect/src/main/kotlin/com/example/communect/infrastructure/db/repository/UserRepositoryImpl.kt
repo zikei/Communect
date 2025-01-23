@@ -71,6 +71,18 @@ class UserRepositoryImpl(
     }
 
     /**
+     * ユーザ名によるユーザの取得
+     * @param name ユーザ名
+     * @return 検索結果ユーザ
+     */
+    override fun findByUserName(name: String): User? {
+        val record = userMapper.selectOne {
+            where { UserSql.username isEqualTo name }
+        }
+        return record?.let { toModel(it) }
+    }
+
+    /**
      * ユーザIDによるApikeyの取得
      * @param userId ユーザID
      * @return apikey

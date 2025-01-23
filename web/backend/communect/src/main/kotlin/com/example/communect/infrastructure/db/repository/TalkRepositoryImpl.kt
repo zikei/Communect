@@ -1,10 +1,7 @@
 package com.example.communect.infrastructure.db.repository
 
 import com.example.communect.domain.enums.TalkType
-import com.example.communect.domain.model.GroupTalkIns
-import com.example.communect.domain.model.IndividualTalkIns
-import com.example.communect.domain.model.Talk
-import com.example.communect.domain.model.TalkUpd
+import com.example.communect.domain.model.*
 import com.example.communect.domain.repository.TalkRepository
 import com.example.communect.infrastructure.db.mapper.*
 import org.springframework.stereotype.Repository
@@ -15,12 +12,16 @@ import com.example.communect.infrastructure.db.mapper.TalkDynamicSqlSupport as T
 import com.example.communect.infrastructure.db.record.Talk as TalkRecord
 import com.example.communect.infrastructure.db.record.GroupTalk as GroupTalkRecord
 import com.example.communect.infrastructure.db.record.IndividualTalk as IndividualTalkRecord
+import com.example.communect.infrastructure.db.mapper.UserGroupDynamicSqlSupport as UserGroupSql
+import com.example.communect.infrastructure.db.mapper.UserDynamicSqlSupport as UserSql
+import com.example.communect.infrastructure.db.record.User as UserRecord
 
 /** トークリポジトリ実装クラス */
 @Repository
 class TalkRepositoryImpl(
     private val talkMapper: TalkMapper,
     private val groupTalkMapper: GroupTalkMapper,
+    private val userMapper: UserMapper,
     private val individualTalkMapper: IndividualTalkMapper
 ) : TalkRepository {
     /**
@@ -32,6 +33,35 @@ class TalkRepositoryImpl(
         return talkMapper.selectOne{
             where {
                 TalkSql.talkid isEqualTo talkId
+            }
+        }?.let { toModel(it) }
+    }
+
+    /**
+     *  トーク取得
+     *  @param talkId 検索対象トークID
+     *  @param userId トークにユーザの所属が必要
+     *  @return トーク
+     */
+    override fun findByTalkId(talkId: String, userId: String): Talk? {
+        return talkMapper.selectOne{
+            leftJoin(GroupTalkSql.groupTalk, "gt"){
+                on(TalkSql.talkid) equalTo GroupTalkSql.talkid
+            }
+            leftJoin(UserGroupSql.userGroup, "gu"){
+                on(GroupTalkSql.noticegroupid) equalTo UserGroupSql.noticegroupid
+            }
+            leftJoin(IndividualTalkSql.individualTalk, "it"){
+                on(TalkSql.talkid) equalTo IndividualTalkSql.talkid
+            }
+            where {
+                TalkSql.talkid isEqualTo talkId
+                and {
+                    UserGroupSql.userid isEqualTo userId
+                    or {
+                        IndividualTalkSql.userid isEqualTo userId
+                    }
+                }
             }
         }?.let { toModel(it) }
     }
@@ -64,6 +94,31 @@ class TalkRepositoryImpl(
             }
             where {
                 IndividualTalkSql.userid isEqualTo userId
+            }
+        }.map { toModel(it) }
+    }
+
+    /**
+     *  トークIDによる所属ユーザ一覧の取得
+     *  @param talkId 検索対象トークID
+     *  @return 所属ユーザリスト
+     */
+    override fun findUserByTalkId(talkId: String): List<User> {
+        return userMapper.select {
+            leftJoin(UserGroupSql.userGroup, "gu"){
+                on(UserSql.userid) equalTo UserGroupSql.userid
+            }
+            leftJoin(GroupTalkSql.groupTalk, "gt"){
+                on(UserGroupSql.noticegroupid) equalTo GroupTalkSql.noticegroupid
+            }
+            leftJoin(IndividualTalkSql.individualTalk, "it"){
+                on(UserSql.userid) equalTo IndividualTalkSql.userid
+            }
+            where {
+                GroupTalkSql.talkid isEqualTo talkId
+                or {
+                    IndividualTalkSql.talkid isEqualTo talkId
+                }
             }
         }.map { toModel(it) }
     }
@@ -118,6 +173,16 @@ class TalkRepositoryImpl(
             record.talkid!!,
             record.talktitle!!,
             record.talktype!!
+        )
+    }
+
+    /** レコードのユーザモデルへの変換 */
+    private fun toModel(record: UserRecord): User {
+        return User(
+            record.userid!!,
+            record.username!!,
+            record.nickname!!,
+            record.email!!,
         )
     }
 
