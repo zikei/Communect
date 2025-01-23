@@ -31,9 +31,10 @@ function Notifications({ notifications, onRemoveNotification }) {
       {notifications.map((notif, index) => (
         <Toast
           key={index}
-          onClose={() => onRemoveNotification(notif.postId)}
           autohide
           delay={10000}
+          onClose={() => onRemoveNotification(notif.postId)}
+          className="noticications"
         >
           <Toast.Header>
             <strong className="me-auto">
@@ -58,7 +59,7 @@ function Notifications({ notifications, onRemoveNotification }) {
                     onRemoveNotification(notif.postId);
                   }}
                 >
-                  👍 ＯＫ
+                  確認👍
                 </Button>
               )}
               {notif.contactType === "CHOICE" &&

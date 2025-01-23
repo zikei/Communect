@@ -4,7 +4,7 @@ import { Modal, Button, ListGroup } from "react-bootstrap";
 function ReactionsModal({ reactions, post, onClose }) {
   /* リアクションを選択肢ごとにグループ化 */
   const reactionsByChoice = reactions.reduce((acc, reaction) => {
-    const choice = reaction.choice?.choice || "未指定";
+    const choice = reaction.choice?.choice || "";
     if (!acc[choice]) acc[choice] = [];
     acc[choice].push(reaction);
     return acc;
