@@ -8,7 +8,6 @@ import com.example.communect.domain.service.GroupService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 /** グループ処理実装クラス */
 @Service
@@ -140,16 +139,15 @@ class GroupServiceImpl(
      *  @return 更新ユーザ
      */
     override fun updGroupUser(user: GroupUserUpd, loginUserId: String): GroupUser {
-        val index = MockTestData.groupUserList.indexOfFirst { it.groupUserId == user.groupUserId }
-        if(index == -1) throw BadRequestException()
+        val groupUser = groupUserRepository.findByGroupUserId(user.groupUserId) ?: throw BadRequestException()
+        val groupLoginUser = groupUserRepository.findByGroupIdAndUserId(groupUser.groupId, loginUserId) ?: throw BadRequestException()
+        if(!groupLoginUser.isAdmin){
+            if(groupUser.userId != loginUserId && (user.nickName == null || user.role != null || user.isAdmin != null || user.isSubGroupCreate != null)) throw BadRequestException()
+        }
 
-        val nickName = user.nickName ?: MockTestData.groupUserList[index].nickName
-        val role = user.role ?: MockTestData.groupUserList[index].role
-        val isAdmin = user.isAdmin ?: MockTestData.groupUserList[index].isAdmin
-        val isSubGroupCreate = user.isSubGroupCreate ?: MockTestData.groupUserList[index].isSubGroupCreate
-        MockTestData.groupUserList[index] = GroupUser(user.groupUserId, MockTestData.groupUserList[index].groupId, MockTestData.groupUserList[index].userId, MockTestData.groupUserList[index].userName, nickName, role, isAdmin, isSubGroupCreate)
+        groupUserRepository.updateGroupUser(user)
 
-        return MockTestData.groupUserList[index]
+        return groupUserRepository.findByGroupUserId(user.groupUserId) ?: throw BadRequestException()
     }
 
     /**
