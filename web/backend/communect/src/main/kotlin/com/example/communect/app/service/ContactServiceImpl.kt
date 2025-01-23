@@ -61,6 +61,9 @@ class ContactServiceImpl(
      */
     override fun addContact(contact: ContactIns): Contact {
         if(contact.contactType == ContactType.CHOICE && (contact.choices?.size ?: 0) < choiceMinCount) throw BadRequestException()
+        val groupUser = groupUserRepository.findByGroupIdAndUserId(contact.groupId, contact.userId) ?: throw BadRequestException()
+        if (groupUser.role.weight < contact.importance.weight) throw BadRequestException()
+
         val postContact = contactRepository.insertContact(contact) ?: throw BadRequestException()
 
         val groupUserIds = getGroupUserIds(contact.groupId)
