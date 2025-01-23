@@ -33,6 +33,7 @@ class GroupAPIController(
         @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String
     ): GroupResponse {
+        if(!groupService.hasGroupByGroupId(groupId, loginUser.user.userId)) throw BadRequestException()
         val group = groupService.getGroup(groupId)?.let { GroupInfo(it) } ?: throw BadRequestException()
         val groupUser = groupService.getGroupUser(groupId, loginUser.user.userId)?.let{ GroupUserInfo(it) } ?: throw BadRequestException()
         return GroupResponse(group, groupUser)
@@ -80,8 +81,10 @@ class GroupAPIController(
     /** グループユーザ一覧取得 */
     @GetMapping("/{groupId}/user")
     fun getGroupUsers(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String
     ): GroupUsersResponse{
+        if(!groupService.hasGroupByGroupId(groupId, loginUser.user.userId)) throw BadRequestException()
         val users = groupService.getGroupUsers(groupId)
         return GroupUsersResponse(users.map { GroupUserInfo(it) })
     }
@@ -123,8 +126,10 @@ class GroupAPIController(
     /** グループトーク一覧取得 */
     @GetMapping("/{groupId}/talk")
     fun getGroupTalks(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String
     ): TalksResponse{
+        if(!groupService.hasGroupByGroupId(groupId, loginUser.user.userId)) throw BadRequestException()
         val talks = talkService.getGroupTalks(groupId)
         return TalksResponse(talks.map { TalkInfo(it) })
     }
@@ -137,6 +142,7 @@ class GroupAPIController(
         @Validated @RequestBody req: AddGroupTalkRequest,
         bindingResult: BindingResult
     ): TalkResponse{
+        if(!groupService.hasGroupByGroupId(groupId, loginUser.user.userId)) throw BadRequestException()
         if (bindingResult.hasErrors()) throw BadRequestException()
         val insGroupTalk = GroupTalkIns(req.talkName, groupId)
 
@@ -147,9 +153,11 @@ class GroupAPIController(
     /** 連絡一覧取得 */
     @GetMapping("/{groupId}/contact")
     fun getContacts(
+        @AuthenticationPrincipal loginUser: Login,
         @PathVariable("groupId") groupId: String,
         contactId: String? = null
     ): ContactsResponse{
+        if(!groupService.hasGroupByGroupId(groupId, loginUser.user.userId)) throw BadRequestException()
         val contacts = contactService.getContactsByGroupId(groupId, contactId)
         return ContactsResponse(contacts?.map { ContactInfo(it) })
     }
