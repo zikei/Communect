@@ -148,15 +148,19 @@ class MessageSseEmitterRepository(
     }
 
     fun send(userId: String, name: String, data: Any){
-        emitters[userId]?.forEach { emitter ->
+        val userEmitters = synchronized(this) { emitters[userId]?.toSet() } ?: return
+
+        userEmitters.forEach {
             try {
-                emitter.send(
+                it.send(
                     SseEmitter.event()
                         .name(name)
                         .data(data)
                 )
-            }catch (e: Exception){
-                removeEmitter(userId, emitter)
+            } catch (e: Exception) {
+                synchronized(this) {
+                    removeEmitter(userId, it)
+                }
             }
         }
     }
