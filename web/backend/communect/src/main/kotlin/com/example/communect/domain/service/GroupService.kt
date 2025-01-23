@@ -20,17 +20,20 @@ interface GroupService {
     fun createGroup(group: GroupIns, loginUserId: String, userIds: List<String>?): Pair<Group, List<GroupUser>>
 
     /** グループ更新 */
-    fun updGroup(group: GroupUpd): Group
+    fun updGroup(group: GroupUpd, loginUserId: String): Group
 
     /** グループ削除 */
-    fun deleteGroup(groupId: String)
+    fun deleteGroup(groupId: String, loginUserId: String)
 
     /** グループユーザ追加 */
-    fun addGroupUser(user: GroupUserIns): GroupUser
+    fun addGroupUser(user: GroupUserIns, loginUserId: String): GroupUser
 
     /** グループユーザ更新 */
-    fun updGroupUser(user: GroupUserUpd): GroupUser
+    fun updGroupUser(user: GroupUserUpd, loginUserId: String): GroupUser
 
     /** グループユーザ削除 */
-    fun deleteGroupUser(groupUserId: String)
+    fun deleteGroupUser(groupUserId: String, loginUserId: String)
+
+    /** グループ所属確認 */
+    fun hasGroupByGroupId(groupId: String, loginUserId: String): Boolean
 }

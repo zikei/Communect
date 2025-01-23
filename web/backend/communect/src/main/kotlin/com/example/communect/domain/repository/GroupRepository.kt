@@ -12,6 +12,9 @@ interface GroupRepository {
     /** グループIDによるグループの取得 */
     fun findByGroupId(groupId: String): Group?
 
+    /** グループIDによるサブグループの取得 */
+    fun findByAboveId(aboveId: String): List<Group>
+
     /** グループ追加 */
     fun insertGroup(group: GroupIns): Group?
 

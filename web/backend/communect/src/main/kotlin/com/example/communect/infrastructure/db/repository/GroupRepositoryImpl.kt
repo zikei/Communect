@@ -47,6 +47,19 @@ class GroupRepositoryImpl(
     }
 
     /**
+     * グループIDによるサブグループリストの取得
+     * @param aboveId 親グループID
+     * @return グループリスト
+     */
+    override fun findByAboveId(aboveId: String): List<Group> {
+        return groupMapper.select {
+            where {
+                GroupSql.aboveid isEqualTo aboveId
+            }
+        }.map { toModel(it) }
+    }
+
+    /**
      * グループ追加
      * @param group 追加グループ
      * @return 追加グループ
@@ -85,7 +98,7 @@ class GroupRepositoryImpl(
         return Group(
             record.noticegroupid!!,
             record.grouptitle!!,
-            record.aboveid!!
+            record.aboveid
         )
     }
 
