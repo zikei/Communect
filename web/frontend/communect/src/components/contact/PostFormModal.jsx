@@ -56,9 +56,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/contact${
-          initialData ? `/${initialData.contactId}` : ""
-        }`,
+        `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`,
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },

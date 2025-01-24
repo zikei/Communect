@@ -15,6 +15,7 @@ function PostList({
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
+  const [reactedPosts, setReactedPosts] = useState(new Set()); // リアクション済み投稿を追跡
 
   const importanceClass = {
     HIGH: "post-high-importance",
@@ -27,14 +28,13 @@ function PostList({
   if (loading) return <p>読み込み中...</p>;
   if (posts.length === 0) return <p>まだ投稿がありません。</p>;
 
-  const handleShowReactions = (reactions, choice) => {
-    setSelectedReactions(reactions);
-    setSelectedChoice(choice);
-    setShowReactionsModal(true);
-  };
-
-  const handleReactionClick = async (contactId, choiceId = null) => {
+  const handleReactionClick = async (contactId, contactType, choiceId = null) => {
     try {
+      const body =
+        contactType === "CHOICE"
+          ? JSON.stringify({ choiceId }) // CHOICE の場合
+          : JSON.stringify({ choiceId: null }); // CONFIRM の場合
+
       const response = await fetch(
         import.meta.env.VITE_API_URL + `/contact/${contactId}/reaction`,
         {
@@ -43,12 +43,14 @@ function PostList({
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ choiceId }),
+          withCredentials: true,
+          body,
         }
       );
 
       if (response.status === 200) {
         alert("リアクションが送信されました！");
+        setReactedPosts((prev) => new Set([...prev, contactId])); // リアクション済みとして登録
       } else {
         throw new Error("リアクション送信に失敗しました。");
       }
@@ -69,9 +71,7 @@ function PostList({
   return (
     <div className="group-contact-content px-5">
       {posts.map((post, index) => {
-        const postReactions = reactions.filter(
-          (reaction) => reaction.contactId === post.contactId
-        );
+        const isReacted = reactedPosts.has(post.contactId); // リアクション済みか判定
 
         return (
           <div
@@ -95,7 +95,10 @@ function PostList({
             {post.contactType === "CONFIRM" && (
               <button
                 className="btn btn-secondary mt-2"
-                onClick={() => handleReactionClick(post.contactId)}
+                onClick={() =>
+                  handleReactionClick(post.contactId, post.contactType)
+                }
+                disabled={isReacted} // リアクション済みなら無効化
               >
                 確認
               </button>
@@ -104,11 +107,7 @@ function PostList({
             {post.contactType === "CHOICE" && post.choices && (
               <div className="choices-section mt-3">
                 <h5>選択肢</h5>
-                {post.choices.map((choice, index) => {
-                  const choiceReactions = postReactions.filter(
-                    (reaction) => reaction.choice.choiceId === choice.choiceId
-                  );
-
+                {post.choices.map((choice) => {
                   return (
                     <div
                       key={`${post.contactId}-${choice.choiceId}`}
@@ -117,8 +116,13 @@ function PostList({
                       <button
                         className="btn btn-sm btn-outline-primary me-2"
                         onClick={() =>
-                          handleReactionClick(post.contactId, choice.choiceId)
+                          handleReactionClick(
+                            post.contactId,
+                            post.contactType,
+                            choice.choiceId
+                          )
                         }
+                        disabled={isReacted} // リアクション済みなら無効化
                       >
                         {choice.choice}
                       </button>
