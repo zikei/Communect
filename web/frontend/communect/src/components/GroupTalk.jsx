@@ -14,7 +14,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
-
   const fetchTalks = async () => {
     if (!currentGroup?.groupId) return;
 
@@ -65,6 +64,93 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     }
   }, [currentGroup?.groupId]);
 
+  useEffect(() => {
+    if (!currentGroup?.groupId || !selectedTalk) return;
+
+    let sse; // SSE接続用の変数
+
+    const connectSSE = () => {
+      sse = new EventSource(`${import.meta.env.VITE_API_URL}/message/sse`, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      // 接続確認イベント
+      sse.addEventListener("connection", (event) => {
+        console.log("接続イベント:", event.data);
+      });
+
+      sse.addEventListener("post", (event) => {
+        console.log("POSTイベント:", event.data);
+        try {
+          // レスポンスの解析
+          const response = JSON.parse(event.data);
+          const newMessage = response.message; // `message`オブジェクトを取得
+      
+          // 現在のトークルームにのみメッセージを追加
+          if (newMessage && selectedTalk === newMessage.talkId) { // `talkId`がレスポンスにない場合のチェックを追加
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+          } else {
+            console.log("メッセージが現在のトークルームではありません");
+          }
+        } catch (err) {
+          console.error("POSTイベント解析エラー:", err);
+        }
+      });
+
+      // メッセージ更新イベント
+      sse.addEventListener("update", (event) => {
+        console.log("UPDATEイベント:", event.data);
+        try {
+          const updatedMessage = JSON.parse(event.data);
+          setMessages((prevMessages) =>
+            prevMessages.map((msg) =>
+              msg.messageId === updatedMessage.messageId ? updatedMessage : msg
+            )
+          );
+        } catch (err) {
+          console.error("UPDATEイベント解析エラー:", err);
+        }
+      });
+
+      // メッセージ削除イベント
+      sse.addEventListener("delete", (event) => {
+        console.log("DELETEイベント:", event.data);
+        try {
+          const deletedMessage = JSON.parse(event.data);
+          setMessages((prevMessages) =>
+            prevMessages.filter(
+              (msg) => msg.messageId !== deletedMessage.messageId
+            )
+          );
+        } catch (err) {
+          console.error("DELETEイベント解析エラー:", err);
+        }
+      });
+
+      // エラー処理
+      sse.onerror = (event) => {
+        console.error("SSEエラーが発生しました:", event);
+        sse.close();
+        // 再接続ロジックを追加
+        setTimeout(() => {
+          console.log("SSE再接続を試みます...");
+          connectSSE(); // 再接続
+        }, 5000); // 5秒後に再接続
+      };
+    };
+
+    connectSSE(); // 初回接続
+
+    // クリーンアップ処理
+    return () => {
+      if (sse) {
+        console.log("SSE接続を閉じます");
+        sse.close();
+      }
+    };
+  }, [currentGroup?.groupId, selectedTalk]); // selectedTalkが変わるたびに再接続
+
   const handleSendMessage = (newMessage) => {
     setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
@@ -77,11 +163,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleEditMessage = async (messageId, updatedText) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
-        { message: updatedText},
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/message/${messageId}`,
+        { message: updatedText },
         {
-          withCredentials: true
-        }      
+          withCredentials: true,
+        }
       );
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
@@ -97,7 +184,8 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/message/${messageId}`,
         {
           withCredentials: true,
         }

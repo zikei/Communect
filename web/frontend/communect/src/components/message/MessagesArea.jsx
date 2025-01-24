@@ -33,6 +33,13 @@ const MessagesArea = ({
     fetchCurrentUser();
   }, []);
 
+  useEffect(() => {
+    // メッセージリストの更新に応じて自動スクロール
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   const startEditing = (messageId, currentText) => {
     setEditingMessageId(messageId);
     setEditingText(currentText);
