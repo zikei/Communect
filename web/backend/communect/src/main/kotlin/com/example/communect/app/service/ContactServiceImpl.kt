@@ -83,10 +83,13 @@ class ContactServiceImpl(
         val oldContact = contactRepository.findByContactId(contact.contactId) ?: throw BadRequestException()
         if (oldContact.userId != loginUserId) throw BadRequestException()
 
-        contactRepository.updateContact(contact)
+        if(!(contact.contactType == null && contact.importance == null && contact.message == null)){
+            contactRepository.updateContact(contact)
+        }
 
         if (oldContact.contactType != contact.contactType) reactionRepository.deleteByContactId(contact.contactId)
-        if (contact.contactType == ContactType.CHOICE && choices != null) {
+        if (choices != null) {
+            if(!((oldContact.contactType == ContactType.CHOICE && contact.contactType == null) || contact.contactType == ContactType.CHOICE)) throw BadRequestException()
             if (choices.size < choiceMinCount) throw BadRequestException()
             if (oldContact.contactType == ContactType.CHOICE) {
                 contactRepository.deleteChoicesByContactId(contact.contactId)
