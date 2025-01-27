@@ -18,15 +18,26 @@ function Group() {
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   const localGroupData = [
-    { groupId: "1", groupName: "初星学園", aboveId: null },
-    { groupId: "2", groupName: "専門大学", aboveId: "1" },
-    { groupId: "3", groupName: "プロデューサー科", aboveId: "2" },
+    { groupId: "1", groupName: "LOVELETTER", aboveId: null },
+    { groupId: "2", groupName: "雑談", aboveId: "1" },
+    { groupId: "3", groupName: "ゲーム", aboveId: "2" },
     { groupId: "4", groupName: "電子開発学園", aboveId: null },
     { groupId: "5", groupName: "KCS", aboveId: "4" },
     { groupId: "6", groupName: "KCSK", aboveId: "5" },
     { groupId: "7", groupName: "大学併修科", aboveId: "6" },
     { groupId: "8", groupName: "R4A1", aboveId: "7" },
     { groupId: "9", groupName: "国試対策", aboveId: "6" },
+
+    const dummyTimeLine = [
+      {id:1,type:"INFO",message:"周知連絡: システムメンテナンス予定",importance:"LOW"},
+      {id:1,type:"WARNING",message:"多岐連絡: システムメンテナンス予定",importance:"MEDIUM"},
+      {id:1,type:"DENGER",message:"確認連絡: システムメンテナンス予定",importance:"HIGH"},
+
+    ];
+
+
+
+
   ];
 
   const App = () => {

@@ -51,46 +51,42 @@ const Sidebar = ({
   };
 
   const handleCreateGroup = async (e) => {
-    e.prevenrDefault();
+    e.preventDefault();
+
 
     // バリデーションチェック
     if (newGroupName.trim() === "") {
       setApiError("グループ名を入力してください！");
       return;
     }
-  
     setIsLoading(true);
     setApiError(null); // エラーリセット
   
     const newGroup = {
-      name: newGroupName.trim(),
-      above: selectedParentGroup || null, // 親グループが選択されていない場合はnull
-      users: [], // 必要に応じてユーザーIDを追加
+      groupName: newGroupName.trim(),
+      aboveId: selectedParentGroup || null, // 親グループが選択されていない場合はnull
     };
 
-    console.log("debug");
+  
   
     try {
-      const response = await axios.post(`${process.env.COMMUNECT_URL}/group`, newGroup , {
-        withCredentials: true,
-        credentials: "include"
+      const response = await axios.post(`https://communectapi.zikeidev.com/group`, newGroup, {
+          withCredentials: true,
       });
-      alert("グループが作成されました。")
-  
+
+      console.log("サーバーからのレスポンス: ", response.data);
+
       if (response.status !== 200 && response.status !== 201) {
-        throw new Error("グループの作成に失敗しました");
+          throw new Error("グループの作成に失敗しました");
       }
-  
+
       const createdGroup = response.data;
-      console.log('aaaaa')
       // サイドバーのグループリストに新しいグループを追加
       setGroups((prevGroups) => [
         ...prevGroups,
         {
-          groupId: createdGroup.groupId,
           groupName: createdGroup.groupName,
           aboveId: createdGroup.aboveId,
-          children: [], // 新しいグループは子要素を持たない
         },
       ]);
   
@@ -217,9 +213,6 @@ const Sidebar = ({
             />
 
         <Text style={styles.label}>親グループ:</Text>
-        <View style={[styles.pickerContainer, styles.picker]}>
-        <Text style={styles.label}>ユーザーの追加:</Text>
-        <View style={[styles.pickerContainer, styles.picker]}>
             {renderParentGroups()}
 
             <Button
@@ -229,9 +222,8 @@ const Sidebar = ({
             />
 
             <Button title="キャンセル" onPress={handleCloseModal} />
-          </View>
+
         </View>
-      </View>
       </View>
       </Modal>
     </View>
