@@ -19,25 +19,20 @@ function Group() {
 
   const localGroupData = [
     { groupId: "1", groupName: "LOVELETTER", aboveId: null },
-    { groupId: "2", groupName: "雑談", aboveId: "1" },
-    { groupId: "3", groupName: "ゲーム", aboveId: "2" },
+    { groupId: "2", groupName: "フロントエンド", aboveId: "1" },
+    { groupId: "3", groupName: "バックエンド", aboveId: "2" },
     { groupId: "4", groupName: "電子開発学園", aboveId: null },
     { groupId: "5", groupName: "KCS", aboveId: "4" },
     { groupId: "6", groupName: "KCSK", aboveId: "5" },
     { groupId: "7", groupName: "大学併修科", aboveId: "6" },
     { groupId: "8", groupName: "R4A1", aboveId: "7" },
     { groupId: "9", groupName: "国試対策", aboveId: "6" },
+  ];
 
-    const dummyTimeLine = [
-      {id:1,type:"INFO",message:"周知連絡: システムメンテナンス予定",importance:"LOW"},
-      {id:1,type:"WARNING",message:"多岐連絡: システムメンテナンス予定",importance:"MEDIUM"},
-      {id:1,type:"DENGER",message:"確認連絡: システムメンテナンス予定",importance:"HIGH"},
-
-    ];
-
-
-
-
+  const dummyTimeline = [
+    { id: 1, type: "INFO", message: "周知連絡: システムメンテナンス予定", importance: "LOW" },
+    { id: 2, type: "WARNING", message: "多岐連絡: 緊急会議の予定調整", importance: "MEDIUM" },
+    { id: 3, type: "DANGER", message: "確認連絡: 重要なシステム障害が発生", importance: "HIGH" },
   ];
 
   const App = () => {
@@ -136,7 +131,38 @@ function Group() {
     closeModal();
   };
 
-
+  const Timeline = ({ data }) => {
+    const getBackgroundColor = (importance) => {
+      switch (importance) {
+        case "LOW":
+          return "#b3e5fc"; // 水色
+        case "MEDIUM":
+          return "#fff176"; // 黄色
+        case "HIGH":
+          return "#ef9a9a"; // 赤色
+        default:
+          return "#f5f5f5";
+      }
+    };
+  
+    return (
+      <View style={styles.timelineContainer}>
+        {data.map((item) => (
+          <View
+            key={item.id}
+            style={[
+              styles.timelineItem,
+              { backgroundColor: getBackgroundColor(item.importance) },
+            ]}
+          >
+            <Text style={styles.timelineMessage}>
+              {item.type}: {item.message}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -189,6 +215,8 @@ function Group() {
                 <Text style={styles.postButtonText}>投稿</Text>
               </TouchableOpacity>
             </View>
+            {/* タイムライン表示 */}
+            <Timeline data={dummyTimeline} />
           </View>
         ) : (
           <Text style={styles.placeholderText}>
@@ -411,7 +439,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-
+  timelineContainer: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#f9f9f9",
+  },
+  timelineItem: {
+    padding: 10,
+    marginBottom: 5,
+    borderRadius: 5,
+  },
+  timelineMessage: {
+    fontSize: 16,
+    color: "#333",
+  },
 });
 
 export default Group;
