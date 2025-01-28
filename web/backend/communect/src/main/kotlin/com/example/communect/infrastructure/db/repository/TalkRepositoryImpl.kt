@@ -104,7 +104,7 @@ class TalkRepositoryImpl(
      *  @return 所属ユーザリスト
      */
     override fun findUserByTalkId(talkId: String): List<User> {
-        return userMapper.select {
+        return userMapper.selectDistinct {
             leftJoin(UserGroupSql.userGroup, "gu"){
                 on(UserSql.userid) equalTo UserGroupSql.userid
             }
