@@ -69,28 +69,41 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     let sse;
   
     const connectSSE = () => {
-      sse = new EventSource(`${import.meta.env.VITE_API_URL}/message/sse`, {
-        withCredentials: true,
-        credentials: "include",
-      });
+      if (sse) {
+        console.log("既存のSSE接続を閉じます");
+        sse.close(); // 既存の接続をクローズ
+      }
   
-      // 新規メッセージイベント
+      console.log("新しいSSE接続を開始します:", selectedTalk);
+      sse = new EventSource(
+        `${import.meta.env.VITE_API_URL}/message/sse?talkId=${selectedTalk}`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
+      );
+  
+      // 新しいメッセージ受信
       sse.addEventListener("post", (event) => {
         console.log("POSTイベント:", event.data);
         try {
           const response = JSON.parse(event.data);
           const newMessage = response.message;
   
-          // メッセージが現在のトークルームに関連付けられている場合のみ更新
           if (newMessage && newMessage.talkId === selectedTalk) {
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
+            setMessages((prevMessages) => {
+              if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+                return prevMessages;
+              }
+              return [...prevMessages, newMessage];
+            });
           }
         } catch (err) {
           console.error("POSTイベント解析エラー:", err);
         }
       });
   
-      // メッセージ更新イベント
+      // 更新イベント
       sse.addEventListener("update", (event) => {
         console.log("UPDATEイベント:", event.data);
         try {
@@ -109,9 +122,9 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         }
       });
   
-      // メッセージ削除イベント
+      // 削除イベント
       sse.addEventListener("delete", (event) => {
-        console.log("DERETEイベント:", event.data);
+        console.log("DELETEイベント:", event.data);
         try {
           const response = JSON.parse(event.data);
           const deletedMessageId = response.messageId;
@@ -124,12 +137,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         }
       });
   
-      // エラーハンドリング
+      // SSEエラーハンドリング
       sse.onerror = (event) => {
         console.error("SSEエラーが発生しました:", event);
         sse.close();
   
-        // 再接続ロジック
+        // 再接続処理
         setTimeout(() => {
           console.log("SSE再接続を試みます...");
           connectSSE();
@@ -142,7 +155,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     // クリーンアップ処理
     return () => {
       if (sse) {
-        console.log("SSE接続を閉じます");
+        console.log("SSE接続をクリーンアップします");
         sse.close();
       }
     };
@@ -150,7 +163,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   
   
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]); // 新しいメッセージを追加
+    setMessages((prevMessages) => {
+      if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+        return prevMessages; // 重複メッセージを無視
+      }
+      return [...prevMessages, newMessage];
+    });
   };
   
   const handleSelectTalk = (talkId) => {

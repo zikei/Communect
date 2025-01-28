@@ -60,6 +60,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
+          withcredentials: true,
           credentials: "include",
           body: JSON.stringify(requestData),
         }
