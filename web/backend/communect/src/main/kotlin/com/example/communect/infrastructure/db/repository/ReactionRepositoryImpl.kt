@@ -58,7 +58,7 @@ class ReactionRepositoryImpl(
         reaction.choiceId?.let {
             choiceReactionMapper.insert(
                 ChoiceReactionRecord(
-                    UUID.randomUUID().toString(),
+                    reactionRecord.reactionid,
                     it
                 )
             )

@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Col, ListGroup, Button, Spinner, Alert, Modal, Form } from "react-bootstrap";
+import {
+  Col,
+  ListGroup,
+  Button,
+  Spinner,
+  Alert,
+  Modal,
+  Form,
+} from "react-bootstrap";
 import styles from "../../css/module/groupTalk.module.css";
 import axios from "axios";
 
@@ -23,7 +31,8 @@ const TalkSidebar = ({
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/talk/${editingTalk.talkId}`,
-        { talkName: newTalkName }
+        { talkName: newTalkName },
+        { withCredentials: true }
       );
       const updatedTalk = response.data.talk;
 
@@ -42,14 +51,16 @@ const TalkSidebar = ({
 
   const handleDeleteTalk = async (talkId) => {
     const userConfirmed = window.confirm("本当に削除してもよろしいですか？");
-  
+
     if (!userConfirmed) {
       return; //　キャンセルを選択した場合は処理を中断
     }
-  
+
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/talk/${talkId}`);
-  
+      await axios.delete(`${import.meta.env.VITE_API_URL}/talk/${talkId}`,{
+        withCredentials: true,
+      });
+
       const updatedTalks = talks.filter((talk) => talk.talkId !== talkId);
       onTalksUpdate(updatedTalks);
     } catch (err) {
@@ -62,7 +73,11 @@ const TalkSidebar = ({
     <Col xs={3} className={`${styles["groupTalk-sidebar"]} p-0`}>
       <div className="d-flex justify-content-between align-items-center">
         <h5>トークルーム一覧</h5>
-        <Button variant="link" className="text-primary" onClick={() => setShowCreateModal(true)}>
+        <Button
+          variant="link"
+          className="text-primary"
+          onClick={() => setShowCreateModal(true)}
+        >
           <i className="bi bi-plus-circle" style={{ fontSize: "1.5rem" }}></i>
         </Button>
       </div>
@@ -139,7 +154,11 @@ const TalkSidebar = ({
         </Modal.Footer>
       </Modal>
 
-      {deleteError && <Alert variant="danger" className="mt-2">{deleteError}</Alert>}
+      {deleteError && (
+        <Alert variant="danger" className="mt-2">
+          {deleteError}
+        </Alert>
+      )}
     </Col>
   );
 };

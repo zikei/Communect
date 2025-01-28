@@ -39,3 +39,29 @@
   display: flex;
   align-items: center;
 }
+
+/* ログアウトボタンのスタイル */
+.logout-section {
+  margin-top: auto; /* 最下部に配置 */
+  padding: 10px 0; /* 他要素とのスペース */
+  border-top: 1px solid #ddd; /* 区切り線 */
+  background-color: #f8f9fa; /* 背景色 */
+  text-align: center;
+}
+
+.logout-section button {
+  font-size: 1rem;
+  padding: 10px 15px;
+  width: 90%; /* 横幅を揃える */
+  max-width: 200px; /* 必要なら最大幅を制限 */
+  color: #fff;
+  background-color: #dc3545; /* Danger色 */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-section button:hover {
+  background-color: #c82333; /* ホバー時の色変更 */
+}

@@ -38,6 +38,8 @@ data class TalkInfo(
 
 /** メッセージ情報 */
 data class MessageInfo(
+    /** トークID */
+    val talkId: String,
     /** メッセージID */
     val messageId: String,
     /** メッセージ */
@@ -52,6 +54,7 @@ data class MessageInfo(
     val nickName: String
 ){
     constructor(message: Message): this(
+        message.talkId,
         message.messageId,
         message.message,
         message.createTime,

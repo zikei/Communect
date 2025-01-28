@@ -5,23 +5,45 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     message: "",
     contactType: "INFORM",
     importance: "LOW",
-    choices: [],
+    choices: ["", ""], // 初期状態で2つの選択肢を用意
   });
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        message: initialData.message,
-        contactType: initialData.contactType,
-        importance: initialData.importance,
-        choices: initialData.choices ? initialData.choices.map(choice => choice.choice) : [],
+        message: initialData.message || "",
+        contactType: initialData.contactType || "INFORM",
+        importance: initialData.importance || "LOW",
+        choices: Array.isArray(initialData.choices)
+          ? initialData.choices.map((choiceObj) =>
+              typeof choiceObj === "object" ? choiceObj.choice || "" : choiceObj
+            )
+          : ["", ""],
       });
     }
   }, [initialData]);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleChoiceChange = (index, value) => {
+    const updatedChoices = [...formData.choices];
+    updatedChoices[index] = value;
+    setFormData((prev) => ({ ...prev, choices: updatedChoices }));
+  };
+
+  const addChoice = () => {
+    setFormData((prev) => ({ ...prev, choices: [...prev.choices, ""] }));
+  };
+
+  const removeChoice = (index) => {
+    if (formData.choices.length > 2) {
+      const updatedChoices = formData.choices.filter((_, i) => i !== index);
+      setFormData((prev) => ({ ...prev, choices: updatedChoices }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -38,6 +60,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
+          withcredentials: true,
           credentials: "include",
           body: JSON.stringify(requestData),
         }
@@ -68,7 +91,12 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         </div>
         <div className="form-group">
           <label>連絡タイプ</label>
-          <select name="contactType" value={formData.contactType} onChange={handleInputChange} className="form-control">
+          <select
+            name="contactType"
+            value={formData.contactType}
+            onChange={handleInputChange}
+            className="form-control"
+          >
             <option value="INFORM">周知連絡</option>
             <option value="CONFIRM">確認連絡</option>
             <option value="CHOICE">多肢連絡</option>
@@ -77,17 +105,42 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         {formData.contactType === "CHOICE" && (
           <div className="form-group">
             <label>選択肢</label>
-            <input
-              type="text"
-              className="form-control"
-              value={formData.choices.join(", ")}
-              onChange={(e) => setFormData({ ...formData, choices: e.target.value.split(",") })}
-            />
+            {formData.choices.map((choice, index) => (
+              <div key={index} className="d-flex align-items-center mb-2">
+                <input
+                  type="text"
+                  className="form-control me-2"
+                  value={typeof choice === "string" ? choice : ""}
+                  onChange={(e) => handleChoiceChange(index, e.target.value)}
+                />
+                {index >= 2 && (
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    onClick={() => removeChoice(index)}
+                  >
+                    削除
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm mt-2"
+              onClick={addChoice}
+            >
+              選択肢を追加
+            </button>
           </div>
         )}
         <div className="form-group">
           <label>重要度</label>
-          <select name="importance" value={formData.importance} onChange={handleInputChange} className="form-control">
+          <select
+            name="importance"
+            value={formData.importance}
+            onChange={handleInputChange}
+            className="form-control"
+          >
             <option value="LOW">低</option>
             <option value="MEDIUM">中</option>
             <option value="HIGH">高</option>

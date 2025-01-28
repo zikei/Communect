@@ -17,11 +17,15 @@ const MessageSender = ({ talkId, onMessageSent }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`,
-        { message: messageText }
+        { message: messageText },
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
       );
 
       if (response.data?.message) {
-        onMessageSent(response.data.message);
+        onMessageSent(response.data.message); // メッセージ送信後の処理
         setMessageText(""); // 入力欄をクリア
       } else {
         setError("メッセージの送信に失敗しました。");

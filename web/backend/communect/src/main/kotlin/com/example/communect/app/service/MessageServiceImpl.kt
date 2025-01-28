@@ -77,9 +77,10 @@ class MessageServiceImpl(
         val oldMessage = messageRepository.findByMessageId(messageId) ?: throw BadRequestException()
         if(oldMessage.userId != loginUserId) throw BadRequestException()
 
+        val messageUserIds = getMessageUserIds(messageId)
+
         messageRepository.deleteByMessageId(messageId)
 
-        val messageUserIds = getMessageUserIds(messageId)
         messageUserIds.forEach { id ->
             emitterRepository.send(id, "delete", MessageDeleteResponse(messageId))
         }
@@ -148,15 +149,19 @@ class MessageSseEmitterRepository(
     }
 
     fun send(userId: String, name: String, data: Any){
-        emitters[userId]?.forEach { emitter ->
+        val userEmitters = synchronized(this) { emitters[userId]?.toSet() } ?: return
+
+        userEmitters.forEach {
             try {
-                emitter.send(
+                it.send(
                     SseEmitter.event()
                         .name(name)
                         .data(data)
                 )
-            }catch (e: Exception){
-                removeEmitter(userId, emitter)
+            } catch (e: Exception) {
+                synchronized(this) {
+                    removeEmitter(userId, it)
+                }
             }
         }
     }

@@ -101,3 +101,8 @@ ul li {
   color: #666;
   font-weight: bold;
 }
+
+.noticications .btn-close {
+  position: relative;
+  top: 2px;
+}
