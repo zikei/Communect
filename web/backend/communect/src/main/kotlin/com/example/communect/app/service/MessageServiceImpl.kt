@@ -77,9 +77,10 @@ class MessageServiceImpl(
         val oldMessage = messageRepository.findByMessageId(messageId) ?: throw BadRequestException()
         if(oldMessage.userId != loginUserId) throw BadRequestException()
 
+        val messageUserIds = getMessageUserIds(messageId)
+
         messageRepository.deleteByMessageId(messageId)
 
-        val messageUserIds = getMessageUserIds(messageId)
         messageUserIds.forEach { id ->
             emitterRepository.send(id, "delete", MessageDeleteResponse(messageId))
         }
