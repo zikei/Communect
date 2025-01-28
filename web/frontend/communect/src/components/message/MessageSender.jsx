@@ -20,6 +20,7 @@ const MessageSender = ({ talkId, onMessageSent }) => {
         { message: messageText },
         {
           withCredentials: true,
+          credentials: "include",
         }
       );
 

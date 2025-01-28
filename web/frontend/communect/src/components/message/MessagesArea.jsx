@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Col, Button } from "react-bootstrap";
 import axios from "axios";
 import styles from "../../css/module/groupTalk.module.css";
@@ -7,7 +7,6 @@ import MessageSender from "./MessageSender";
 const MessagesArea = ({
   messages,
   selectedTalk,
-  messagesEndRef,
   onSendMessage,
   onEditMessage,
   onDeleteMessage,
@@ -15,16 +14,17 @@ const MessagesArea = ({
   const [currentUser, setCurrentUser] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   // ログインユーザー情報を取得
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login",
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
+          withCredentials: true,
+          credentials: "include",
+        });
         setCurrentUser(response.data.user);
       } catch (error) {
         console.error("ログインユーザー情報の取得に失敗しました:", error);
@@ -33,12 +33,22 @@ const MessagesArea = ({
     fetchCurrentUser();
   }, []);
 
-  useEffect(() => {
-    // メッセージリストの更新に応じて自動スクロール
+  // メッセージ送信後、最下部にスクロールする
+  const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  };
+
+  useEffect(() => {
+    // スクロールが一番下にある場合、送信後に最下部にスクロール
+    const container = messagesContainerRef.current;
+    const isAtBottom = container.scrollHeight === container.scrollTop + container.clientHeight;
+    
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+  }, [messages]); // 依存配列にmessagesを追加
 
   const startEditing = (messageId, currentText) => {
     setEditingMessageId(messageId);
@@ -63,9 +73,13 @@ const MessagesArea = ({
 
   return (
     <Col xs={9} className={`${styles["messages-container"]} p-0`}>
-      <div className={`${styles.messages} flex-grow-1 overflow-auto`}>
+      <div
+        className={`${styles.messages} flex-grow-1 overflow-auto`}
+        ref={messagesContainerRef} // メッセージコンテナにrefを追加
+      >
         {messages.length > 0 ? (
-          messages.map((message) => (
+          // メッセージを降順に表示（最新のメッセージが下に）
+          [...messages].reverse().map((message) => (
             <div
               key={message.messageId}
               className={`${styles.message} ${
@@ -120,6 +134,7 @@ const MessagesArea = ({
         ) : (
           <p className={styles["no-messages"]}>まだメッセージはありません。</p>
         )}
+        {/* 最後のメッセージの下にスクロールを誘導 */}
         <div ref={messagesEndRef}></div>
       </div>
       {selectedTalk && <MessageSender talkId={selectedTalk} onMessageSent={onSendMessage} />}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect} from "react";
 import { Container, Row } from "react-bootstrap";
 import axios from "axios";
 import styles from "../css/module/groupTalk.module.css";
@@ -13,7 +13,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const messagesEndRef = useRef(null);
   const fetchTalks = async () => {
     if (!currentGroup?.groupId) return;
 
@@ -66,82 +65,80 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   useEffect(() => {
     if (!currentGroup?.groupId || !selectedTalk) return;
-
-    let sse; // SSE接続用の変数
-
+  
+    let sse;
+  
     const connectSSE = () => {
       sse = new EventSource(`${import.meta.env.VITE_API_URL}/message/sse`, {
         withCredentials: true,
         credentials: "include",
       });
-
-      // 接続確認イベント
-      sse.addEventListener("connection", (event) => {
-        console.log("接続イベント:", event.data);
-      });
-
+  
+      // 新規メッセージイベント
       sse.addEventListener("post", (event) => {
         console.log("POSTイベント:", event.data);
         try {
-          // レスポンスの解析
           const response = JSON.parse(event.data);
-          const newMessage = response.message; // `message`オブジェクトを取得
-      
-          // 現在のトークルームにのみメッセージを追加
-          if (newMessage && selectedTalk === newMessage.talkId) { // `talkId`がレスポンスにない場合のチェックを追加
+          const newMessage = response.message;
+  
+          // メッセージが現在のトークルームに関連付けられている場合のみ更新
+          if (newMessage && newMessage.talkId === selectedTalk) {
             setMessages((prevMessages) => [...prevMessages, newMessage]);
-          } else {
-            console.log("メッセージが現在のトークルームではありません");
           }
         } catch (err) {
           console.error("POSTイベント解析エラー:", err);
         }
       });
-
+  
       // メッセージ更新イベント
       sse.addEventListener("update", (event) => {
         console.log("UPDATEイベント:", event.data);
         try {
-          const updatedMessage = JSON.parse(event.data);
-          setMessages((prevMessages) =>
-            prevMessages.map((msg) =>
-              msg.messageId === updatedMessage.messageId ? updatedMessage : msg
-            )
-          );
+          const response = JSON.parse(event.data);
+          const updatedMessage = response.message;
+  
+          if (updatedMessage && updatedMessage.talkId === selectedTalk) {
+            setMessages((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.messageId === updatedMessage.messageId ? updatedMessage : msg
+              )
+            );
+          }
         } catch (err) {
           console.error("UPDATEイベント解析エラー:", err);
         }
       });
-
+  
       // メッセージ削除イベント
       sse.addEventListener("delete", (event) => {
-        console.log("DELETEイベント:", event.data);
+        console.log("DERETEイベント:", event.data);
         try {
-          const deletedMessage = JSON.parse(event.data);
+          const response = JSON.parse(event.data);
+          const deletedMessageId = response.messageId;
+  
           setMessages((prevMessages) =>
-            prevMessages.filter(
-              (msg) => msg.messageId !== deletedMessage.messageId
-            )
+            prevMessages.filter((msg) => msg.messageId !== deletedMessageId)
           );
         } catch (err) {
           console.error("DELETEイベント解析エラー:", err);
         }
       });
-
-      // エラー処理
+  
+      // エラーハンドリング
       sse.onerror = (event) => {
         console.error("SSEエラーが発生しました:", event);
         sse.close();
-        // 再接続ロジックを追加
+  
+        // 再接続ロジック
         setTimeout(() => {
           console.log("SSE再接続を試みます...");
-          connectSSE(); // 再接続
+          connectSSE();
         }, 5000); // 5秒後に再接続
       };
     };
-
-    connectSSE(); // 初回接続
-
+  
+    connectSSE();
+  
     // クリーンアップ処理
     return () => {
       if (sse) {
@@ -149,12 +146,13 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         sse.close();
       }
     };
-  }, [currentGroup?.groupId, selectedTalk]); // selectedTalkが変わるたびに再接続
-
+  }, [currentGroup?.groupId, selectedTalk]);
+  
+  
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]); // 新しいメッセージを追加
   };
-
+  
   const handleSelectTalk = (talkId) => {
     setSelectedTalk(talkId);
     fetchMessages(talkId);
@@ -168,6 +166,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         { message: updatedText },
         {
           withCredentials: true,
+          credentials: "include",
         }
       );
       setMessages((prevMessages) =>
@@ -188,6 +187,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         `${import.meta.env.VITE_API_URL}/message/${messageId}`,
         {
           withCredentials: true,
+          credentials: "include",
         }
       );
       setMessages((prevMessages) =>
@@ -201,16 +201,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const handleTalkUpdate = (updatedTalks) => {
     setTalks(updatedTalks);
   };
-
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   return (
     <Container fluid className={`${styles["talk-room"]} p-0`}>
@@ -227,7 +217,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         <MessagesArea
           messages={messages}
           selectedTalk={selectedTalk}
-          messagesEndRef={messagesEndRef}
           onSendMessage={handleSendMessage}
           onEditMessage={handleEditMessage}
           onDeleteMessage={handleDeleteMessage}

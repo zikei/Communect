@@ -57,7 +57,9 @@ const TalkSidebar = ({
     }
 
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/talk/${talkId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/talk/${talkId}`,{
+        withCredentials: true,
+      });
 
       const updatedTalks = talks.filter((talk) => talk.talkId !== talkId);
       onTalksUpdate(updatedTalks);
