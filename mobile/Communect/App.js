@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import Header from "./Header";
+
 import Login from './Login';
 import Group from './Group';
 import MockGroup from './MockGroup';
@@ -19,7 +21,10 @@ const Stack = createStackNavigator();
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator 
+        initialRouteName="Login"
+        screenOptions={{ header: (props) => <Header {...props} /> }}
+      >
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="Group" component={Group} options={{ title: 'グループ' }} />
         {/*<Stack.Screen name="Group" component={MockGroup} options={{ title: 'グループ' }} />*/}

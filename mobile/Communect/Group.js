@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput } from "react-native";
 import { Picker } from '@react-native-picker/picker'; // ドロップダウンリスト用
+import { FontAwesome } from 'react-native-vector-icons';
 
 function Group() {
   const [groups, setGroups] = useState([]);
@@ -16,10 +17,11 @@ function Group() {
   const [selectedOption, setSelectedOption] = useState(""); // ドロップダウンリストの選択管理
   const [secondSelectedOption, setSecondSelectedOption] = useState(""); // 2つ目のドロップダウンリストの選択管理
   const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [timelineData, setTimelineData] = useState([]);
 
   const localGroupData = [
     { groupId: "1", groupName: "LOVELETTER", aboveId: null },
-    { groupId: "2", groupName: "フロントエンド", aboveId: "1" },
+    { groupId: "2", groupName: "Communect", aboveId: "1" },
     { groupId: "3", groupName: "バックエンド", aboveId: "2" },
     { groupId: "4", groupName: "電子開発学園", aboveId: null },
     { groupId: "5", groupName: "KCS", aboveId: "4" },
@@ -27,12 +29,27 @@ function Group() {
     { groupId: "7", groupName: "大学併修科", aboveId: "6" },
     { groupId: "8", groupName: "R4A1", aboveId: "7" },
     { groupId: "9", groupName: "国試対策", aboveId: "6" },
+    { groupId: "10", groupName: "フロントエンド", aboveId: "2" },
+    { groupId: "11", groupName: "モバイル", aboveId: "2" },
   ];
 
-  const dummyTimeline = [
-    { id: 1, type: "INFO", message: "周知連絡: システムメンテナンス予定", importance: "LOW" },
-    { id: 2, type: "WARNING", message: "多岐連絡: 緊急会議の予定調整", importance: "MEDIUM" },
-    { id: 3, type: "DANGER", message: "確認連絡: 重要なシステム障害が発生", importance: "HIGH" },
+  const localUserData = [
+    { userId: 1, userName: "田中", nickName: "たなか", password: "LOVELETTER", email: 'love@letter.nect'},
+    { userId: 2, userName: "高橋", nickName: "たかはし", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 3, userName: "堀江", nickName: "ほりえ", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 4, userName: "村田", nickName: "むらた", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 5, userName: "矢野", nickName: "やの", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 6, userName: "水本", nickName: "みずもと", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 7, userName: "安増", nickName: "やすます", password: "LOVELETTER", email: 'love@letter.nect' },
+  ];
+
+  const localTimeline = [
+    { id: 1, type: "INFO", message: "2月3、4日 校内選考", importance: "LOW", contentType: 'INFORM'},
+    { id: 2, type: "WARNING", message: "モバイルのクロスプラットフォームはどれがいいか投票してね", importance: "MEDIUM", contentType: 'CHOICE' },
+    { id: 3, type: "DANGER", message: "1月31日までに提出する書類を提出していない方、確認を押してください。", importance: "HIGH", contentType: 'CONFIRM' },
+    { id: 4, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
+    { id: 5, type: "INFO", message: "", importance: "LOW", contentType: 'INFORM' },
+    { id: 6, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
   ];
 
   const App = () => {
@@ -103,7 +120,9 @@ function Group() {
   useEffect(() => {
     try {
       const hierarchy = buildHierarchy(localGroupData);
+      const timelinelist = buildHierarchy(localTimeline);
       setGroups(hierarchy);
+      setTimelineData(timelinelist);
     } catch (err) {
       console.error("グループの初期化中にエラーが発生しました:", err);
       setError("グループの読み込みに失敗しました。");
@@ -125,8 +144,22 @@ function Group() {
   };
 
   const handlePostComplete = () => {
-    console.log("投稿完了");
-
+    if (!inputText || !selectedOption || !secondSelectedOption) {
+      alert("全ての項目を入力してください！");
+      return;
+    }
+  
+    // 新しいタイムライン項目を作成
+    const newTimelineItem = {
+      id: (Array.isArray(timelineData) ? timelineData.length : 0) + 1,
+      type: selectedOption,
+      message: inputText,
+      importance: secondSelectedOption,
+    };
+  
+    // タイムラインデータを更新
+    setTimelineData((prev) => [...prev, newTimelineItem]);
+  
     // モーダルを閉じる
     closeModal();
   };
@@ -135,32 +168,140 @@ function Group() {
     const getBackgroundColor = (importance) => {
       switch (importance) {
         case "LOW":
-          return "#b3e5fc"; // 水色
+          return "#d4f1f8";
         case "MEDIUM":
-          return "#fff176"; // 黄色
+          return "#fffddf";
         case "HIGH":
-          return "#ef9a9a"; // 赤色
+          return "#ffeaea";
         default:
           return "#f5f5f5";
       }
     };
+
+    const handleEdit = (id) => {
+      // 編集ロジック (モーダルを開くなど)
+      console.log(`Editing post with id: ${id}`);
+    };
   
+    const handleDelete = (id) => {
+      // 削除ロジック (確認後に投稿を削除)
+      console.log(`Deleting post with id: ${id}`);
+    };
+  
+    const handleConfirm = (id, userId) => {
+      // 確認ボタンが押された時の処理
+      console.log(`Post with id: ${id} confirmed by user with id: ${userId}`);
+    };
+  
+    const handleViewDetails = (userId) => {
+      // ユーザー詳細画面に遷移
+      console.log(`Viewing details for user with id: ${userId}`);
+    };
+
+    const handleMultipleChoice = (choice) => {
+      console.log(`Multiple choice selected: ${choice}`);
+    };
+
     return (
+      <ScrollView 
+        style={styles.timelineScroll} 
+        contentContainerStyle={[styles.timelineContent, { paddingBottom: 20 }]}>
       <View style={styles.timelineContainer}>
-        {data.map((item) => (
-          <View
-            key={item.id}
-            style={[
-              styles.timelineItem,
-              { backgroundColor: getBackgroundColor(item.importance) },
-            ]}
-          >
-            <Text style={styles.timelineMessage}>
-              {item.type}: {item.message}
-            </Text>
+      {data.map((item) => (
+        <View
+          key={item.id}
+          style={[styles.timelineItem, 
+            { 
+              backgroundColor: getBackgroundColor(item.importance),
+              marginBottom: 10
+            }]}
+        >
+          <Text style={styles.timelineimportance}>
+            {item.type}
+          </Text>
+          <Text style={styles.timelineMessage}>
+            {item.message}
+          </Text>
+
+          {/* ボタンの配置 */}
+          <View style={styles.buttonContainer}>
+            {/* 確認連絡の投稿にのみ確認ボタン */}
+            <View style={styles.informbottomButtons}>
+              {item.contentType === "CONFIRM" && (
+                <TouchableOpacity
+                  style={styles.confirmButton}
+                  onPress={() => handleConfirm(item.id, item.userId)} // 確認ボタン
+                >
+                  <Text style={styles.buttonText}>確認</Text>
+                </TouchableOpacity>
+              )}  
+
+              {/* 詳細ボタン（確認連絡の投稿のみ） */}
+              {item.contentType === "CONFIRM" && (
+                <TouchableOpacity
+                  style={styles.detailsButton}
+                  onPress={() => handleViewDetails(item.userId)} // 詳細ボタン
+                >
+                  <Text style={styles.buttonText}>詳細</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            
+
+            {/* 多肢連絡の投稿に複数選択肢ボタン */}
+            {item.contentType === "CHOICE" && (
+              <View style={styles.multiChoiceContainer}>
+                <TouchableOpacity
+                  style={styles.multiChoiceButton}
+                  onPress={() => handleMultipleChoice("Option 1")}
+                >
+                  <Text style={styles.buttonText}>AndroidStudio</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.multiChoiceButton}
+                  onPress={() => handleMultipleChoice("Option 2")}
+                >
+                  <Text style={styles.buttonText}>ReactNative</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.multiChoiceButton}
+                  onPress={() => handleMultipleChoice("Option 3")}
+                >
+                  <Text style={styles.buttonText}>Flutter</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.detailsButton}
+                  onPress={() => handleViewDetails(item.userId)} // 詳細ボタン
+                >
+                  <Text style={styles.buttonText}>詳細</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* 編集と削除ボタンは右下にまとめる */}
+            <View style={styles.bottomButtons}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => handleEdit(item.id)} // 編集ボタン
+              >
+                <Text style={styles.buttonText}>編集</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDelete(item.id)} // 削除ボタン
+              >
+                <Text style={styles.buttonText}>削除</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        ))}
-      </View>
+        </View>
+      ))}
+    </View>
+    </ScrollView>
     );
   };
 
@@ -183,7 +324,7 @@ function Group() {
           <ScrollView
             horizontal
             style={styles.breadcrumbContainer}
-            contentContainerStyle={styles.breadcrumbContent}
+            contentContainerStyle={[styles.breadcrumbContent, { flexDirection: "row" }]}
           >
             {breadcrumbs.map((group, index) => (
               <TouchableOpacity
@@ -206,17 +347,9 @@ function Group() {
               <Text style={styles.groupDetail} numberOfLines={1}>
                 <Text style={styles.label}></Text> {currentGroup.groupName}
               </Text>
-
-              {/* 投稿ボタン */}
-              <TouchableOpacity
-                style={styles.postButton}
-                onPress={openModal} // モーダルを開く
-              >
-                <Text style={styles.postButtonText}>投稿</Text>
-              </TouchableOpacity>
             </View>
             {/* タイムライン表示 */}
-            <Timeline data={dummyTimeline} />
+            <Timeline data={localTimeline} />
           </View>
         ) : (
           <Text style={styles.placeholderText}>
@@ -274,10 +407,10 @@ function Group() {
                  <Picker.Item label="高" value="HIGH" />
                </Picker>
 
-              {/* 投稿完了ボタン */}
+              {/* 投稿ボタン */}
               <TouchableOpacity style={styles.closeButton} onPress={handlePostComplete}>
-                 <Text style={styles.closeButtonText}>投稿完了</Text>
-               </TouchableOpacity>
+                 <Text style={styles.closeButtonText}>投稿</Text>
+              </TouchableOpacity>
               </View>
            </View>
         </Modal>
@@ -288,6 +421,9 @@ function Group() {
           <Text style={styles.sidebarToggleButtonText}>☰</Text>
         </TouchableOpacity>
       )}
+      <TouchableOpacity style={styles.postFloatingButton} onPress={openModal}>
+        <FontAwesome name="tag" size={28} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 
@@ -324,7 +460,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 30,
-    backgroundColor: "#007bff",
+    backgroundColor: "#79f",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
@@ -339,6 +475,23 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold"
   },
+  postFloatingButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 10,
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    backgroundColor: "#79f",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
   groupHeader: {
     flexDirection: "row", // 横並び
     alignItems: "center", // 垂直方向に中央揃え
@@ -348,7 +501,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#79f",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 5,
@@ -391,23 +544,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 10,
   },
-  closeButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
   picker: {
     width: '100%',
     height: 60, // 高さを指定
     marginBottom: 0,
   },
   closeButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#79f",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -418,10 +561,6 @@ const styles = StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 17,
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 16,
   },
   closeIcon: {
     position: "absolute",
@@ -439,20 +578,93 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  timelineContainer: {
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: "#f9f9f9",
+  timelineScroll: {
+    flex: 0, // 全体の高さを柔軟に
+    backgroundColor: "#f9f9f9", // 背景色
+    paddingHorizontal: 10, // 左右の余白
+  },
+  timelineContent: {
+    paddingVertical: 10, // 上下の余白を調整
+    gap: 10, // アイテム間のスペース
   },
   timelineItem: {
-    padding: 10,
-    marginBottom: 5,
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 1, // Androidの影
+  },
+  timelineimportance: {
+    fontSize: 16,
+    color: "#444",
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   timelineMessage: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#333",
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    marginTop: 0,
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '30%',
+  },
+  informbottomButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '30%',
+    marginRight: 'auto',
+  },
+  editButton: {
+    backgroundColor: '#fff4b3', // 黄色
+    padding: 8,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#ff9baa', // 赤色
+    padding: 8,
+    borderRadius: 5,
+  },
+  confirmButton: {
+    backgroundColor: '#aebfd3', // 灰色
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 10,
+    marginRight: 'auto',
+  },
+  confirmButtonText: {
+    color: 'black',
+  },
+  detailsButton: {
+    backgroundColor: '#a6d8e4', // 水色
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 10,
+    marginRight: 'auto',
+  },
+  multiChoiceContainer: {
+    marginTop: 10,
+    flexDirection: 'column',
+    marginRight: 'auto',
+  },
+  multiChoiceButton: {
+    backgroundColor: '#b5e4d5', // 青色
+    padding: 8,
+    borderRadius: 5,
+    marginBottom: 5,
+  },
+  buttonText: {
+    color: '#222',
   },
 });
 

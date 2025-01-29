@@ -30,15 +30,20 @@ const Sidebar = ({
   const [selectedParentGroup, setSelectedParentGroup] = useState("");
   const [isLoading, setIsLoading] = useState(false); // API呼び出し中フラグ
   const [apiError, setApiError] = useState(null); // エラー管理
+  const [isPlusModalVisible, setIsPlusModalVisible] = useState(false);
+  const [selectedGroupUsers, setSelectedGroupUsers] = useState([]);
+  const [inputText, setInputText] = useState("");
 
-  const handleOpenPlusModal = () => {
+  const handleOpenPlusModal = (group) => {
+    setSelectedGroupUsers(group.users || []); // グループに属するユーザー情報を取得
     setIsPlusModalVisible(true);
   };
-  
+
+  // モーダルを閉じる
   const handleClosePlusModal = () => {
     setIsPlusModalVisible(false);
+    setSelectedGroupUsers([]);
   };
-
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
@@ -48,6 +53,11 @@ const Sidebar = ({
     setNewGroupName("");
     setSelectedParentGroup("");
     setApiError(null);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setInputText(""); // テキストボックスの入力をリセット
   };
 
   const handleCreateGroup = async (e) => {
@@ -100,8 +110,6 @@ const Sidebar = ({
   };
   
   
-
-
   const renderParentGroups = () => (
     <Picker
       selectedValue={selectedParentGroup}
@@ -125,7 +133,7 @@ const Sidebar = ({
             style={styles.plusIconContainer}
             onPress={handleOpenPlusModal}
           >
-            <FontAwesome name="plus" size={24} color="black" />
+            <FontAwesome name="plus" size={16} color="#333" />
           </TouchableOpacity>
           {/* グループ名 */}
           <TouchableOpacity
@@ -140,12 +148,12 @@ const Sidebar = ({
 
         {/* ゴミ箱アイコンと展開記号 */}
         <View style={styles.iconWrapper}>
-          {/*{selectedGroupId === group.groupId && (
+          {/*{group.groupId === group.groupId && (
             <TouchableOpacity
               onPress={() => handleDeleteGroup(group.groupId)}
               style={styles.trashIconContainer}
             >
-              <FontAwesome name="trash" size={24} color="black" />
+              <FontAwesome name="trash" size={16} color="black" />
             </TouchableOpacity>
           )}*/}
           <TouchableOpacity
@@ -161,6 +169,22 @@ const Sidebar = ({
 
       {expandedGroups[group.groupId] &&
         group.children.map((child) => renderGroupTree(child, level + 1))}
+    </View>
+  );
+
+  const renderModalGroupTree = (group, level = 0) => (
+    <View key={group.groupId} style={{ paddingLeft: level * 8 }}>
+      <View style={styles.groupRow}>
+        <View style={styles.groupNameWrapper}>
+          <Text style={styles.groupName}>{group.groupName}</Text>
+          <TouchableOpacity
+            style={styles.plusIconContainer}
+            onPress={() => handleOpenPlusModal(group)}
+          >
+            <FontAwesome name="plus" size={16} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 
@@ -198,13 +222,23 @@ const Sidebar = ({
       </TouchableOpacity>
 
       {/* モーダル */}
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeModal} // モーダル外をクリックすると閉じる
+      >
+        <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
+            {/* × ボタン */}
+            <TouchableOpacity style={styles.closeIcon} onPress={closeModal}>
+              <Text style={styles.closeIconText}>×</Text>
+            </TouchableOpacity>
+
             <Text style={styles.modalTitle}>グループ作成</Text>
             {apiError && <Text style={styles.errorText}>{apiError}</Text>}
 
-            <Text style={styles.label}>グループ名:</Text>
+            <Text style={styles.label}>グループ名</Text>
             <TextInput
               style={styles.input}
               placeholder="グループ名"
@@ -212,19 +246,43 @@ const Sidebar = ({
               onChangeText={setNewGroupName}
             />
 
-        <Text style={styles.label}>親グループ:</Text>
+            <Text style={styles.label}>親グループ</Text>
             {renderParentGroups()}
 
-            <Button
-              title={isLoading ? "作成中..." : "作成"}
-              onPress={handleCreateGroup}
-              disabled={isLoading}
-            />
-
-            <Button title="キャンセル" onPress={handleCloseModal} />
-
+            <TouchableOpacity style={styles.closeButton} onPress={handleCreateGroup}>
+              <Text style={styles.closeButtonText}>作成</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </Modal>
+
+      {/* モーダル */}
+      <Modal
+        visible={isPlusModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleClosePlusModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>グループユーザー</Text>
+            <FlatList
+              data={selectedGroupUsers}
+              keyExtractor={(item) => item.userId.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.userRow}>
+                  <Text style={styles.userName}>
+                    {item.userName} ({item.nickName})
+                  </Text>
+                  <Text style={styles.userEmail}>{item.email}</Text>
+                </View>
+              )}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={handleClosePlusModal}>
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -251,7 +309,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -270 }], // 閉じた状態で画面外に配置
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#79f",
     padding: 10,
     marginBottom: 20,
     borderRadius: 5,
@@ -287,7 +345,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20, // 画面下からの位置
     left: 10,   // サイドバー側の位置
-    backgroundColor: "#007bff", // ボタン背景色
+    backgroundColor: "#79f", // ボタン背景色
     width: 45, // ボタンの幅
     height: 45, // ボタンの高さ
     justifyContent: "center",
@@ -326,18 +384,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   groupName: {
-    fontSize: 16,
-    color: "#333",
+    fontSize: 17,
+    color: "#27f",
     flexShrink: 1, // 長い名前は縮小表示
   },
   expandIconContainer: {
     paddingHorizontal: 2,
   },
-  expandIcon: {
-    fontSize: 16,
-    color: "#555",
-  },
-  modalOverlay: {
+  modalBackground: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -346,8 +400,9 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "white",
     padding: 20,
-    width: 300,
     borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
@@ -395,7 +450,7 @@ const styles = StyleSheet.create({
   },
   expandIcon: {
     fontSize: 16,
-    color: "#555",
+    color: "#444",
   },
   plusIconContainer: {
     paddingHorizontal: 5, // アイコン間の余白
@@ -419,21 +474,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.1)", // 背景色（薄いグレー）
-    borderRadius: 15, // 丸みを持たせる
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#79f",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
   closeButtonText: {
-    color: "black",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "white",
+    fontSize: 16,
   },
   modalTitle: {
     fontSize: 18,
@@ -442,7 +490,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   modalButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#79f",
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
@@ -464,7 +512,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 25,
-    backgroundColor: '#007bff', // ボタンの背景色
+    backgroundColor: '#79f', // ボタンの背景色
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5, // Android で影を追加
@@ -473,8 +521,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
-  
-  
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1, // 他のコンテンツより前に表示
+    padding: 10,
+    borderRadius: 50, // 丸いボタン
+    backgroundColor: "rgba(0, 0, 0, 0.1)", // ボタン背景の色（透明度付き）
+  },
+  closeIconText: {
+    fontSize: 24,
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
   
 });
 
