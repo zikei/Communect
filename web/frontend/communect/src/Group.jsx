@@ -129,10 +129,20 @@ function Group() {
     setEditModalGroup(null); 
   };
 
-  const handleUpdateGroup = (groupId, updatedData) => {
+  const handleUpdateGroup = (groupId, newName) => {
     setGroups((prevGroups) =>
       prevGroups.map((group) =>
-        group.groupId === groupId ? { ...group, ...updatedData } : group
+        group.groupId === groupId ? { ...group, groupName: newName } : group
+      )
+    );
+  
+    if (currentGroup && currentGroup.groupId === groupId) {
+      setCurrentGroup((prev) => ({ ...prev, groupName: newName }));
+    }
+  
+    setBreadcrumb((prevBreadcrumb) =>
+      prevBreadcrumb.map((group) =>
+        group.groupId === groupId ? { ...group, groupName: newName } : group
       )
     );
   };
