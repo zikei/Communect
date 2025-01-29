@@ -5,6 +5,7 @@ import com.example.communect.domain.repository.UserRepository
 import com.example.communect.domain.service.UserService
 import org.apache.coyote.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.security.SecureRandom
 import java.util.*
@@ -12,7 +13,8 @@ import java.util.*
 /** ユーザ処理実装クラス */
 @Service
 class UserServiceImpl(
-    @Autowired val userRepository: UserRepository
+    @Autowired val userRepository: UserRepository,
+    @Autowired val passwordEncoder: PasswordEncoder
 ): UserService {
     private val apikeyService = ApikeyService()
     /**
@@ -40,8 +42,9 @@ class UserServiceImpl(
      */
     override fun addUser(user: UserIns): User {
         if(userRepository.findByUserName(user.userName) != null) throw BadRequestException("username is used")
+        val insUser = user.copy(password = passwordEncoder.encode(user.password))
         val apikey = apikeyService.generateApiKey()
-        return userRepository.insertUser(user, apikey)
+        return userRepository.insertUser(insUser, apikey)
     }
 
     /**
