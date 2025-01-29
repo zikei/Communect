@@ -21,29 +21,28 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!groupName.trim()) {
       setError("グループ名は必須です。");
       return;
     }
-
+  
     const newGroup = {
       name: groupName.trim(),
       above: parentGroupId || null,
       users: addedUsers.map((user) => user.userId),
     };
-
+  
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/group`, newGroup ,{
+        `${import.meta.env.VITE_API_URL}/group`, newGroup, {
           withCredentials: true,
           credentials: "include",
         }
       );
-      alert("グループが作成されました。再読み込みを行ってください。");
-
-      if (onSubmit) onSubmit(response.data);
-
+  
+      if (onSubmit) onSubmit(response.data.group); 
+  
       setGroupName("");
       setParentGroupId(null);
       setAddedUsers([]);

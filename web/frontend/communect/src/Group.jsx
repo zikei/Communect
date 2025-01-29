@@ -75,7 +75,6 @@ function Group() {
   };
 
   useEffect(() => {
-    // Fetch groups from the API
     const fetchGroups = async () => {
       try {
         const response = await axios.get(
@@ -113,6 +112,14 @@ function Group() {
     }));
   };
 
+  /* 作成関連 */
+  const handleAddGroup = (newGroup) => {
+    setGroups((prevGroups) => {
+      const updatedGroups = [...prevGroups, newGroup]; 
+      return buildHierarchy(updatedGroups);
+    });
+  };  
+
   /* 編集関連 */
   const handleEditGroup = (group) => {
     setEditModalGroup(group);
@@ -144,7 +151,6 @@ function Group() {
       return filterGroups(prevGroups);
     });
   
-    // 削除されたグループが現在選択中ならリセット
     if (currentGroup && currentGroup.groupId === deletedGroupId) {
       setCurrentGroup(null);
       setBreadcrumb([]);
@@ -228,7 +234,7 @@ function Group() {
       {showModal && (
         <div className="modal-overlay">
           <GroupCreate
-            onSubmit={handleFormSubmit}
+            onSubmit={handleAddGroup}
             currentGroup={currentGroup}
             toggleModal={toggleModal}
           />
