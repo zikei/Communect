@@ -22,34 +22,40 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [editingMember, setEditingMember] = useState(null);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
 
-  useEffect(() => {
-    const fetchGroupMembers = async () => {
-      if (!show || !groupId) return;
+  const fetchGroupMembers = async () => {
+    if (!show || !groupId) return;
 
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
-          {
-            withCredentials: true,
-            credentials: "include",
-          }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
+        { withCredentials: true, credentials: "include" }
+      );
+
+      console.log("API Response:", response.data); // デバッグ用ログ
+
+      if (response.data && Array.isArray(response.data.users)) {
+        setMembers(
+          response.data.users.filter(
+            (user) => user !== null && user !== undefined
+          )
         );
-        if (response.data && Array.isArray(response.data.users)) {
-          setMembers(response.data.users);
-        } else {
-          throw new Error("Unexpected API response format");
-        }
-      } catch (err) {
-        console.error("Error fetching group members:", err);
-        setError("Failed to load members. Please try again later.");
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error("Unexpected API response format");
       }
-    };
+    } catch (err) {
+      console.error("Error fetching group members:", err);
+      setError("Failed to load members. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchGroupMembers();
+  useEffect(() => {
+    if (show) {
+      fetchGroupMembers();
+    }
   }, [show, groupId]);
 
   const handleEditClick = (member) => {
@@ -83,23 +89,21 @@ function GroupMemberModal({ groupId, show, onClose }) {
       );
 
       if (response.status === 200) {
-        setMembers((prev) =>
-          prev.filter((member) => member.groupUserId !== groupUserId)
-        );
-        setSuccessMessage("Member deleted successfully.");
+        await fetchGroupMembers();
+        setSuccessMessage("メンバーを削除しました。");
       } else {
         throw new Error("Failed to delete member.");
       }
     } catch (err) {
       console.error("Error deleting member:", err);
-      setError("Failed to delete member. Please try again later.");
+      setError("メンバーの削除に失敗しました。");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddUser = (newUser) => {
-    setMembers((prev) => [...prev, newUser]);
+  const handleAddUser = async (newUser) => {
+    await fetchGroupMembers(); // 追加後に最新データを取得
     setShowAddUserModal(false);
   };
 
@@ -107,7 +111,9 @@ function GroupMemberModal({ groupId, show, onClose }) {
     <>
       <Modal show={show} onHide={onClose} centered>
         <Modal.Header closeButton className={styles.modalHeader}>
-          <Modal.Title className={styles.modalTitle}>Group Members</Modal.Title>
+          <Modal.Title className={styles.modalTitle}>
+            グループメンバー
+          </Modal.Title>
           <button
             className={styles.addUserButton}
             onClick={() => setShowAddUserModal(true)}
@@ -125,39 +131,43 @@ function GroupMemberModal({ groupId, show, onClose }) {
           )}
           {error && <Alert variant="danger">{error}</Alert>}
           {successMessage && <Alert variant="success">{successMessage}</Alert>}
-          {!loading && !error && members.length > 0 ? (
+          {members.length > 0 ? (
             <div className={styles.membersList}>
-              {members.map((member) => (
-                <div key={member.groupUserId} className={styles.memberItem}>
-                  <div className={styles.avatar}>
-                    {member.userName.charAt(0).toUpperCase()}
+              {members
+                .filter((member) => member && member.userName)
+                .map((member) => (
+                  <div key={member.groupUserId} className={styles.memberItem}>
+                    <div className={styles.avatar}>
+                      {member.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className={styles.bubble}>
+                      <div className={styles.userName}>
+                        {member.userName} <small>({member.nickName})</small>
+                      </div>
+                      <div className={styles.role}>
+                        連絡権限: {ROLE_DISPLAY_MAP[member.role]}
+                      </div>
+                      <div className={styles.permissions}>
+                        管理者権限: {member.isAdmin ? "Yes" : "No"}
+                        <br />
+                        下位グループ作成権限:{" "}
+                        {member.isSubGroupCreate ? "Yes" : "No"}
+                      </div>
+                    </div>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEditClick(member)}
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteClick(member.groupUserId)}
+                    >
+                      🗑
+                    </button>
                   </div>
-                  <div className={styles.bubble}>
-                    <div className={styles.userName}>
-                      {member.userName} <small>({member.nickName})</small>
-                    </div>
-                    <div className={styles.role}>
-                      Role: {ROLE_DISPLAY_MAP[member.role] || "未設定"}
-                    </div>
-                    <div className={styles.permissions}>
-                      Admin: {member.isAdmin ? "Yes" : "No"} | Sub-Group:{" "}
-                      {member.isSubGroupCreate ? "Yes" : "No"}
-                    </div>
-                  </div>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => handleEditClick(member)}
-                  >
-                    ✎
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteClick(member.groupUserId)}
-                  >
-                    🗑
-                  </button>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             !loading && (
@@ -188,6 +198,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
           show={showAddUserModal}
           onClose={() => setShowAddUserModal(false)}
           onAddUser={handleAddUser}
+          existingMembers={members}
         />
       )}
     </>

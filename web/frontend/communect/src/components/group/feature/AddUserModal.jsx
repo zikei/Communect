@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { Modal, Button, Alert, Spinner } from "react-bootstrap";
 import UserSearch from "../../group/UserSearch";
 
-function AddUserModal({ groupId, show, onClose, onAddUser }) {
+function AddUserModal({ groupId, show, onClose, onAddUser, existingMembers }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState(null);
+  const [excludedUserIds, setExcludedUserIds] = useState([]);
+
+  useEffect(() => {
+    setExcludedUserIds(existingMembers.map((member) => member.userId));
+  }, [existingMembers]);
 
   const handleAddUser = async () => {
     if (!selectedUser) return;
+
+    if (excludedUserIds.includes(selectedUser.userId)) {
+      setError("このユーザーはすでにグループメンバーです。");
+      return;
+    }
 
     setAdding(true);
     setError(null);
@@ -49,6 +59,7 @@ function AddUserModal({ groupId, show, onClose, onAddUser }) {
           <UserSearch
             onAddUsers={(users) => setSelectedUser(users[0] || null)}
             singleSelect
+            excludeUsers={excludedUserIds} // 既存メンバーを除外
           />
           {selectedUser && (
             <div className="mt-3">
@@ -91,6 +102,7 @@ AddUserModal.propTypes = {
   show: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
+  existingMembers: PropTypes.array.isRequired,
 };
 
 export default AddUserModal;
