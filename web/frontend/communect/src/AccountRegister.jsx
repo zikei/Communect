@@ -44,20 +44,16 @@ const AccountRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(import.meta.env.VITE_API_URL + '/user', formData, {
+      await axios.post(import.meta.env.VITE_API_URL + '/user', formData, {
         withCredentials: true
       });
-      console.log('登録成功:', response.data);
       navigate('/login');
     } catch (error) {
       if (error.response) {
-        console.error('登録失敗:', error.response.data);
         alert(`登録エラー: ${error.response.data.message || '不明なエラー'}`);
       } else if (error.request) {
-        console.error('サーバーが応答しません:', error.request);
         alert('サーバーが応答しません。ネットワークを確認してください。');
       } else {
-        console.error('エラーが発生しました:', error.message);
         alert(`エラー: ${error.message}`);
       }
     }

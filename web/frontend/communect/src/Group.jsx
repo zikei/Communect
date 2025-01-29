@@ -113,60 +113,13 @@ function Group() {
     }));
   };
 
-  /* 削除機能 */
-  const handleGroupDelete = async (deletedGroupId) => {
-    try {
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`,
-        {
-          withCredentials: true,
-        }
-      );
-
-      // フロントエンド状態更新
-      const removeGroupFromHierarchy = (groups, groupIdToDelete) => {
-        return groups
-          .map((group) => {
-            if (group.children.length > 0) {
-              group.children = removeGroupFromHierarchy(
-                group.children,
-                groupIdToDelete
-              );
-            }
-            return group.groupId === groupIdToDelete ? null : group;
-          })
-          .filter((group) => group !== null);
-      };
-      const updatedGroups = removeGroupFromHierarchy(groups, deletedGroupId);
-      setGroups(updatedGroups);
-      // 現在選択されているグループが削除された場合、選択をリセット
-      if (currentGroup && currentGroup.groupId === deletedGroupId) {
-        setCurrentGroup(null);
-      }
-
-      // パンくずリストを更新（削除したグループが含まれている場合にリセット）
-      setBreadcrumb((prevBreadcrumb) =>
-        prevBreadcrumb.filter((b) => b.groupId !== deletedGroupId)
-      );
-
-      // 展開状態も削除されたグループに関連する部分をリセット
-      setExpandedGroups((prevExpandedGroups) => {
-        const updatedExpanded = { ...prevExpandedGroups };
-        delete updatedExpanded[deletedGroupId];
-        return updatedExpanded;
-      });
-    } catch (err) {
-      console.error("Error deleting group:", err);
-    }
-  };
-
   /* 編集関連 */
   const handleEditGroup = (group) => {
-    setEditModalGroup(group); // 編集するグループをセット
+    setEditModalGroup(group);
   };
 
   const handleCloseEditModal = () => {
-    setEditModalGroup(null); // モーダルを閉じる
+    setEditModalGroup(null); 
   };
 
   const handleUpdateGroup = (groupId, updatedData) => {
@@ -177,7 +130,28 @@ function Group() {
     );
   };
 
-  /* メンバー表示機能 */
+  // 削除関連
+  const handleDeleteGroup = (deletedGroupId) => {
+    setGroups((prevGroups) => {
+      const filterGroups = (groups) =>
+        groups
+          .filter((group) => group.groupId !== deletedGroupId)
+          .map((group) => ({
+            ...group,
+            children: filterGroups(group.children),
+          }));
+  
+      return filterGroups(prevGroups);
+    });
+  
+    // 削除されたグループが現在選択中ならリセット
+    if (currentGroup && currentGroup.groupId === deletedGroupId) {
+      setCurrentGroup(null);
+      setBreadcrumb([]);
+    }
+  };
+
+  /* メンバー関連 */
   const handleShowMembers = (groupId) => {
     setSelectedGroupId(groupId);
     setShowMembersModal(true);
@@ -188,6 +162,7 @@ function Group() {
     setSelectedGroupId(null);
   };
 
+  /* トーク関連 */
   const handleOpenTalk = (group) => {
     setTalkGroup(group);
     setIsGroupTalk(true);
@@ -219,10 +194,10 @@ function Group() {
           toggleModal={toggleModal}
           error={error}
           currentGroup={currentGroup}
-          handleGroupDelete={handleGroupDelete}
+          handleDeleteGroup={handleDeleteGroup}
           onEditGroup={handleEditGroup}
           onShowMembers={handleShowMembers}
-          onOpenTalk={handleOpenTalk} // 新しいプロパティを渡す
+          onOpenTalk={handleOpenTalk}
         />
         <div className="maincontent flex-grow-1 ps-5 reset">
           {isGroupTalk && talkGroup ? (
@@ -244,7 +219,7 @@ function Group() {
                   />
                 </div>
               ) : (
-                <p>Select a group to see details.</p>
+                <p>グループが選択されていません。グループを選択してください。<br/>グループが無い場合は、グループ作成を行ってください。</p>
               )}
             </>
           )}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import UserProfile from "./components/UserProfile";
+import Logout from "./Logout";
 import "./css/sidebar.css";
 import "./css/main.css";
 
@@ -39,6 +40,7 @@ function AccountProfile() {
             <a href="/group" className="nav-link">Groups</a>
             <h5 className="mt-3">Account</h5>
           </nav>
+          <Logout />
         </aside>
 
         {/* Resizer */}
