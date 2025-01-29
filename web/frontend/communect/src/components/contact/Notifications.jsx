@@ -10,6 +10,7 @@ async function handleNotificationReaction(postId, choiceId = null) {
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
         credentials: "include",
         body: JSON.stringify({ choiceId }),
       }
@@ -55,7 +56,7 @@ function Notifications({ notifications, onRemoveNotification }) {
                   variant="primary"
                   size="sm"
                   onClick={async () => {
-                    await handleNotificationReaction(notif.postId, "👍");
+                    await handleNotificationReaction(notif.postId,choiceId);
                     onRemoveNotification(notif.postId);
                   }}
                 >
@@ -75,7 +76,7 @@ function Notifications({ notifications, onRemoveNotification }) {
                           await handleNotificationReaction(
                             notif.postId,
                             choiceObj.choiceId
-                          ); // choiceIdを利用
+                          );
                           onRemoveNotification(notif.postId);
                         }}
                       >

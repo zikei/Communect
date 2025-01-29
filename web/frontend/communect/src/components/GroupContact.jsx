@@ -36,6 +36,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
       setLoading(false);
     }
   };
+  
 
   // SSE接続
   useEffect(() => {
@@ -134,7 +135,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   // 投稿編集
   const handleEditPost = async (contactId, updatedData) => {
     if (isSubmitting) return;
-
+  
     setIsSubmitting(true);
     try {
       const response = await fetch(
@@ -146,9 +147,10 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           body: JSON.stringify(updatedData),
         }
       );
-
+  
       if (!response.ok) throw new Error("投稿の編集に失敗しました。");
-      fetchPosts(); // 最新の投稿を取得
+  
+      fetchPosts(); 
     } catch (err) {
       alert(`エラー: ${err.message}`);
     } finally {

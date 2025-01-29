@@ -5,7 +5,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     message: "",
     contactType: "INFORM",
     importance: "LOW",
-    choices: ["", ""], // 初期状態で2つの選択肢を用意
+    choices: ["", ""],
   });
 
   useEffect(() => {
@@ -30,10 +30,13 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   };
 
   const handleChoiceChange = (index, value) => {
-    const updatedChoices = [...formData.choices];
-    updatedChoices[index] = value;
-    setFormData((prev) => ({ ...prev, choices: updatedChoices }));
+    setFormData((prev) => {
+      const updatedChoices = [...prev.choices];
+      updatedChoices[index] = value;
+      return { ...prev, choices: updatedChoices };
+    });
   };
+
 
   const addChoice = () => {
     setFormData((prev) => ({ ...prev, choices: [...prev.choices, ""] }));
@@ -68,7 +71,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
       if (!response.ok) throw new Error("投稿に失敗しました。");
       const newPost = await response.json();
-      onPostCreated(newPost); // 新規投稿後に更新
+      onPostCreated(newPost);
       onClose();
     } catch (err) {
       alert(err.message);
@@ -141,6 +144,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
             onChange={handleInputChange}
             className="form-control"
           >
+            <option value="SAFE">最低</option>
             <option value="LOW">低</option>
             <option value="MEDIUM">中</option>
             <option value="HIGH">高</option>

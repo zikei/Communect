@@ -28,15 +28,24 @@ function PostList({
   if (loading) return <p>読み込み中...</p>;
   if (posts.length === 0) return <p>まだ投稿がありません。</p>;
 
-  const handleReactionClick = async (contactId, contactType, choiceId = null) => {
+  const handleReactionClick = async (
+    contactId,
+    contactType,
+    choiceId = null
+  ) => {
+    if (reactedPosts.has(contactId)) {
+      alert("この投稿は既にリアクション済みです。");
+      return; // 既にリアクション済みの場合は処理を停止
+    }
+
     try {
       const body =
         contactType === "CHOICE"
-          ? JSON.stringify({ choiceId }) // CHOICE の場合
-          : JSON.stringify({ choiceId: null }); // CONFIRM の場合
+          ? JSON.stringify({ choiceId })
+          : JSON.stringify({ choiceId: null });
 
       const response = await fetch(
-        import.meta.env.VITE_API_URL + `/contact/${contactId}/reaction`,
+        `${import.meta.env.VITE_API_URL}/contact/${contactId}/reaction`,
         {
           method: "POST",
           headers: {
@@ -50,7 +59,7 @@ function PostList({
 
       if (response.status === 200) {
         alert("リアクションが送信されました！");
-        setReactedPosts((prev) => new Set([...prev, contactId])); // リアクション済みとして登録
+        setReactedPosts((prev) => new Set([...prev, contactId]));
       } else {
         throw new Error("リアクション送信に失敗しました。");
       }
@@ -65,13 +74,13 @@ function PostList({
 
   const handleEditComplete = (updatedData) => {
     onEditPost(editingPost.contactId, updatedData);
-    setEditingPost(null); // 編集モーダルを閉じる
+    setEditingPost(null);
   };
 
   return (
     <div className="group-contact-content px-5">
       {posts.map((post, index) => {
-        const isReacted = reactedPosts.has(post.contactId); // リアクション済みか判定
+        const isReacted = reactedPosts.has(post.contactId);
 
         return (
           <div
@@ -107,7 +116,8 @@ function PostList({
             {post.contactType === "CHOICE" && post.choices && (
               <div className="choices-section mt-3">
                 <h5>選択肢</h5>
-                {post.choices.map((choice) => {
+                {post.choices.map((choice, index) => {
+                  const isChoiceDisabled = reactedPosts.has(post.contactId); // 既にリアクション済みかどうか
                   return (
                     <div
                       key={`${post.contactId}-${choice.choiceId}`}
@@ -122,7 +132,7 @@ function PostList({
                             choice.choiceId
                           )
                         }
-                        disabled={isReacted} // リアクション済みなら無効化
+                        disabled={isChoiceDisabled}
                       >
                         {choice.choice}
                       </button>
