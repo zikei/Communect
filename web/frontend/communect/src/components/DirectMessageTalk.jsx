@@ -21,9 +21,10 @@ const TalkRoom = ({ onSelectTalk }) => {
     setError(null);
 
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/talk`
-      );
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/talk`,{
+        withCredentials: true,
+        credentials: "include",
+      });
       setTalks(response.data.talks || []);
     } catch (err) {
       setError("トークルーム一覧の取得に失敗しました。");
@@ -40,7 +41,11 @@ const TalkRoom = ({ onSelectTalk }) => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`
+        `${import.meta.env.VITE_API_URL}/talk/${talkId}/message`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
       );
       setMessages(response.data.messages || []);
     } catch (err) {
@@ -50,8 +55,98 @@ const TalkRoom = ({ onSelectTalk }) => {
     }
   };
 
+  useEffect(() => {
+    if (!selectedTalk) return;
+
+    let sse;
+
+    const connectSSE = () => {
+      if (sse) {
+        sse.close();
+      }
+
+      sse = new EventSource(
+        `${import.meta.env.VITE_API_URL}/message/sse`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
+      );
+
+      sse.addEventListener("post", (event) => {
+        try {
+          const response = JSON.parse(event.data);
+          const newMessage = response.message;
+
+          if (newMessage && newMessage.talkId === selectedTalk) {
+            setMessages((prevMessages) => {
+              if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+                return prevMessages;
+              }
+              return [...prevMessages, newMessage];
+            });
+          }
+        } catch (err) {
+          console.error("POSTイベント解析エラー:", err);
+        }
+      });
+
+      sse.addEventListener("update", (event) => {
+        try {
+          const response = JSON.parse(event.data);
+          const updatedMessage = response.message;
+
+          if (updatedMessage && updatedMessage.talkId === selectedTalk) {
+            setMessages((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.messageId === updatedMessage.messageId ? updatedMessage : msg
+              )
+            );
+          }
+        } catch (err) {
+          console.error("UPDATEイベント解析エラー:", err);
+        }
+      });
+
+      sse.addEventListener("delete", (event) => {
+        try {
+          const response = JSON.parse(event.data);
+          const deletedMessageId = response.messageId;
+
+          setMessages((prevMessages) =>
+            prevMessages.filter((msg) => msg.messageId !== deletedMessageId)
+          );
+        } catch (err) {
+          console.error("DELETEイベント解析エラー:", err);
+        }
+      });
+
+      sse.onerror = (event) => {
+        console.error("SSEエラーが発生しました:", event);
+        sse.close();
+
+        setTimeout(() => {
+          connectSSE();
+        }, 5000);
+      };
+    };
+
+    connectSSE();
+
+    return () => {
+      if (sse) {
+        sse.close();
+      }
+    };
+  }, [selectedTalk]);
+
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]); // メッセージリストに追加
+    setMessages((prevMessages) => {
+      if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+        return prevMessages; // 重複メッセージを無視
+      }
+      return [...prevMessages, newMessage];
+    });
   };
 
   const handleSelectTalk = (talkId) => {
@@ -64,6 +159,9 @@ const TalkRoom = ({ onSelectTalk }) => {
     try {
       await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`, {
         message: updatedText,
+      }, {
+        withCredentials: true,
+        credentials: "include",
       });
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
@@ -79,7 +177,12 @@ const TalkRoom = ({ onSelectTalk }) => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
+      {
+        withCredentials: true,
+        credentials: "include",
+      }
+      );
       setMessages((prevMessages) =>
         prevMessages.filter((message) => message.messageId !== messageId)
       );

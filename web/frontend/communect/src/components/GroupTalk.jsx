@@ -71,12 +71,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     const connectSSE = () => {
       if (sse) {
         console.log("既存のSSE接続を閉じます");
-        sse.close(); // 既存の接続をクローズ
+        sse.close(); // 既存接続を閉じる
       }
   
       console.log("新しいSSE接続を開始します:", selectedTalk);
       sse = new EventSource(
-        `${import.meta.env.VITE_API_URL}/message/sse?talkId=${selectedTalk}`,
+        `${import.meta.env.VITE_API_URL}/message/sse`,
         {
           withCredentials: true,
           credentials: "include",

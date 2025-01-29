@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import Logout from "./Logout";
+import DirectMessageTalk from "./components/DirectMessageTalk";
 import "./css/sidebar.css";
 import "./css/main.css";
-import DirectMessageTalk from "./components/DirectMessageTalk";
 
 function DirectMessage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -44,6 +45,7 @@ function DirectMessage() {
                       <a href="/group" className ="nav-link">Groups</a>
                       <a href="/account" className="nav-link">Account</a>
                     </nav>
+                    <Logout />
                   </aside>
                   <div
                     className="resizer"
