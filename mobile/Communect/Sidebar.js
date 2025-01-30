@@ -34,8 +34,18 @@ const Sidebar = ({
   const [selectedGroupUsers, setSelectedGroupUsers] = useState([]);
   const [inputText, setInputText] = useState("");
 
-  const handleOpenPlusModal = (group) => {
-    setSelectedGroupUsers(group.users || []); // グループに属するユーザー情報を取得
+  const localUserData = [
+    { userId: 1, userName: "田中", nickName: "たなか", password: "LOVELETTER", email: 'love@letter.nect'},
+    { userId: 2, userName: "高橋", nickName: "たかはし", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 3, userName: "堀江", nickName: "ほりえ", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 4, userName: "村田", nickName: "むらた", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 5, userName: "矢野", nickName: "やの", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 6, userName: "水本", nickName: "みずもと", password: "LOVELETTER", email: 'love@letter.nect' },
+    { userId: 7, userName: "安増", nickName: "やすます", password: "LOVELETTER", email: 'love@letter.nect' },
+  ];
+
+  const handleOpenPlusModal = () => {
+    setSelectedGroupUsers(localUserData); // グループに属するユーザー情報を取得
     setIsPlusModalVisible(true);
   };
 
@@ -259,12 +269,15 @@ const Sidebar = ({
       {/* モーダル */}
       <Modal
         visible={isPlusModalVisible}
-        animationType="slide"
         transparent={true}
+        animationType="fade"
         onRequestClose={handleClosePlusModal}
       >
-        <View style={styles.modalContainer}>
+        <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeIcon} onPress={handleClosePlusModal}>
+              <Text style={styles.closeIconText}>×</Text>
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>グループユーザー</Text>
             <FlatList
               data={selectedGroupUsers}
@@ -274,13 +287,10 @@ const Sidebar = ({
                   <Text style={styles.userName}>
                     {item.userName} ({item.nickName})
                   </Text>
-                  <Text style={styles.userEmail}>{item.email}</Text>
                 </View>
               )}
             />
-            <TouchableOpacity style={styles.closeButton} onPress={handleClosePlusModal}>
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
+            
           </View>
         </View>
       </Modal>
@@ -295,7 +305,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 270, // 固定幅
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#fdfdff',
     padding: 16,
     borderRightWidth: 1,
     borderRightColor: "#ccc",
@@ -397,21 +407,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
-    alignItems: "center",
-  },
+  
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  modalPlusUser: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
   input: {
     height: 55,
-    borderColor: "#ccc",
+    borderColor: "#79f",
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 8,
@@ -468,17 +478,22 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#f9f9ff",
     padding: 20,
     width: 300,
     borderRadius: 10,
   },
   closeButton: {
     backgroundColor: "#79f",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    width: 70,  // 横幅を調整（ほぼ正方形）
+    height: 45, // 高さを統一
+    borderRadius: 5, // 円形に近づける
+    alignItems: "center", // 中央揃え
+    justifyContent: "center", // 縦方向も中央揃え
+    alignSelf: "center", // ボタンをモーダルの中央下に配置
+    marginTop: 20, // モーダル内の要素と適度に間隔を空ける
   },
+
   closeButtonText: {
     color: "white",
     fontSize: 16,
@@ -523,20 +538,30 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: "absolute",
+    width: 40,  // 横幅を調整（ほぼ正方形）
+    height: 40,
     top: 10,
     right: 10,
     zIndex: 1, // 他のコンテンツより前に表示
     padding: 10,
     borderRadius: 50, // 丸いボタン
-    backgroundColor: "rgba(0, 0, 0, 0.1)", // ボタン背景の色（透明度付き）
+    backgroundColor: "#79f", // ボタン背景の色（透明度付き）
   },
   closeIconText: {
-    fontSize: 24,
-    color: "black",
+    fontSize: 16,
+    color: "white",
     fontWeight: "bold",
     textAlign: "center",
   },
-  
+  userRow: {
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
 
 export default Sidebar;

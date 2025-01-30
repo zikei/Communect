@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesome } from '@expo/vector-icons';
 
 {/*const Login = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -151,7 +152,7 @@ export default Login;*/}
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(true); // 初回チェック中のローディング状態
+  const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -159,7 +160,6 @@ const Login = ({ navigation }) => {
       try {
         const apiKey = await AsyncStorage.getItem('apiKey');
         if (apiKey) {
-          // APIキーが存在する場合、自動的にグループ画面に遷移
           navigation.replace('Group');
         }
       } catch (error) {
@@ -167,7 +167,7 @@ const Login = ({ navigation }) => {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     checkApiKey();
   }, [navigation]);
@@ -179,7 +179,6 @@ const Login = ({ navigation }) => {
     }
 
     try {
-      // ダミーAPIキーを生成して保存
       const apiKey = `${username}_apiKey`;
       await AsyncStorage.setItem('apiKey', apiKey);
       await AsyncStorage.setItem('username', username);
@@ -190,9 +189,7 @@ const Login = ({ navigation }) => {
       console.error('Error saving login information:', error);
       Alert.alert('エラー', 'ログインに失敗しました。');
     }
-  }
-
-  // ログアウト処理は設定画面で行う前提のため、ここには含めない
+  };
 
   if (loading) {
     return (
@@ -206,27 +203,34 @@ const Login = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ログイン</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="ユーザー名"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="パスワード"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title="ログイン" onPress={handleLogin} />
-
+      <View style={styles.inputContainer}>
+        <FontAwesome name="user" size={20} color="gray" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="ユーザー名"
+          value={username}
+          onChangeText={setUsername}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <FontAwesome name="lock" size={20} color="gray" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="パスワード"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+      </View>
+      <TouchableOpacity style={styles.saveButton} onPress={() => navigation.navigate('Group')}>
+        <Text style={styles.buttonText}>ログイン</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.registerText}>アカウントをお持ちでない方はこちら</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -234,6 +238,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f9f9ff',
   },
   title: {
     fontSize: 24,
@@ -241,13 +246,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#79f',
     borderWidth: 1,
     borderRadius: 4,
     width: '100%',
     marginBottom: 15,
+    paddingLeft: 10,
+  },
+  icon: {
+    padding: 10,
+  },
+  input: {
+    flex: 1,
+    height: 40,
     paddingLeft: 10,
   },
   loadingText: {
@@ -261,7 +275,20 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textDecorationLine: 'underline',
   },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#79f',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default Login;
-

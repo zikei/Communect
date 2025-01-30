@@ -168,11 +168,11 @@ function Group() {
     const getBackgroundColor = (importance) => {
       switch (importance) {
         case "LOW":
-          return "#d4f1f8";
+          return "#d9f5fd";
         case "MEDIUM":
-          return "#fffddf";
+          return "#fff3cd";
         case "HIGH":
-          return "#ffeaea";
+          return "#ffe5e5";
         default:
           return "#f5f5f5";
       }
@@ -213,7 +213,7 @@ function Group() {
           style={[styles.timelineItem, 
             { 
               backgroundColor: getBackgroundColor(item.importance),
-              marginBottom: 10
+              marginBottom: 10,
             }]}
         >
           <Text style={styles.timelineimportance}>
@@ -361,8 +361,8 @@ function Group() {
         <Modal
           visible={isModalVisible}
           transparent={true}
-         animationType="fade"
-         onRequestClose={closeModal} // モーダル外をクリックすると閉じる
+          animationType="fade"
+          onRequestClose={closeModal} // モーダル外をクリックすると閉じる
         >
           <View style={styles.modalBackground}>
             <View style={styles.modalContent}>
@@ -431,7 +431,11 @@ function Group() {
 } 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "row" },
+  container: { 
+    flex: 1, 
+    flexDirection: "row",
+    backgroundColor: "#f9f9ff", 
+  },
   mainContent: { flex: 1, padding: 20 },
   breadcrumbContainer: {
     flexDirection: "row",
@@ -520,7 +524,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#f9f9ff",
     padding: 20,
     borderRadius: 10,
     width: "80%",
@@ -537,8 +541,8 @@ const styles = StyleSheet.create({
   },
   inputText: {
     width: "100%",
-    height: 40,
-    borderColor: "#ccc",
+    height: 50,
+    borderColor: "#79f",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
@@ -564,24 +568,27 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: "absolute",
+    width: 40,  // 横幅を調整（ほぼ正方形）
+    height: 40,
     top: 10,
     right: 10,
     zIndex: 1, // 他のコンテンツより前に表示
     padding: 10,
     borderRadius: 50, // 丸いボタン
-    backgroundColor: "rgba(0, 0, 0, 0.1)", // ボタン背景の色（透明度付き）
+    backgroundColor: "#79f", // ボタン背景の色（透明度付き）
   },
   
   closeIconText: {
-    fontSize: 24,
-    color: "black",
+    fontSize: 16,
+    color: "white",
     fontWeight: "bold",
     textAlign: "center",
   },
   timelineScroll: {
     flex: 0, // 全体の高さを柔軟に
-    backgroundColor: "#f9f9f9", // 背景色
+    backgroundColor: "#f9f9ff", // 背景色
     paddingHorizontal: 10, // 左右の余白
+    borderRadius: 10,
   },
   timelineContent: {
     paddingVertical: 10, // 上下の余白を調整
@@ -591,17 +598,20 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     backgroundColor: "#fff",
-    shadowColor: "#000",
+    borderWidth: 1,
+    borderColor: "#79f",
+    shadowColor: "#79f",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 1, // Androidの影
+    elevation: 5, // Androidの影
   },
   timelineimportance: {
     fontSize: 16,
     color: "#444",
     fontWeight: "bold",
     marginBottom: 10,
+    borderColor: '#79f',
   },
   timelineMessage: {
     fontSize: 14,

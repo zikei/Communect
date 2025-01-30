@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const AccountEdit = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -56,25 +57,40 @@ const AccountEdit = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>アカウント編集</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="ユーザー名"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="ニックネーム"
-        value={nickname}
-        onChangeText={setNickname}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="メールアドレス"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <Button title="保存" onPress={handleSave} />
+      
+      <View style={styles.inputContainer}>
+        <Icon name="user" size={20} color="#888" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="ユーザー名"
+          value={username}
+          onChangeText={setUsername}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Icon name="id-badge" size={20} color="#888" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="ニックネーム"
+          value={nickname}
+          onChangeText={setNickname}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Icon name="envelope" size={20} color="#888" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="メールアドレス"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.buttonText}>保存</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -83,21 +99,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f9f9ff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
     marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
     borderWidth: 1,
-    borderRadius: 4,
+    borderColor: '#79f',
     marginBottom: 15,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
+    width: '100%',
+  },
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#79f',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  buttonIcon: {
+    marginRight: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
