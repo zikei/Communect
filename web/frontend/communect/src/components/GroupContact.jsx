@@ -66,7 +66,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           }
       
           const validatedChoices = Array.isArray(contact.choices) && contact.choices.every(c => typeof c === 'object' && c.choice)
-            ? contact.choices
+            ? contact.choices.reverse()
             : [];
           
           setPosts((prevPosts) => [...prevPosts, contact]);
