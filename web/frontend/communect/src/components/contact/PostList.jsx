@@ -64,7 +64,7 @@ function PostList({
         throw new Error("リアクション送信に失敗しました。");
       }
     } catch (err) {
-      alert(`エラー: ${err.message}`);
+      alert(`再度リアクションすることはできません！`);
     }
   };
 

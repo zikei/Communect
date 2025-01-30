@@ -15,6 +15,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [reactedPosts, setReactedPosts] = useState(new Set());
 
   // 投稿一覧を取得
   const fetchPosts = async () => {
