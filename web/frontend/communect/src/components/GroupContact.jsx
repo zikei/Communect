@@ -81,14 +81,24 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           console.error("POSTイベント解析エラー:", err);
         }
       });
+
       // データ更新イベント
       sse.addEventListener("update", (event) => {
         console.log("UPDATEイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
+          const contact = data.contact || {};
+      
+          if (!contact.contactId) {
+            console.error("無効なデータ形式:", data);
+            return;
+          }
+      
           setPosts((prevPosts) =>
             prevPosts.map((post) =>
-              post.contactId === data.contact.contactId ? data.contact : post
+              post.contactId === contact.contactId
+                ? { ...post, ...contact, choices: contact.choices || [] }
+                : post
             )
           );
         } catch (err) {
@@ -150,7 +160,13 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   
       if (!response.ok) throw new Error("投稿の編集に失敗しました。");
   
-      fetchPosts(); 
+      const updatedPost = await response.json();
+  
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.contactId === contactId ? { ...post, ...updatedPost } : post
+        )
+      );
     } catch (err) {
       alert(`エラー: ${err.message}`);
     } finally {
@@ -272,7 +288,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
         <PostFormModal
           onClose={() => setShowModal(false)}
           groupId={groupId}
-          onPostCreated={fetchPosts} // 新しい投稿後にfetchPostsを呼び出す
+          onPostCreated={fetchPosts}
         />
       )}
 

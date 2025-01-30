@@ -7,6 +7,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     importance: "LOW",
     choices: ["", ""],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -22,7 +23,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
       });
     }
   }, [initialData]);
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,7 +37,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     });
   };
 
-
   const addChoice = () => {
     setFormData((prev) => ({ ...prev, choices: [...prev.choices, ""] }));
   };
@@ -50,8 +49,12 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     if (formData.contactType === "CHOICE" && formData.choices.length < 2) {
       alert("選択肢は2つ以上入力してください。");
+      setIsSubmitting(false);
       return;
     }
 
@@ -63,7 +66,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          withcredentials: true,
           credentials: "include",
           body: JSON.stringify(requestData),
         }
@@ -71,10 +73,17 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
       if (!response.ok) throw new Error("投稿に失敗しました。");
       const newPost = await response.json();
-      onPostCreated(newPost);
+
+      if (!initialData) {
+        // 新規投稿のみ即時反映
+        onPostCreated(newPost);
+      }
+
       onClose();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -150,7 +159,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
             <option value="HIGH">高</option>
           </select>
         </div>
-        <button className="btn btn-primary" onClick={handleSubmit}>
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
           {initialData ? "保存" : "投稿"}
         </button>
       </div>
