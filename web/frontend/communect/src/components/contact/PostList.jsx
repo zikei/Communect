@@ -7,7 +7,6 @@ function PostList({
   error,
   loading,
   onFetchDetails,
-  reactions = [],
   onEditPost,
   onDeletePost,
 }) {
@@ -28,7 +27,11 @@ function PostList({
   if (loading) return <p>読み込み中...</p>;
   if (posts.length === 0) return <p>まだ投稿がありません。</p>;
 
-  const handleReactionClick = async (contactId, contactType, choiceId = null) => {
+  const handleReactionClick = async (
+    contactId,
+    contactType,
+    choiceId = null
+  ) => {
     if (reactedPosts.has(contactId)) {
       alert("この投稿は既にリアクション済みです。");
       return;
@@ -81,7 +84,9 @@ function PostList({
         return (
           <div
             key={`${post.contactId}-${index}`}
-            className={`group-contact-post px-5 ${importanceClass[post.importance] || ""}`}
+            className={`group-contact-post px-5 ${
+              importanceClass[post.importance] || ""
+            }`}
           >
             {post.importance === "LOW" && (
               <span className="badge bg-info">INFO</span>
@@ -96,15 +101,23 @@ function PostList({
             <p>{post.message}</p>
 
             {post.contactType === "CONFIRM" && (
-              <button
-                className="btn btn-outline-secondary mt-2"
-                onClick={() =>
-                  handleReactionClick(post.contactId, post.contactType)
-                }
-                disabled={isReacted}
-              >
-                <i class="bi bi-check2-circle"></i> 確認
-              </button>
+              <div className="d-flex flex-column align-items-start mt-2">
+                <button
+                  className="btn btn-outline-secondary mb-2"
+                  onClick={() =>
+                    handleReactionClick(post.contactId, post.contactType)
+                  }
+                  disabled={isReacted}
+                >
+                  <i className="bi bi-check2-circle"></i> 確認
+                </button>
+                <button
+                  className="btn btn-outline-info"
+                  onClick={() => onFetchDetails(post.contactId)}
+                >
+                  <i className="bi bi-eye me-2"></i> 詳細を確認する
+                </button>
+              </div>
             )}
 
             {post.contactType === "CHOICE" && post.choices && (
@@ -137,7 +150,7 @@ function PostList({
               </div>
             )}
 
-            {(post.contactType === "CONFIRM" || post.contactType === "CHOICE") && (
+            {(post.contactType === "CHOICE") && (
               <button
                 className="btn btn-outline-info mt-2"
                 onClick={() => onFetchDetails(post.contactId)}
