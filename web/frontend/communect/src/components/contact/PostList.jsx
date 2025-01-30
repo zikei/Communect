@@ -15,7 +15,7 @@ function PostList({
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
-  const [reactedPosts, setReactedPosts] = useState(new Set()); // リアクション済み投稿を追跡
+  const [reactedPosts, setReactedPosts] = useState(new Set());
 
   const importanceClass = {
     HIGH: "post-high-importance",
@@ -28,14 +28,10 @@ function PostList({
   if (loading) return <p>読み込み中...</p>;
   if (posts.length === 0) return <p>まだ投稿がありません。</p>;
 
-  const handleReactionClick = async (
-    contactId,
-    contactType,
-    choiceId = null
-  ) => {
+  const handleReactionClick = async (contactId, contactType, choiceId = null) => {
     if (reactedPosts.has(contactId)) {
       alert("この投稿は既にリアクション済みです。");
-      return; // 既にリアクション済みの場合は処理を停止
+      return;
     }
 
     try {
@@ -85,9 +81,7 @@ function PostList({
         return (
           <div
             key={`${post.contactId}-${index}`}
-            className={`group-contact-post px-5 ${
-              importanceClass[post.importance] || ""
-            }`}
+            className={`group-contact-post px-5 ${importanceClass[post.importance] || ""}`}
           >
             {post.importance === "LOW" && (
               <span className="badge bg-info">INFO</span>
@@ -103,13 +97,13 @@ function PostList({
 
             {post.contactType === "CONFIRM" && (
               <button
-                className="btn btn-secondary mt-2"
+                className="btn btn-outline-secondary mt-2"
                 onClick={() =>
                   handleReactionClick(post.contactId, post.contactType)
                 }
-                disabled={isReacted} // リアクション済みなら無効化
+                disabled={isReacted}
               >
-                確認
+                <i class="bi bi-check2-circle"></i> 確認
               </button>
             )}
 
@@ -117,7 +111,7 @@ function PostList({
               <div className="choices-section mt-3">
                 <h5>選択肢</h5>
                 {post.choices.map((choice, index) => {
-                  const isChoiceDisabled = reactedPosts.has(post.contactId); // 既にリアクション済みかどうか
+                  const isChoiceDisabled = reactedPosts.has(post.contactId);
                   return (
                     <div
                       key={`${post.contactId}-${choice.choiceId}`}
@@ -134,6 +128,7 @@ function PostList({
                         }
                         disabled={isChoiceDisabled}
                       >
+                        <i class="bi bi-check2-circle"></i>
                         {choice.choice}
                       </button>
                     </div>
@@ -142,27 +137,27 @@ function PostList({
               </div>
             )}
 
-            {(post.contactType === "CONFIRM" ||
-              post.contactType === "CHOICE") && (
+            {(post.contactType === "CONFIRM" || post.contactType === "CHOICE") && (
               <button
                 className="btn btn-outline-info mt-2"
                 onClick={() => onFetchDetails(post.contactId)}
               >
-                詳細を確認する
+                <i className="bi bi-eye me-2"></i> 詳細を確認する
               </button>
             )}
+
             <div className="d-flex justify-content-end">
               <button
                 className="btn btn-warning btn-sm me-2"
                 onClick={() => handleOpenEditModal(post)}
               >
-                編集
+                <i className="bi bi-pencil me-2"></i> 編集
               </button>
               <button
                 className="btn btn-outline-danger btn-sm"
                 onClick={() => onDeletePost(post.contactId)}
               >
-                削除
+                <i className="bi bi-trash me-2"></i> 削除
               </button>
             </div>
           </div>
@@ -181,8 +176,8 @@ function PostList({
         <PostFormModal
           onClose={() => setEditingPost(null)}
           groupId={editingPost.groupId}
-          onPostCreated={handleEditComplete} // 編集結果を適用
-          initialData={editingPost} // 初期データを渡す
+          onPostCreated={handleEditComplete}
+          initialData={editingPost}
         />
       )}
     </div>
