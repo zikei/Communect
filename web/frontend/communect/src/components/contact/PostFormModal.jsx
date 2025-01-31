@@ -10,7 +10,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -89,7 +89,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
       const newPost = await response.json();
 
       if (!initialData) {
-        // 新規投稿のみ即時反映
         onPostCreated(newPost);
       }
       onClose();
@@ -106,7 +105,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         <Modal.Title>{initialData ? "投稿を編集" : "新規投稿"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {error && <Alert variant="danger">{error}</Alert>}  {/* エラーメッセージを表示 */}
+        {error && <Alert variant="danger">{error}</Alert>}
         <Form>
           <Form.Group>
             <Form.Label>メッセージ</Form.Label>

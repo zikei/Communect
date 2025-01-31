@@ -5,7 +5,7 @@ import axios from "axios";
 
 function EditGroupModal({ group, onClose, onUpdateGroup }) {
   const [name, setName] = useState(group.groupName || "");
-  const [isParentGroup, setIsParentGroup] = useState(!group.aboveGroupId); // 最上位親グループか判定
+  const [isParentGroup, setIsParentGroup] = useState(!group.aboveGroupId);
 
   useEffect(() => {
     if (!isParentGroup) {
@@ -27,7 +27,7 @@ function EditGroupModal({ group, onClose, onUpdateGroup }) {
   
       if (response.status === 200) {
         onUpdateGroup(group.groupId, payload.name); // 親に変更を通知
-        onClose(); // モーダルを閉じる
+        onClose();
       }
     } catch (error) {
       console.error("グループ更新エラー:", error);

@@ -14,7 +14,6 @@ function AccountProfile() {
 
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
-      {/* Header */}
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container-fluid">
           <div className="d-flex align-items-center">
@@ -23,9 +22,7 @@ function AccountProfile() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="h-80 d-flex">
-        {/* Sidebar */}
         <aside
           className="bg-light p-3 border-end"
           style={{
@@ -43,7 +40,6 @@ function AccountProfile() {
           <Logout />
         </aside>
 
-        {/* Resizer */}
         <div
           className="resizer"
           onMouseDown={(e) => {
@@ -53,13 +49,11 @@ function AccountProfile() {
           }}
         ></div>
 
-        {/* Main Content */}
         <div className="maincontent flex-grow-1 ps-5 reset">
           <UserProfile />
         </div>
       </main>
 
-      {/* Sidebar Toggle Button */}
       <div
         className="sidebar-toggle-icon"
         onClick={toggleSidebar}

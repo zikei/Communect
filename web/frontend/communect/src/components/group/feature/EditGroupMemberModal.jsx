@@ -10,7 +10,7 @@ const ROLE_DISPLAY_MAP = {
   NONE: "なし",
 };
 
-function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
+function EditGroupMemberModal({ member, show, onClose, onSave }) {
   const [formData, setFormData] = useState({
     nickName: member.nickName || "",
     role: member.role || "",
@@ -28,9 +28,8 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
   };
 
   const validateForm = () => {
-    // 必須フィールドの検証
     if (!formData.nickName || !formData.role) {
-      setError("All fields must be filled out.");
+      setError("名前と連絡権限は必須です。");
       return false;
     }
     setError(null);
@@ -42,7 +41,7 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
 
     const updatedMember = { ...member, ...formData };
     onSave(updatedMember); // 親コンポーネントに更新されたメンバー情報を渡す
-    onClose(); // モーダルを閉じる
+    onClose();
   };
 
   return (
@@ -81,14 +80,14 @@ function EditGroupMemberModal({ groupId, member, show, onClose, onSave }) {
           <Form.Group className="mb-3">
             <Form.Check
               type="checkbox"
-              label="Admin"
+              label="管理者権限"
               name="isAdmin"
               checked={formData.isAdmin}
               onChange={handleChange}
             />
             <Form.Check
               type="checkbox"
-              label="Can create sub-group"
+              label="下位グループ作成権限"
               name="isSubGroupCreate"
               checked={formData.isSubGroupCreate}
               onChange={handleChange}

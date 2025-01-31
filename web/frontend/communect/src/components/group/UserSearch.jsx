@@ -18,7 +18,6 @@ function UserSearch({ onAddUsers, singleSelect = false }) {
           withCredentials: true,
           credentials: "include",
         });
-        console.log("Current User:", response.data); // ログインユーザー情報を確認
         setCurrentUser(response.data);
       } catch (error) {
         console.error("Error fetching current user:", error);
@@ -42,7 +41,6 @@ function UserSearch({ onAddUsers, singleSelect = false }) {
   
       let users = response.data.users || [];
   
-      // ログイン中のユーザーを除外（正しい userId を取得）
       if (currentUser?.user?.userId) {
         users = users.filter(user => user.userId !== currentUser.user.userId);
       }
@@ -65,11 +63,6 @@ function UserSearch({ onAddUsers, singleSelect = false }) {
   }, [searchKeyword, isUserLoaded]);
 
   const handleUserSelect = (user) => {
-    // 自分自身の選択を防止
-    if (user.userId === currentUser?.userId) {
-      console.warn("Cannot select current user");
-      return;
-    }
 
     if (singleSelect) {
       setSelectedUsers([user]);

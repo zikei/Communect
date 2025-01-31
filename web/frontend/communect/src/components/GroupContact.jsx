@@ -158,7 +158,8 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           body: JSON.stringify(updatedData),
         }
       );
-  
+
+      window.confirm("既にリアクションがある場合、リアクションは消えますが、よろしいですか？");
       if (!response.ok) throw new Error("投稿の編集に失敗しました。");
   
       const updatedPost = await response.json();
