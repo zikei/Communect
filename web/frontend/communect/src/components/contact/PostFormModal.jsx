@@ -9,8 +9,8 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     choices: ["", ""],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");  // error stateを追加
-
+  const [error, setError] = useState("");
+  
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -53,10 +53,10 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setError(""); // エラーメッセージをリセット
+    setError("");
 
     if (formData.contactType === "CHOICE" && formData.choices.length < 2) {
-      setError("選択肢は2つ以上入力してください。");  // エラーメッセージをセット
+      setError("選択肢は2つ以上入力してください。");
       setIsSubmitting(false);
       return;
     }
@@ -94,7 +94,7 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
       }
       onClose();
     } catch (err) {
-      setError(err.message);  // エラーメッセージをセット
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }

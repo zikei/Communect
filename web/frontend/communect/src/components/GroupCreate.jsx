@@ -5,34 +5,73 @@ import axios from "axios";
 
 function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
   const [groupName, setGroupName] = useState("");
-  const [parentGroupId, setParentGroupId] = useState(
-    currentGroup?.groupId || null
-  );
+  const [parentGroupId, setParentGroupId] = useState(currentGroup?.groupId || null);
   const [addedUsers, setAddedUsers] = useState([]);
   const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // 現在のログインユーザー情報
 
   useEffect(() => {
     setParentGroupId(currentGroup?.groupId || null);
   }, [currentGroup]);
 
-  const handleUserSelect = useCallback((selectedUsers) => {
-    setAddedUsers(selectedUsers);
+  // ログイン中のユーザー情報を取得
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
+          withCredentials: true,
+          credentials: "include",
+        });
+        setCurrentUser(response.data); // 取得したユーザー情報を保存
+      } catch (error) {
+        console.error("現在のユーザー情報の取得に失敗しました:", error);
+        setCurrentUser(null);
+      }
+    };
+    fetchCurrentUser();
   }, []);
+
+  const handleUserSelect = (user) => {
+    if (!currentUser || user.userId === currentUser.userId) return; // 自分を選択不可にする
+  
+    if (singleSelect) {
+      setSelectedUsers([user]);
+      onAddUsers([user]);
+    } else {
+      const isSelected = selectedUsers.some((u) => u.userId === user.userId);
+      const updatedUsers = isSelected
+        ? selectedUsers.filter((u) => u.userId !== user.userId)
+        : [...selectedUsers, user];
+  
+      setSelectedUsers(updatedUsers);
+      onAddUsers(updatedUsers);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!groupName.trim()) {
       setError("グループ名は必須です。");
       return;
     }
-  
+
+    if (!currentUser) {
+      setError("現在のユーザー情報を取得できませんでした。");
+      return;
+    }
+
+    // 自分自身の userId を除外
+    const filteredUsers = addedUsers
+      .filter(user => user.userId !== currentUser.userId)
+      .map(user => user.userId);
+
     const newGroup = {
       name: groupName.trim(),
       above: parentGroupId || null,
-      users: addedUsers.map((user) => user.userId),
+      users: filteredUsers, // 自分を除外したリストを送信
     };
-  
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/group`, newGroup, {
@@ -40,9 +79,9 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
           credentials: "include",
         }
       );
-  
-      if (onSubmit) onSubmit(response.data.group); 
-  
+
+      if (onSubmit) onSubmit(response.data.group);
+
       setGroupName("");
       setParentGroupId(null);
       setAddedUsers([]);
