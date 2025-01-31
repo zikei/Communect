@@ -58,11 +58,22 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
       return;
     }
 
-    const requestData = { ...formData, groupId };
+    let requestData = {
+      message: formData.message,
+      contactType: formData.contactType,
+      importance: formData.importance,
+      groupId,
+    };
+
+    if (formData.contactType === "CHOICE") {
+      requestData.choices = formData.choices;
+    }
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`,
+        `${import.meta.env.VITE_API_URL}/contact${
+          initialData ? `/${initialData.contactId}` : ""
+        }`,
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -78,7 +89,6 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
         // 新規投稿のみ即時反映
         onPostCreated(newPost);
       }
-
       onClose();
     } catch (err) {
       alert(err.message);
@@ -159,7 +169,11 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
             <option value="HIGH">高</option>
           </select>
         </div>
-        <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+        <button
+          className="btn btn-primary"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
           {initialData ? "保存" : "投稿"}
         </button>
       </div>
