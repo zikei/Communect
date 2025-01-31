@@ -1,7 +1,7 @@
 #! /bin/bash
 echo "---comunect---"
 
-cd ../frontend
+cd ./frontend
 echo "---frontend---"
 docker compose down
 echo "---frontend---"
@@ -16,7 +16,7 @@ echo "---db---"
 docker compose down
 echo "---db---"
 
-cd ./nginx-proxy
+cd ../nginx-proxy
 echo "---nginx-proxy---"
 docker compose down
 echo "---nginx-proxy---"
