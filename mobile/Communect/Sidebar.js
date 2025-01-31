@@ -202,7 +202,10 @@ const Sidebar = ({
   return (
     <View style={[styles.sidebar, sidebarOpen ? styles.open : styles.closed]}>
       <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
-        <Text style={styles.buttonText}>グループ作成</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <FontAwesome name="user-plus" size={16} color="#fff" />
+          <Text style={styles.buttonText}>グループ作成</Text>
+        </View>
       </TouchableOpacity>
 
       <View style={styles.groupsSection}>
@@ -328,6 +331,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
+    right:-45,
   },
   link: {
     paddingVertical: 10,

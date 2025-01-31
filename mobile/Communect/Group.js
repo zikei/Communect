@@ -47,9 +47,9 @@ function Group() {
     { id: 1, type: "INFO", message: "2月3、4日 校内選考", importance: "LOW", contentType: 'INFORM'},
     { id: 2, type: "WARNING", message: "モバイルのクロスプラットフォームはどれがいいか投票してね", importance: "MEDIUM", contentType: 'CHOICE' },
     { id: 3, type: "DANGER", message: "1月31日までに提出する書類を提出していない方、確認を押してください。", importance: "HIGH", contentType: 'CONFIRM' },
-    { id: 4, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
-    { id: 5, type: "INFO", message: "", importance: "LOW", contentType: 'INFORM' },
-    { id: 6, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
+    { id: 4, type: "INFO", message: "今週の進捗報告を書いておいてください", importance: "LOW", contentType: 'INFORM' },
+    { id: 5, type: "INFO", message: "校内選考は2月4日の12番目の発表です", importance: "LOW", contentType: 'INFORM' },
+    { id: 6, type: "DANGER", message: "校内選考と卒業研究発表会は「スーツ」着用なので忘れずに！！", importance: "HIGH", contentType: 'INFORM' },
   ];
 
   const App = () => {
@@ -178,6 +178,19 @@ function Group() {
       }
     };
 
+    const getTypeColor = (importance) => {
+      switch (importance) {
+        case "LOW":
+          return "#1e90ff";
+        case "MEDIUM":
+          return "#ff8c00";
+        case "HIGH":
+          return "#f00";
+        default:
+          return "#f5f5f5";
+      }
+    };
+
     const handleEdit = (id) => {
       // 編集ロジック (モーダルを開くなど)
       console.log(`Editing post with id: ${id}`);
@@ -216,7 +229,11 @@ function Group() {
               marginBottom: 10,
             }]}
         >
-          <Text style={styles.timelineimportance}>
+          <Text style={[styles.timelineimportance,
+            { 
+              color: getTypeColor(item.importance),
+            }]}
+          >
             {item.type}
           </Text>
           <Text style={styles.timelineMessage}>
@@ -232,7 +249,10 @@ function Group() {
                   style={styles.confirmButton}
                   onPress={() => handleConfirm(item.id, item.userId)} // 確認ボタン
                 >
-                  <Text style={styles.buttonText}>確認</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="check-circle" size={14} color="#444" />
+                    <Text style={styles.buttonText}> 確認</Text>
+                  </View>
                 </TouchableOpacity>
               )}  
 
@@ -242,7 +262,10 @@ function Group() {
                   style={styles.detailsButton}
                   onPress={() => handleViewDetails(item.userId)} // 詳細ボタン
                 >
-                  <Text style={styles.buttonText}>詳細</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="eye" size={14} color="#444" />
+                    <Text style={styles.buttonText}> 詳細</Text>
+                  </View>
                 </TouchableOpacity>
               )}
             </View>
@@ -255,28 +278,40 @@ function Group() {
                   style={styles.multiChoiceButton}
                   onPress={() => handleMultipleChoice("Option 1")}
                 >
-                  <Text style={styles.buttonText}>AndroidStudio</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="check-circle" size={14} color="#444" />
+                    <Text style={styles.buttonText}> AndroidStudio</Text>
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.multiChoiceButton}
                   onPress={() => handleMultipleChoice("Option 2")}
                 >
-                  <Text style={styles.buttonText}>ReactNative</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="check-circle" size={14} color="#444" />
+                    <Text style={styles.buttonText}> ReactNative</Text>
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.multiChoiceButton}
                   onPress={() => handleMultipleChoice("Option 3")}
                 >
-                  <Text style={styles.buttonText}>Flutter</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="check-circle" size={14} color="#444" />
+                    <Text style={styles.buttonText}> Flutter</Text>
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.detailsButton}
                   onPress={() => handleViewDetails(item.userId)} // 詳細ボタン
                 >
-                  <Text style={styles.buttonText}>詳細</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <FontAwesome name="eye" size={14} color="#444" />
+                    <Text style={styles.buttonText}> 詳細</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             )}
@@ -287,14 +322,20 @@ function Group() {
                 style={styles.editButton}
                 onPress={() => handleEdit(item.id)} // 編集ボタン
               >
-                <Text style={styles.buttonText}>編集</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <FontAwesome name="edit" size={14} color="#444" />
+                  <Text style={styles.buttonText}> 編集</Text>
+                </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => handleDelete(item.id)} // 削除ボタン
               >
-                <Text style={styles.buttonText}>削除</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <FontAwesome name="trash" size={14} color="#444" />
+                  <Text style={styles.buttonText}> 削除</Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -599,7 +640,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#79f",
+    borderColor: "#aaa",
     shadowColor: "#79f",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -608,10 +649,10 @@ const styles = StyleSheet.create({
   },
   timelineimportance: {
     fontSize: 16,
-    color: "#444",
-    fontWeight: "bold",
     marginBottom: 10,
-    borderColor: '#79f',
+    textShadowColor: "#fff", // 影（縁取り）の色
+    textShadowOffset: { width: 0, height: 0 }, // 影の位置
+    textShadowRadius: 5, // 影のぼかし
   },
   timelineMessage: {
     fontSize: 14,
@@ -626,12 +667,12 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '30%',
+    width: '40%',
   },
   informbottomButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '30%',
+    width: '45%',
     marginRight: 'auto',
   },
   editButton: {
@@ -639,28 +680,36 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   deleteButton: {
-    backgroundColor: '#ff9baa', // 赤色
+    backgroundColor: '#ffb7b7', // 赤色
     padding: 8,
     borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   confirmButton: {
-    backgroundColor: '#aebfd3', // 灰色
+    backgroundColor: '#eee', // 灰色
     padding: 8,
     borderRadius: 5,
     marginTop: 10,
     marginRight: 'auto',
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   confirmButtonText: {
     color: 'black',
   },
   detailsButton: {
-    backgroundColor: '#a6d8e4', // 水色
+    backgroundColor: '#e0ffff', // 水色
     padding: 8,
     borderRadius: 5,
     marginTop: 10,
     marginRight: 'auto',
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   multiChoiceContainer: {
     marginTop: 10,
@@ -668,10 +717,12 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   multiChoiceButton: {
-    backgroundColor: '#b5e4d5', // 青色
+    backgroundColor: '#ccffe5', // 青色
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   buttonText: {
     color: '#222',

@@ -10,22 +10,22 @@ import {
   Button,
 } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { FontAwesome5 } from "react-native-vector-icons";
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 
 const Header = ({ showBackButton = false, navigation }) => {
-  const [unreadCount, setUnreadCount] = useState(3); // 未読通知数
+  const [unreadCount, setUnreadCount] = useState(6); // 未読通知数
   const [modalVisible, setModalVisible] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
-  const notificationslist = [
+  const [notifications, setNotifications] = useState([
     { id: 1, type: "INFO", message: "2月3、4日 校内選考", importance: "LOW", contentType: 'INFORM'},
     { id: 2, type: "WARNING", message: "モバイルのクロスプラットフォームはどれがいいか投票してね", importance: "MEDIUM", contentType: 'CHOICE' },
     { id: 3, type: "DANGER", message: "1月31日までに提出する書類を提出していない方、確認を押してください。", importance: "HIGH", contentType: 'CONFIRM' },
-    { id: 4, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
-    { id: 5, type: "INFO", message: "", importance: "LOW", contentType: 'INFORM' },
-    { id: 6, type: "DANGER", message: "", importance: "HIGH", contentType: 'INFORM' },
-  ];
+    { id: 4, type: "INFO", message: "今週の進捗報告を書いておいてください", importance: "LOW", contentType: 'INFORM' },
+    { id: 5, type: "INFO", message: "校内選考は2月4日の12番目の発表です", importance: "LOW", contentType: 'INFORM' },
+    { id: 6, type: "DANGER", message: "校内選考と卒業研究発表会は「スーツ」着用なので忘れずに！！", importance: "HIGH", contentType: 'INFORM' },
+  ]);
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -49,6 +49,10 @@ const Header = ({ showBackButton = false, navigation }) => {
   const handleNotificationPress = () => {
     setUnreadCount(0);
     setModalVisible(true);
+  };
+
+  const handleConfirm = (id) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
   return (
@@ -82,21 +86,26 @@ const Header = ({ showBackButton = false, navigation }) => {
       </TouchableOpacity>
 
       {/* 通知モーダル */}
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+      <Modal visible={modalVisible} animationType="fade" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>通知リスト</Text>
+            <TouchableOpacity style={styles.closeIcon} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeIconText}>×</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>通知</Text>
             <FlatList
-              data={notificationslist}
-              keyExtractor={(item) => item.id}
+              data={notifications}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: 20 }}
               renderItem={({ item }) => (
                 <View style={styles.notificationItem}>
-                  <Text>{item.message}</Text>
-                  <Button title="確認" onPress={() => alert("確認しました！")} />
+                  <TouchableOpacity onPress={() => handleConfirm(item.id)} style={styles.checkButton}>
+                  <FontAwesome5 name="check-square" size={24} color="#79f" solid={false} />
+                  </TouchableOpacity>
+                  <Text style={styles.notificationText}>{item.message}</Text>
                 </View>
               )}
             />
-            <Button title="閉じる" onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#f9f9ff",
     padding: 20,
     borderRadius: 10,
     width: "90%",
@@ -173,14 +182,44 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  notificationItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  notificationItem: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    padding: 10, 
+    borderBottomWidth: 1, 
+    borderBottomColor: "#ddd", 
+    width: "90%" 
+  },
+  confirmButton: { 
+    backgroundColor: "#007bff", 
+    paddingVertical: 5, 
+    paddingHorizontal: 10, 
+    borderRadius: 5 
+  },
+  confirmButtonText: { 
+    color: "white", 
+    fontWeight: "bold" 
+  },
+  checkButton: { 
+    padding: 5,
+    left: -10, 
+  },
+  closeIcon: {
+    position: "absolute",
+    width: 40,  // 横幅を調整（ほぼ正方形）
+    height: 40,
+    top: 10,
+    right: 10,
+    zIndex: 1, // 他のコンテンツより前に表示
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    width: "100%",
+    borderRadius: 50, // 丸いボタン
+    backgroundColor: "#79f", // ボタン背景の色（透明度付き）
+  },
+  closeIconText: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
