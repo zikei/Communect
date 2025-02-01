@@ -76,7 +76,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   
       console.log("新しいSSE接続を開始します:", selectedTalk);
       sse = new EventSource(
-        `${import.meta.env.VITE_API_URL}/message/sse`,
+        `${import.meta.env.VITE_API_URL}/message/sse?talkId=${selectedTalk}`,
         {
           withCredentials: true,
           credentials: "include",
@@ -165,9 +165,10 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const handleSendMessage = (newMessage) => {
     setMessages((prevMessages) => {
       if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
-        return prevMessages; // 重複メッセージを無視
+        console.log("重複無視");
+        return prevMessages; // 重複を無視
       }
-      return [...prevMessages, newMessage];
+      return [...prevMessages, newMessage]; // メッセージを末尾に追加
     });
   };
   

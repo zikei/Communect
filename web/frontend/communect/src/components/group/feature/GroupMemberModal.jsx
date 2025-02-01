@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { Modal, Button, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import EditGroupMemberModal from "./EditGroupMemberModal";
@@ -21,6 +20,31 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [successMessage, setSuccessMessage] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUserId = async () => {
+      try {
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
+          withCredentials: true,
+          credentials: "include",
+        });
+        if (response.data && response.data.userId) {
+          setCurrentUserId(response.data.userId);
+        } else {
+          setError("ユーザ情報の取得に失敗しました");
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+        setError("Failed to fetch current user. Please try again.");
+      }
+    };
+  
+    // show が true の時だけ currentUserId を取得
+    if (show) {
+      fetchCurrentUserId();
+    }
+  }, [show]); 
 
   const fetchGroupMembers = async () => {
     if (!show || !groupId) return;
@@ -32,8 +56,6 @@ function GroupMemberModal({ groupId, show, onClose }) {
         `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
         { withCredentials: true, credentials: "include" }
       );
-
-      console.log("API Response:", response.data); // デバッグ用ログ
 
       if (response.data && Array.isArray(response.data.users)) {
         setMembers(
@@ -59,7 +81,15 @@ function GroupMemberModal({ groupId, show, onClose }) {
   }, [show, groupId]);
 
   const handleEditClick = (member) => {
-    setEditingMember(member);
+    console.log("Current user ID:", currentUserId);  // 現在のユーザIDを確認
+    console.log("Member ID:", member.groupUserId);   // メンバーのIDを確認
+    console.log("Is Admin:", member.isAdmin);        // メンバーが管理者かどうか確認
+  
+    if (member.isAdmin || member.groupUserId === currentUserId) {
+      setEditingMember(member);
+    } else {
+      alert("You do not have permission to edit this member.");
+    }
   };
 
   const handleMemberUpdate = (updatedMember) => {
@@ -189,6 +219,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
           show={!!editingMember}
           onClose={() => setEditingMember(null)}
           onSave={handleMemberUpdate}
+          currentUserId={currentUserId}
         />
       )}
 
@@ -204,11 +235,5 @@ function GroupMemberModal({ groupId, show, onClose }) {
     </>
   );
 }
-
-GroupMemberModal.propTypes = {
-  groupId: PropTypes.string.isRequired,
-  show: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
 
 export default GroupMemberModal;
