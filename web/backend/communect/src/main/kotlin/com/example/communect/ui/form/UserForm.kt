@@ -97,8 +97,6 @@ data class DeleteGroupUserRequest(val groupUserId: String)
 /** グループユーザ更新リクエスト */
 data class UpdGroupUserRequest(
     /** グループユーザID */
-    @get:NullOrNotBlank
-    @get:Size(max = 20)
     val groupUserId: String,
     /** 表示名 */
     @get:NullOrNotBlank
