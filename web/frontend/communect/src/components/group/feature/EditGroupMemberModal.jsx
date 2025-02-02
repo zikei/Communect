@@ -62,7 +62,9 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
     }
 
     try {
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/group/${groupId}/user`, updatedMember);
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/group/${groupId}/user`, updatedMember,
+        { withCredentials: true , credentials: "include"}
+      );
       onSave(response.data.user);
       onClose();
     } catch (err) {

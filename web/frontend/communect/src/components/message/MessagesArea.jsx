@@ -82,6 +82,7 @@ const MessagesArea = ({
         ref={messagesContainerRef}
       >
         {messages.length > 0 ? (
+          // メッセージをそのまま表示
           messages.map((message) => (
             <div
               key={message.messageId}
@@ -140,7 +141,14 @@ const MessagesArea = ({
         <div ref={messagesEndRef}></div>
       </div>
       {selectedTalk && (
-        <MessageSender talkId={selectedTalk} onMessageSent={onSendMessage} />
+        <MessageSender
+          talkId={selectedTalk}
+          onMessageSent={(newMessage) => {
+            // 新しいメッセージが送信された後、逆順で追加
+            onSendMessage(newMessage); // メッセージ送信後に状態更新
+            scrollToBottom(); // 最下部にスクロール
+          }}
+        />
       )}
     </Col>
   );

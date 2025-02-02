@@ -49,7 +49,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
           credentials: "include",
         }
       );
-      setMessages(response.data.messages || []);
+      setMessages(response.data.messages.reverse() || []);
     } catch (err) {
       setError("メッセージ一覧の取得に失敗しました。");
     } finally {
