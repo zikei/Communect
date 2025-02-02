@@ -76,7 +76,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   
       console.log("新しいSSE接続を開始します:", selectedTalk);
       sse = new EventSource(
-        `${import.meta.env.VITE_API_URL}/message/sse?talkId=${selectedTalk}`,
+        `${import.meta.env.VITE_API_URL}/message/sse`,
         {
           withCredentials: true,
           credentials: "include",

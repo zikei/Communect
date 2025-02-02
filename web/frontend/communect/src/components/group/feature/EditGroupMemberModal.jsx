@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
-import axios from "axios"; // APIリクエスト用
+import axios from "axios";
 
 const ROLE_DISPLAY_MAP = {
   HIGH: "高",
@@ -19,16 +19,15 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
     isSubGroupCreate: member.isSubGroupCreate || false,
   });
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // ローディング状態
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // 自分の情報を編集する場合、ニックネームのみ変更可能に制限
     if (member.userId === currentUserId) {
       setFormData((prev) => ({
         ...prev,
-        role: null, // 自分自身の編集ではroleは変更できない
-        isAdmin: null, // 自分自身の編集ではisAdminは変更できない
-        isSubGroupCreate: null, // 自分自身の編集ではisSubGroupCreateは変更できない
+        role: "",
+        isAdmin: false,
+        isSubGroupCreate: false,
       }));
     }
   }, [member, currentUserId]);
@@ -46,13 +45,6 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
       setError("ニックネームは必須です。");
       return false;
     }
-
-    // 管理者権限を持たない場合はエラー
-    if (member.userId !== currentUserId && !member.isAdmin) {
-      setError("管理者権限がないため、このメンバーを編集できません。");
-      return false;
-    }
-
     setError(null);
     return true;
   };
@@ -60,12 +52,9 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    setLoading(true); // リクエスト開始
-
-    // 自分自身を編集する場合、ニックネームだけ変更できるように設定
+    setLoading(true);
     const updatedMember = { ...formData, groupUserId: member.groupUserId };
 
-    // 自分の情報を編集する場合、役割や管理者権限は含めない
     if (member.userId === currentUserId) {
       delete updatedMember.role;
       delete updatedMember.isAdmin;
@@ -73,20 +62,13 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
     }
 
     try {
-      // APIリクエスト
-      const response = await axios.put(
-        `/group/${groupId}/user`,
-        updatedMember
-      );
-      
-      // 成功時の処理
-      onSave(response.data.user); // 親コンポーネントにデータを渡す
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/group/${groupId}/user`, updatedMember);
+      onSave(response.data.user);
       onClose();
     } catch (err) {
-      // エラーハンドリング
       setError("メンバーの更新に失敗しました。再度お試しください。");
     } finally {
-      setLoading(false); // ローディング解除
+      setLoading(false);
     }
   };
 
@@ -105,19 +87,13 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
               name="nickName"
               value={formData.nickName}
               onChange={handleChange}
-              disabled={member.userId === currentUserId} // 自分のニックネームは編集不可
             />
           </Form.Group>
           {member.userId !== currentUserId && (
             <>
               <Form.Group className="mb-3">
                 <Form.Label>連絡権限</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                >
+                <Form.Control as="select" name="role" value={formData.role} onChange={handleChange}>
                   <option value="">選択してください</option>
                   {Object.keys(ROLE_DISPLAY_MAP).map((role) => (
                     <option key={role} value={role}>
@@ -150,11 +126,7 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
         <Button variant="secondary" onClick={onClose}>
           やめる
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={loading} // ローディング中はボタン無効化
-        >
+        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
           {loading ? "保存中..." : "保存"}
         </Button>
       </Modal.Footer>
@@ -165,7 +137,7 @@ function EditGroupMemberModal({ groupId, member, currentUserId, show, onClose, o
 EditGroupMemberModal.propTypes = {
   groupId: PropTypes.string.isRequired,
   member: PropTypes.object.isRequired,
-  currentUserId: PropTypes.string.isRequired, // 現在ログインしているユーザーID
+  currentUserId: PropTypes.string.isRequired,
   show: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,

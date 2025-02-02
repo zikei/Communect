@@ -21,30 +21,24 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [editingMember, setEditingMember] = useState(null);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    const fetchCurrentUserId = async () => {
-      try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
-          withCredentials: true,
-          credentials: "include",
-        });
-        if (response.data && response.data.userId) {
-          setCurrentUserId(response.data.userId);
-        } else {
-          setError("ユーザ情報の取得に失敗しました");
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-        setError("Failed to fetch current user. Please try again.");
+  const fetchGroupDetails = async () => {
+    if (!groupId) return;
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}`,
+        { withCredentials: true }
+      );
+      if (response.data && response.data.myStatus) {
+        setCurrentUserId(response.data.myStatus.userId);
+        setIsAdmin(response.data.myStatus.isAdmin);
       }
-    };
-  
-    // show が true の時だけ currentUserId を取得
-    if (show) {
-      fetchCurrentUserId();
+    } catch (err) {
+      console.error("Error fetching group details:", err);
+      setError("グループ詳細の取得に失敗しました。");
     }
-  }, [show]); 
+  };
 
   const fetchGroupMembers = async () => {
     if (!show || !groupId) return;
@@ -76,19 +70,23 @@ function GroupMemberModal({ groupId, show, onClose }) {
 
   useEffect(() => {
     if (show) {
+      fetchGroupDetails();
       fetchGroupMembers();
     }
   }, [show, groupId]);
 
   const handleEditClick = (member) => {
-    console.log("Current user ID:", currentUserId);  // 現在のユーザIDを確認
-    console.log("Member ID:", member.groupUserId);   // メンバーのIDを確認
-    console.log("Is Admin:", member.isAdmin);        // メンバーが管理者かどうか確認
-  
-    if (member.isAdmin || member.groupUserId === currentUserId) {
+    console.log("Admin:" + isAdmin);
+    console.log(member.userId);
+    console.log(currentUserId);
+
+    // 管理者かつ本人の場合の処理を追加
+    if (isAdmin && member.userId === currentUserId) {
+      setEditingMember(member);
+    } else if (isAdmin || member.userId === currentUserId) {
       setEditingMember(member);
     } else {
-      alert("You do not have permission to edit this member.");
+      alert("編集権限がありません。");
     }
   };
 
@@ -133,7 +131,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
   };
 
   const handleAddUser = async (newUser) => {
-    await fetchGroupMembers(); // 追加後に最新データを取得
+    await fetchGroupMembers();
     setShowAddUserModal(false);
   };
 
