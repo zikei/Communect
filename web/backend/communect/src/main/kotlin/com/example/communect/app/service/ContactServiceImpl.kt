@@ -92,13 +92,13 @@ class ContactServiceImpl(
             if(!((oldContact.contactType == ContactType.CHOICE && contact.contactType == null) || contact.contactType == ContactType.CHOICE)) throw BadRequestException()
             if (choices.size < choiceMinCount) throw BadRequestException()
             if (oldContact.contactType == ContactType.CHOICE) {
+                reactionRepository.deleteByContactId(contact.contactId)
                 contactRepository.deleteChoicesByContactId(contact.contactId)
             }
             contactRepository.insertChoices(choices.map { ChoiceIns(contact.contactId, it) })
         }else if(contact.contactType == ContactType.CHOICE && oldContact.contactType != ContactType.CHOICE){
             throw BadRequestException()
         }else if(oldContact.contactType == ContactType.CHOICE){
-            reactionRepository.deleteByContactId(contact.contactId)
             contactRepository.deleteChoicesByContactId(contact.contactId)
         }
 
