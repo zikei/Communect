@@ -31,21 +31,13 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
     fetchCurrentUser();
   }, []);
 
-  const handleUserSelect = (user) => {
-    if (!currentUser || user.userId === currentUser.userId) return; // 自分を選択不可にする
+  const handleUserSelect = (users) => {
+    if (!currentUser) return;
   
-    if (singleSelect) {
-      setSelectedUsers([user]);
-      onAddUsers([user]);
-    } else {
-      const isSelected = selectedUsers.some((u) => u.userId === user.userId);
-      const updatedUsers = isSelected
-        ? selectedUsers.filter((u) => u.userId !== user.userId)
-        : [...selectedUsers, user];
-  
-      setSelectedUsers(updatedUsers);
-      onAddUsers(updatedUsers);
-    }
+    // 自分自身を除外
+    const filteredUsers = users.filter(user => user.userId !== currentUser.userId);
+    
+    setAddedUsers(filteredUsers); // 追加されたユーザーを正しく更新
   };
 
   const handleSubmit = async (e) => {

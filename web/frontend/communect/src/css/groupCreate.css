@@ -5,7 +5,7 @@
 
 .user-search .search-results .card {
   flex: 1 1 calc(33.333% - 1rem); /* 3列レイアウト */
-  max-width: calc(33.333% - 1rem); /* 最大幅を設定 */
+  max-width: calc(33.333% - 1rem); 
   border: 1px solid #ddd;
   border-radius: 5px;
   transition: box-shadow 0.3s ease;

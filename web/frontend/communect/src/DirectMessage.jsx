@@ -36,9 +36,6 @@ function DirectMessage() {
                     }}
                   >
                     <nav className="nav flex-column">
-                      <button className="btn btn-primary mb-3" onClick={toggleModal}>
-                        グループ作成
-                      </button>
                       <h5  className="mt-3">
                         Direct Message
                       </h5>
