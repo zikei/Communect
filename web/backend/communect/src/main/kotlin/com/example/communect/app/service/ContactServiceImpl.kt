@@ -98,6 +98,7 @@ class ContactServiceImpl(
         }else if(contact.contactType == ContactType.CHOICE && oldContact.contactType != ContactType.CHOICE){
             throw BadRequestException()
         }else if(oldContact.contactType == ContactType.CHOICE){
+            reactionRepository.deleteByContactId(contact.contactId)
             contactRepository.deleteChoicesByContactId(contact.contactId)
         }
 
