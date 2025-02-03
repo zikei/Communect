@@ -15,8 +15,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [reactedPosts, setReactedPosts] = useState(new Set());
-
+  
   // 投稿一覧を取得
   const fetchPosts = async () => {
     setLoading(true);
@@ -55,7 +54,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
       // 新規データ追加イベント
       sse.addEventListener("post", (event) => {
-        console.log("POSTイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
       
@@ -85,7 +83,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
       // データ更新イベント
       sse.addEventListener("update", (event) => {
-        console.log("UPDATEイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
           const contact = data.contact || {};
@@ -109,7 +106,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
       // データ削除イベント
       sse.addEventListener("delete", (event) => {
-        console.log("DELETEイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
           setPosts((prevPosts) =>

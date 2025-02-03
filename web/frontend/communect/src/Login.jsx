@@ -44,7 +44,6 @@ function Login() {
       const data = text ? JSON.parse(text) : null;
 
       if (response.ok) {
-        console.log('ログイン成功:', data);
 
         if (data?.sessionId) {
           localStorage.setItem('SESSIONID', data.sessionId);
