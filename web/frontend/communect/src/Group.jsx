@@ -215,7 +215,7 @@ function Group() {
           onShowMembers={handleShowMembers}
           onOpenTalk={handleOpenTalk}
         />
-        <div className="maincontent flex-grow-1 ps-5 reset">
+        <div className="maincontent flex-grow-1 reset">
           {isGroupTalk && talkGroup ? (
             <GroupTalk group={talkGroup} onBack={handleBackFromTalk} currentGroup={currentGroup} />
           ) : (
