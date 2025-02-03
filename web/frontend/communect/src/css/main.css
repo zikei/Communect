@@ -1,17 +1,17 @@
 header {
     position: fixed;
-    height: 70px; /* ヘッダーの高さを固定 */
+    height: 70px;
     top: 0;
     left: 0;
   }
   
   body {
-    overflow-y: scroll; /* 常にスクロールバーを表示 */
+    overflow-y: scroll;
   }
   
   main {
     margin-top: 70px;
-    height: calc(100vh - 70px); /* 残り画面を埋める */
+    height: calc(100vh - 70px); 
     overflow: hidden;
     display: flex;
   }
@@ -22,18 +22,19 @@ header {
   
   .maincontent {
     background-color: rgb(235, 235, 235);
+    padding-left: 4.5rem;
   }
   
   .flex-grow-1 {
     display: flex;
-    flex-direction: column; /* 子要素を縦並びにする */
+    flex-direction: column; 
     width: auto;
-    overflow: hidden; /* 子要素のオーバーフローを防止 */
+    overflow: hidden;
   }
   
   .card {
     display: flex;
-    flex-direction: column; /* GroupTalk用の縦並び */
+    flex-direction: column; 
     --bs-card-border-width: 0;
   }
   
@@ -41,11 +42,11 @@ header {
     border: none;
     background-color: transparent;
     font-size: 20px;
-    margin-left: auto; /* ボタンを右端に配置 */
+    margin-left: auto;
   }
   
   .rotate-icon {
-    display: inline-block; /* 回転を適用可能にする */
+    display: inline-block; 
     transition: transform 0.2s ease;
   }
   
@@ -53,7 +54,6 @@ header {
     transform: rotate(90deg); /* 折りたたみ表示 */
   }
   
-  /* サイドバー開閉アイコン */
   .sidebar-toggle-icon {
     background-color: #007bff;
     color: white;

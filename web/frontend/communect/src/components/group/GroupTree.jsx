@@ -14,26 +14,24 @@ function GroupTree({
   onUpdateGroup,
   onEditGroup,
   onShowMembers,
-  onOpenTalk, // onOpenTalkをプロパティとして受け取る
+  onOpenTalk, 
 }) {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
-  const [isTalkOpen, setIsTalkOpen] = useState(false); // トーク画面の状態を管理
+  const [isTalkOpen, setIsTalkOpen] = useState(false); 
 
-  // 選択されたグループかどうかを判定
   const isSelected = currentGroup && currentGroup.groupId === group.groupId;
 
   const handleEditClick = () => {
-    console.log("グループ編集ボタンが押されました");
-    onEditGroup(group); // 親コンポーネントに通知
+    onEditGroup(group);
   };
 
   const handleTalkToggle = () => {
     if (isTalkOpen) {
       setIsTalkOpen(false);
-      onOpenTalk(null); // トーク画面を閉じる
+      onOpenTalk(null);
     } else {
       setIsTalkOpen(true);
-      onOpenTalk(group); // トーク画面を開く
+      onOpenTalk(group);
     }
   };
 
@@ -79,9 +77,9 @@ function GroupTree({
               onClick={handleTalkToggle} // 状態切り替えロジック
             >
               {isTalkOpen ? (
-                <i className="bi bi-arrow-left-circle"></i> // 戻るアイコン
+                <i className="bi bi-arrow-left-circle"></i> // 戻る
               ) : (
-                <i className="bi bi-chat-dots"></i> // トークアイコン
+                <i className="bi bi-chat-dots"></i> // トーク
               )}
             </button>
           </>
@@ -114,7 +112,7 @@ function GroupTree({
               onUpdateGroup={onUpdateGroup}
               onEditGroup={onEditGroup}
               onShowMembers={onShowMembers}
-              onOpenTalk={onOpenTalk} // 子にも渡す
+              onOpenTalk={onOpenTalk}
             />
           ))}
         </ul>
@@ -134,7 +132,7 @@ GroupTree.propTypes = {
   onUpdateGroup: PropTypes.func.isRequired,
   onEditGroup: PropTypes.func.isRequired,
   onShowMembers: PropTypes.func.isRequired,
-  onOpenTalk: PropTypes.func.isRequired, // 新しいプロパティ
+  onOpenTalk: PropTypes.func.isRequired,
 };
 
 export default GroupTree;

@@ -15,7 +15,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notifications, setNotifications] = useState([]);
-
+  
   // 投稿一覧を取得
   const fetchPosts = async () => {
     setLoading(true);
@@ -36,6 +36,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
       setLoading(false);
     }
   };
+  
 
   // SSE接続
   useEffect(() => {
@@ -53,7 +54,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
       // 新規データ追加イベント
       sse.addEventListener("post", (event) => {
-        console.log("POSTイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
       
@@ -65,7 +65,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           }
       
           const validatedChoices = Array.isArray(contact.choices) && contact.choices.every(c => typeof c === 'object' && c.choice)
-            ? contact.choices
+            ? contact.choices.reverse()
             : [];
           
           setPosts((prevPosts) => [...prevPosts, contact]);
@@ -80,14 +80,23 @@ function GroupContact({ groupName, hasPermission, groupId }) {
           console.error("POSTイベント解析エラー:", err);
         }
       });
+
       // データ更新イベント
       sse.addEventListener("update", (event) => {
-        console.log("UPDATEイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
+          const contact = data.contact || {};
+      
+          if (!contact.contactId) {
+            console.error("無効なデータ形式:", data);
+            return;
+          }
+      
           setPosts((prevPosts) =>
             prevPosts.map((post) =>
-              post.contactId === data.contact.contactId ? data.contact : post
+              post.contactId === contact.contactId
+                ? { ...post, ...contact, choices: contact.choices || [] }
+                : post
             )
           );
         } catch (err) {
@@ -97,7 +106,6 @@ function GroupContact({ groupName, hasPermission, groupId }) {
 
       // データ削除イベント
       sse.addEventListener("delete", (event) => {
-        console.log("DELETEイベント:", event.data);
         try {
           const data = JSON.parse(event.data);
           setPosts((prevPosts) =>
@@ -134,7 +142,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
   // 投稿編集
   const handleEditPost = async (contactId, updatedData) => {
     if (isSubmitting) return;
-
+  
     setIsSubmitting(true);
     try {
       const response = await fetch(
@@ -147,8 +155,16 @@ function GroupContact({ groupName, hasPermission, groupId }) {
         }
       );
 
+      window.confirm("既にリアクションがある場合、リアクションは消えますが、よろしいですか？");
       if (!response.ok) throw new Error("投稿の編集に失敗しました。");
-      fetchPosts(); // 最新の投稿を取得
+  
+      const updatedPost = await response.json();
+  
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.contactId === contactId ? { ...post, ...updatedPost } : post
+        )
+      );
     } catch (err) {
       alert(`エラー: ${err.message}`);
     } finally {
@@ -270,7 +286,7 @@ function GroupContact({ groupName, hasPermission, groupId }) {
         <PostFormModal
           onClose={() => setShowModal(false)}
           groupId={groupId}
-          onPostCreated={fetchPosts} // 新しい投稿後にfetchPostsを呼び出す
+          onPostCreated={fetchPosts}
         />
       )}
 

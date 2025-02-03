@@ -14,7 +14,7 @@ function Sidebar({
   toggleModal,
   error,
   currentGroup,
-  handleGroupDelete,
+  handleDeleteGroup,
   onEditGroup,
   onShowMembers,
   onOpenTalk,
@@ -49,7 +49,7 @@ function Sidebar({
                     toggleGroup={toggleGroup}
                     handleGroupClick={handleGroupClick}
                     currentGroup={currentGroup}
-                    onDeleteGroup={handleGroupDelete}
+                    onDeleteGroup={handleDeleteGroup}
                     onEditGroup={onEditGroup}
                     onShowMembers={onShowMembers}
                     onOpenTalk={onOpenTalk}

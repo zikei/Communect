@@ -70,9 +70,9 @@ const TalkSidebar = ({
   };
 
   return (
-    <Col xs={3} className={`${styles["groupTalk-sidebar"]} p-0`}>
+    <Col xs={3} className={`${styles["groupTalk-sidebar"]} px-3 py-2`}>
       <div className="d-flex justify-content-between align-items-center">
-        <h5>トークルーム一覧</h5>
+        <h5 className="text-primary border-bottom border-info">トークルーム一覧</h5>
         <Button
           variant="link"
           className="text-primary"

@@ -7,7 +7,6 @@ function PostList({
   error,
   loading,
   onFetchDetails,
-  reactions = [],
   onEditPost,
   onDeletePost,
 }) {
@@ -15,7 +14,7 @@ function PostList({
   const [selectedReactions, setSelectedReactions] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
-  const [reactedPosts, setReactedPosts] = useState(new Set()); // リアクション済み投稿を追跡
+  const [reactedPosts, setReactedPosts] = useState(new Set());
 
   const importanceClass = {
     HIGH: "post-high-importance",
@@ -28,15 +27,24 @@ function PostList({
   if (loading) return <p>読み込み中...</p>;
   if (posts.length === 0) return <p>まだ投稿がありません。</p>;
 
-  const handleReactionClick = async (contactId, contactType, choiceId = null) => {
+  const handleReactionClick = async (
+    contactId,
+    contactType,
+    choiceId = null
+  ) => {
+    if (reactedPosts.has(contactId)) {
+      alert("この投稿は既にリアクション済みです。");
+      return;
+    }
+
     try {
       const body =
         contactType === "CHOICE"
-          ? JSON.stringify({ choiceId }) // CHOICE の場合
-          : JSON.stringify({ choiceId: null }); // CONFIRM の場合
+          ? JSON.stringify({ choiceId })
+          : JSON.stringify({ choiceId: null });
 
       const response = await fetch(
-        import.meta.env.VITE_API_URL + `/contact/${contactId}/reaction`,
+        `${import.meta.env.VITE_API_URL}/contact/${contactId}/reaction`,
         {
           method: "POST",
           headers: {
@@ -50,12 +58,12 @@ function PostList({
 
       if (response.status === 200) {
         alert("リアクションが送信されました！");
-        setReactedPosts((prev) => new Set([...prev, contactId])); // リアクション済みとして登録
+        setReactedPosts((prev) => new Set([...prev, contactId]));
       } else {
         throw new Error("リアクション送信に失敗しました。");
       }
     } catch (err) {
-      alert(`エラー: ${err.message}`);
+      alert(`再度リアクションすることはできません！`);
     }
   };
 
@@ -65,13 +73,13 @@ function PostList({
 
   const handleEditComplete = (updatedData) => {
     onEditPost(editingPost.contactId, updatedData);
-    setEditingPost(null); // 編集モーダルを閉じる
+    setEditingPost(null);
   };
 
   return (
     <div className="group-contact-content px-5">
       {posts.map((post, index) => {
-        const isReacted = reactedPosts.has(post.contactId); // リアクション済みか判定
+        const isReacted = reactedPosts.has(post.contactId);
 
         return (
           <div
@@ -93,21 +101,30 @@ function PostList({
             <p>{post.message}</p>
 
             {post.contactType === "CONFIRM" && (
-              <button
-                className="btn btn-secondary mt-2"
-                onClick={() =>
-                  handleReactionClick(post.contactId, post.contactType)
-                }
-                disabled={isReacted} // リアクション済みなら無効化
-              >
-                確認
-              </button>
+              <div className="d-flex flex-column align-items-start mt-2">
+                <button
+                  className="btn btn-outline-secondary mb-2"
+                  onClick={() =>
+                    handleReactionClick(post.contactId, post.contactType)
+                  }
+                  disabled={isReacted}
+                >
+                  <i className="bi bi-check2-circle"></i> 確認
+                </button>
+                <button
+                  className="btn btn-outline-info"
+                  onClick={() => onFetchDetails(post.contactId)}
+                >
+                  <i className="bi bi-eye me-2"></i> 詳細を確認する
+                </button>
+              </div>
             )}
 
             {post.contactType === "CHOICE" && post.choices && (
               <div className="choices-section mt-3">
                 <h5>選択肢</h5>
-                {post.choices.map((choice) => {
+                {post.choices.map((choice, index) => {
+                  const isChoiceDisabled = reactedPosts.has(post.contactId);
                   return (
                     <div
                       key={`${post.contactId}-${choice.choiceId}`}
@@ -122,8 +139,9 @@ function PostList({
                             choice.choiceId
                           )
                         }
-                        disabled={isReacted} // リアクション済みなら無効化
+                        disabled={isChoiceDisabled}
                       >
+                        <i class="bi bi-check2-circle"></i>
                         {choice.choice}
                       </button>
                     </div>
@@ -132,27 +150,27 @@ function PostList({
               </div>
             )}
 
-            {(post.contactType === "CONFIRM" ||
-              post.contactType === "CHOICE") && (
+            {(post.contactType === "CHOICE") && (
               <button
                 className="btn btn-outline-info mt-2"
                 onClick={() => onFetchDetails(post.contactId)}
               >
-                詳細を確認する
+                <i className="bi bi-eye me-2"></i> 詳細を確認する
               </button>
             )}
+
             <div className="d-flex justify-content-end">
               <button
                 className="btn btn-warning btn-sm me-2"
                 onClick={() => handleOpenEditModal(post)}
               >
-                編集
+                <i className="bi bi-pencil me-2"></i> 編集
               </button>
               <button
                 className="btn btn-outline-danger btn-sm"
                 onClick={() => onDeletePost(post.contactId)}
               >
-                削除
+                <i className="bi bi-trash me-2"></i> 削除
               </button>
             </div>
           </div>
@@ -171,8 +189,8 @@ function PostList({
         <PostFormModal
           onClose={() => setEditingPost(null)}
           groupId={editingPost.groupId}
-          onPostCreated={handleEditComplete} // 編集結果を適用
-          initialData={editingPost} // 初期データを渡す
+          onPostCreated={handleEditComplete}
+          initialData={editingPost}
         />
       )}
     </div>

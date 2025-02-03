@@ -49,7 +49,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
           credentials: "include",
         }
       );
-      setMessages(response.data.messages || []);
+      setMessages(response.data.messages.reverse() || []);
     } catch (err) {
       setError("メッセージ一覧の取得に失敗しました。");
     } finally {
@@ -71,12 +71,12 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     const connectSSE = () => {
       if (sse) {
         console.log("既存のSSE接続を閉じます");
-        sse.close(); // 既存の接続をクローズ
+        sse.close(); // 既存接続を閉じる
       }
   
       console.log("新しいSSE接続を開始します:", selectedTalk);
       sse = new EventSource(
-        `${import.meta.env.VITE_API_URL}/message/sse?talkId=${selectedTalk}`,
+        `${import.meta.env.VITE_API_URL}/message/sse`,
         {
           withCredentials: true,
           credentials: "include",
@@ -165,9 +165,10 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const handleSendMessage = (newMessage) => {
     setMessages((prevMessages) => {
       if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
-        return prevMessages; // 重複メッセージを無視
+        console.log("重複無視");
+        return prevMessages; // 重複を無視
       }
-      return [...prevMessages, newMessage];
+      return [...prevMessages, newMessage]; // メッセージを末尾に追加
     });
   };
   

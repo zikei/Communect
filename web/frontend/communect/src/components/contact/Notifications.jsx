@@ -3,6 +3,7 @@ import { Toast, ToastContainer, Button } from "react-bootstrap";
 
 async function handleNotificationReaction(postId, choiceId = null) {
   try {
+    const requestBody = choiceId !== null ? { choiceId } : {};
     const response = await fetch(
       import.meta.env.VITE_API_URL + `/contact/${postId}/reaction`,
       {
@@ -10,8 +11,9 @@ async function handleNotificationReaction(postId, choiceId = null) {
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
         credentials: "include",
-        body: JSON.stringify({ choiceId }),
+        body: JSON.stringify(requestBody),
       }
     );
 
@@ -55,7 +57,7 @@ function Notifications({ notifications, onRemoveNotification }) {
                   variant="primary"
                   size="sm"
                   onClick={async () => {
-                    await handleNotificationReaction(notif.postId, "👍");
+                    await handleNotificationReaction(notif.postId, null);
                     onRemoveNotification(notif.postId);
                   }}
                 >
@@ -75,11 +77,11 @@ function Notifications({ notifications, onRemoveNotification }) {
                           await handleNotificationReaction(
                             notif.postId,
                             choiceObj.choiceId
-                          ); // choiceIdを利用
+                          );
                           onRemoveNotification(notif.postId);
                         }}
                       >
-                        {choiceObj.choice || "不明な選択肢"}{" "}
+                        {choiceObj.choice || "不明な選択肢"}
                         {/* choiceを表示 */}
                       </Button>
                     ))}

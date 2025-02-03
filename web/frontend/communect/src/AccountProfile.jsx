@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import UserProfile from "./components/UserProfile";
+import Logout from "./Logout";
 import "./css/sidebar.css";
 import "./css/main.css";
 
@@ -13,7 +14,6 @@ function AccountProfile() {
 
   return (
     <div className="container-fluid vh-100 overflow-hidden p-0">
-      {/* Header */}
       <header className="h-20 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container-fluid">
           <div className="d-flex align-items-center">
@@ -22,9 +22,7 @@ function AccountProfile() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="h-80 d-flex">
-        {/* Sidebar */}
         <aside
           className="bg-light p-3 border-end"
           style={{
@@ -39,9 +37,9 @@ function AccountProfile() {
             <a href="/group" className="nav-link">Groups</a>
             <h5 className="mt-3">Account</h5>
           </nav>
+          <Logout />
         </aside>
 
-        {/* Resizer */}
         <div
           className="resizer"
           onMouseDown={(e) => {
@@ -51,13 +49,11 @@ function AccountProfile() {
           }}
         ></div>
 
-        {/* Main Content */}
         <div className="maincontent flex-grow-1 ps-5 reset">
           <UserProfile />
         </div>
       </main>
 
-      {/* Sidebar Toggle Button */}
       <div
         className="sidebar-toggle-icon"
         onClick={toggleSidebar}

@@ -21,10 +21,13 @@ const MessagesArea = ({
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
-          withCredentials: true,
-          credentials: "include",
-        });
+        const response = await axios.get(
+          import.meta.env.VITE_API_URL + "/user/login",
+          {
+            withCredentials: true,
+            credentials: "include",
+          }
+        );
         setCurrentUser(response.data.user);
       } catch (error) {
         console.error("ログインユーザー情報の取得に失敗しました:", error);
@@ -41,10 +44,11 @@ const MessagesArea = ({
   };
 
   useEffect(() => {
-    // スクロールが一番下にある場合、送信後に最下部にスクロール
+    // メッセージが更新されたとき、スクロールを最下部に調整
     const container = messagesContainerRef.current;
-    const isAtBottom = container.scrollHeight === container.scrollTop + container.clientHeight;
-    
+    const isAtBottom =
+      container.scrollHeight === container.scrollTop + container.clientHeight;
+
     if (isAtBottom) {
       scrollToBottom();
     }
@@ -75,11 +79,11 @@ const MessagesArea = ({
     <Col xs={9} className={`${styles["messages-container"]} p-0`}>
       <div
         className={`${styles.messages} flex-grow-1 overflow-auto`}
-        ref={messagesContainerRef} // メッセージコンテナにrefを追加
+        ref={messagesContainerRef}
       >
         {messages.length > 0 ? (
-          // メッセージを降順に表示（最新のメッセージが下に）
-          [...messages].reverse().map((message) => (
+          // メッセージをそのまま表示
+          messages.map((message) => (
             <div
               key={message.messageId}
               className={`${styles.message} ${
@@ -134,10 +138,18 @@ const MessagesArea = ({
         ) : (
           <p className={styles["no-messages"]}>まだメッセージはありません。</p>
         )}
-        {/* 最後のメッセージの下にスクロールを誘導 */}
         <div ref={messagesEndRef}></div>
       </div>
-      {selectedTalk && <MessageSender talkId={selectedTalk} onMessageSent={onSendMessage} />}
+      {selectedTalk && (
+        <MessageSender
+          talkId={selectedTalk}
+          onMessageSent={(newMessage) => {
+            // 新しいメッセージが送信された後、逆順で追加
+            onSendMessage(newMessage); // メッセージ送信後に状態更新
+            scrollToBottom(); // 最下部にスクロール
+          }}
+        />
+      )}
     </Col>
   );
 };
