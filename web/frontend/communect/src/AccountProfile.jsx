@@ -32,7 +32,6 @@ function AccountProfile() {
           }}
         >
           <nav className="nav flex-column">
-            <button className="btn btn-primary mb-3">グループ作成</button>
             <a href="/dm" className="nav-link">Direct Messages</a>
             <a href="/group" className="nav-link">Groups</a>
             <h5 className="mt-3">Account</h5>
