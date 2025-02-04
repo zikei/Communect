@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect} from "react";
 import { Container, Row } from "react-bootstrap";
 import axios from "axios";
 import styles from "../css/module/groupTalk.module.css";
@@ -13,8 +13,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const messagesEndRef = useRef(null);
-
   const fetchTalks = async () => {
     if (!currentGroup?.groupId) return;
 
@@ -51,7 +49,7 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
           credentials: "include",
         }
       );
-      setMessages(response.data.messages || []);
+      setMessages(response.data.messages.reverse() || []);
     } catch (err) {
       setError("メッセージ一覧の取得に失敗しました。");
     } finally {
@@ -65,10 +63,115 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
     }
   }, [currentGroup?.groupId]);
 
+  useEffect(() => {
+    if (!currentGroup?.groupId || !selectedTalk) return;
+  
+    let sse;
+  
+    const connectSSE = () => {
+      if (sse) {
+        console.log("既存のSSE接続を閉じます");
+        sse.close(); // 既存接続を閉じる
+      }
+  
+      console.log("新しいSSE接続を開始します:", selectedTalk);
+      sse = new EventSource(
+        `${import.meta.env.VITE_API_URL}/message/sse`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
+      );
+  
+      // 新しいメッセージ受信
+      sse.addEventListener("post", (event) => {
+        console.log("POSTイベント:", event.data);
+        try {
+          const response = JSON.parse(event.data);
+          const newMessage = response.message;
+  
+          if (newMessage && newMessage.talkId === selectedTalk) {
+            setMessages((prevMessages) => {
+              if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+                return prevMessages;
+              }
+              return [...prevMessages, newMessage];
+            });
+          }
+        } catch (err) {
+          console.error("POSTイベント解析エラー:", err);
+        }
+      });
+  
+      // 更新イベント
+      sse.addEventListener("update", (event) => {
+        console.log("UPDATEイベント:", event.data);
+        try {
+          const response = JSON.parse(event.data);
+          const updatedMessage = response.message;
+  
+          if (updatedMessage && updatedMessage.talkId === selectedTalk) {
+            setMessages((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.messageId === updatedMessage.messageId ? updatedMessage : msg
+              )
+            );
+          }
+        } catch (err) {
+          console.error("UPDATEイベント解析エラー:", err);
+        }
+      });
+  
+      // 削除イベント
+      sse.addEventListener("delete", (event) => {
+        console.log("DELETEイベント:", event.data);
+        try {
+          const response = JSON.parse(event.data);
+          const deletedMessageId = response.messageId;
+  
+          setMessages((prevMessages) =>
+            prevMessages.filter((msg) => msg.messageId !== deletedMessageId)
+          );
+        } catch (err) {
+          console.error("DELETEイベント解析エラー:", err);
+        }
+      });
+  
+      // SSEエラーハンドリング
+      sse.onerror = (event) => {
+        console.error("SSEエラーが発生しました:", event);
+        sse.close();
+  
+        // 再接続処理
+        setTimeout(() => {
+          console.log("SSE再接続を試みます...");
+          connectSSE();
+        }, 5000); // 5秒後に再接続
+      };
+    };
+  
+    connectSSE();
+  
+    // クリーンアップ処理
+    return () => {
+      if (sse) {
+        console.log("SSE接続をクリーンアップします");
+        sse.close();
+      }
+    };
+  }, [currentGroup?.groupId, selectedTalk]);
+  
+  
   const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setMessages((prevMessages) => {
+      if (prevMessages.some((msg) => msg.messageId === newMessage.messageId)) {
+        console.log("重複無視");
+        return prevMessages; // 重複を無視
+      }
+      return [...prevMessages, newMessage]; // メッセージを末尾に追加
+    });
   };
-
+  
   const handleSelectTalk = (talkId) => {
     setSelectedTalk(talkId);
     fetchMessages(talkId);
@@ -77,11 +180,13 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleEditMessage = async (messageId, updatedText) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
-        { message: updatedText},
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/message/${messageId}`,
+        { message: updatedText },
         {
-          withCredentials: true
-        }      
+          withCredentials: true,
+          credentials: "include",
+        }
       );
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
@@ -97,9 +202,11 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/message/${messageId}`,
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/message/${messageId}`,
         {
           withCredentials: true,
+          credentials: "include",
         }
       );
       setMessages((prevMessages) =>
@@ -113,16 +220,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
   const handleTalkUpdate = (updatedTalks) => {
     setTalks(updatedTalks);
   };
-
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   return (
     <Container fluid className={`${styles["talk-room"]} p-0`}>
@@ -139,7 +236,6 @@ const TalkRoom = ({ currentGroup, onSelectTalk }) => {
         <MessagesArea
           messages={messages}
           selectedTalk={selectedTalk}
-          messagesEndRef={messagesEndRef}
           onSendMessage={handleSendMessage}
           onEditMessage={handleEditMessage}
           onDeleteMessage={handleDeleteMessage}

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod.POST
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -45,6 +46,7 @@ class WebSecurityConfig(
         http {
             authorizeHttpRequests {
                 authorize(PathRequest.toStaticResources().atCommonLocations(), permitAll)
+                authorize(POST,"/user", permitAll)
                 authorize(anyRequest, authenticated)
             }
 

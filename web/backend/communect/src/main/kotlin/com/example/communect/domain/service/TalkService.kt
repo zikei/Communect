@@ -1,6 +1,9 @@
 package com.example.communect.domain.service
 
-import com.example.communect.domain.model.*
+import com.example.communect.domain.model.GroupTalkIns
+import com.example.communect.domain.model.IndividualTalkIns
+import com.example.communect.domain.model.Talk
+import com.example.communect.domain.model.TalkUpd
 
 /** トーク処理インターフェース */
 interface TalkService {
@@ -11,10 +14,10 @@ interface TalkService {
     fun getIndividualTalks(userId: String): List<Talk>
 
     /** トーク取得 */
-    fun getTalk(talkId: String): Talk?
+    fun getTalk(talkId: String, loginUserId: String): Talk?
 
     /** グループトーク作成 */
-    fun addGroupTalk(group: GroupTalkIns): Talk
+    fun addGroupTalk(talk: GroupTalkIns): Talk
 
     /** 個人トーク作成 */
     fun addIndividualTalk(talk: IndividualTalkIns): Talk
@@ -24,4 +27,7 @@ interface TalkService {
 
     /** トーク削除 */
     fun deleteTalk(talkId: String)
+
+    /** トーク所属確認 */
+    fun hasTalk(talkId: String, loginUserId: String): Boolean
 }

@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from "react";
+import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
 
 function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
   const [formData, setFormData] = useState({
     message: "",
     contactType: "INFORM",
     importance: "LOW",
-    choices: [],
+    choices: ["", ""],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        message: initialData.message,
-        contactType: initialData.contactType,
-        importance: initialData.importance,
-        choices: initialData.choices ? initialData.choices.map(choice => choice.choice) : [],
+        message: initialData.message || "",
+        contactType: initialData.contactType || "INFORM",
+        importance: initialData.importance || "LOW",
+        choices: Array.isArray(initialData.choices)
+          ? initialData.choices.map((choiceObj) =>
+              typeof choiceObj === "object" ? choiceObj.choice || "" : choiceObj
+            )
+          : ["", ""],
       });
     }
   }, [initialData]);
@@ -24,17 +31,52 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleChoiceChange = (index, value) => {
+    setFormData((prev) => {
+      const updatedChoices = [...prev.choices];
+      updatedChoices[index] = value;
+      return { ...prev, choices: updatedChoices };
+    });
+  };
+
+  const addChoice = () => {
+    setFormData((prev) => ({ ...prev, choices: [...prev.choices, ""] }));
+  };
+
+  const removeChoice = (index) => {
+    if (formData.choices.length > 2) {
+      const updatedChoices = formData.choices.filter((_, i) => i !== index);
+      setFormData((prev) => ({ ...prev, choices: updatedChoices }));
+    }
+  };
+
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError("");
+
     if (formData.contactType === "CHOICE" && formData.choices.length < 2) {
-      alert("選択肢は2つ以上入力してください。");
+      setError("選択肢は2つ以上入力してください。");
+      setIsSubmitting(false);
       return;
     }
 
-    const requestData = { ...formData, groupId };
+    let requestData = {
+      message: formData.message,
+      contactType: formData.contactType,
+      importance: formData.importance,
+      groupId,
+    };
+
+    if (formData.contactType === "CHOICE") {
+      requestData.choices = formData.choices;
+    }
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/contact${initialData ? `/${initialData.contactId}` : ""}`,
+        `${import.meta.env.VITE_API_URL}/contact${
+          initialData ? `/${initialData.contactId}` : ""
+        }`,
         {
           method: initialData ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -45,59 +87,85 @@ function PostFormModal({ onClose, groupId, onPostCreated, initialData }) {
 
       if (!response.ok) throw new Error("投稿に失敗しました。");
       const newPost = await response.json();
-      onPostCreated(newPost); // 新規投稿後に更新
+
+      if (!initialData) {
+        onPostCreated(newPost);
+      }
       onClose();
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: "400px" }}>
-        <button className="btn-close" onClick={onClose}></button>
-        <h2>{initialData ? "投稿を編集" : "新規投稿"}</h2>
-        <div className="form-group">
-          <label>メッセージ</label>
-          <textarea
-            className="form-control"
-            name="message"
-            value={formData.message}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div className="form-group">
-          <label>連絡タイプ</label>
-          <select name="contactType" value={formData.contactType} onChange={handleInputChange} className="form-control">
-            <option value="INFORM">周知連絡</option>
-            <option value="CONFIRM">確認連絡</option>
-            <option value="CHOICE">多肢連絡</option>
-          </select>
-        </div>
-        {formData.contactType === "CHOICE" && (
-          <div className="form-group">
-            <label>選択肢</label>
-            <input
-              type="text"
-              className="form-control"
-              value={formData.choices.join(", ")}
-              onChange={(e) => setFormData({ ...formData, choices: e.target.value.split(",") })}
+    <Modal show onHide={onClose} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>{initialData ? "投稿を編集" : "新規投稿"}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
+        <Form>
+          <Form.Group>
+            <Form.Label>メッセージ</Form.Label>
+            <Form.Control
+              as="textarea"
+              name="message"
+              value={formData.message}
+              onChange={handleInputChange}
             />
-          </div>
-        )}
-        <div className="form-group">
-          <label>重要度</label>
-          <select name="importance" value={formData.importance} onChange={handleInputChange} className="form-control">
-            <option value="LOW">低</option>
-            <option value="MEDIUM">中</option>
-            <option value="HIGH">高</option>
-          </select>
-        </div>
-        <button className="btn btn-primary" onClick={handleSubmit}>
-          {initialData ? "保存" : "投稿"}
-        </button>
-      </div>
-    </div>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>連絡タイプ</Form.Label>
+            <Form.Select name="contactType" value={formData.contactType} onChange={handleInputChange}>
+              <option value="INFORM">周知連絡</option>
+              <option value="CONFIRM">確認連絡</option>
+              <option value="CHOICE">多肢連絡</option>
+            </Form.Select>
+          </Form.Group>
+          {formData.contactType === "CHOICE" && (
+            <Form.Group>
+              <Form.Label>選択肢</Form.Label>
+              {formData.choices.map((choice, index) => (
+                <div key={index} className="d-flex align-items-center mb-2">
+                  <Form.Control
+                    type="text"
+                    value={typeof choice === "string" ? choice : ""}
+                    onChange={(e) => handleChoiceChange(index, e.target.value)}
+                  />
+                  {index >= 2 && (
+                    <Button className="text-wrap" variant="danger" size="sm" onClick={() => removeChoice(index)}>
+                      削除
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="secondary" size="sm" className="mt-2" onClick={addChoice}>
+                選択肢を追加
+              </Button>
+            </Form.Group>
+          )}
+          <Form.Group>
+            <Form.Label>重要度</Form.Label>
+            <Form.Select name="importance" value={formData.importance} onChange={handleInputChange}>
+              <option value="SAFE">最低</option>
+              <option value="LOW">低</option>
+              <option value="MEDIUM">中</option>
+              <option value="HIGH">高</option>
+            </Form.Select>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          キャンセル
+        </Button>
+        <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? <Spinner as="span" animation="border" size="sm" /> : initialData ? "保存" : "投稿"}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 

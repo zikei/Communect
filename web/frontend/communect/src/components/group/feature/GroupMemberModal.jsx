@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { Modal, Button, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import EditGroupMemberModal from "./EditGroupMemberModal";
@@ -21,39 +20,74 @@ function GroupMemberModal({ groupId, show, onClose }) {
   const [successMessage, setSuccessMessage] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const fetchGroupDetails = async () => {
+    if (!groupId) return;
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}`,
+        { withCredentials: true }
+      );
+      if (response.data && response.data.myStatus) {
+        setCurrentUserId(response.data.myStatus.userId);
+        setIsAdmin(response.data.myStatus.isAdmin);
+      }
+    } catch (err) {
+      console.error("Error fetching group details:", err);
+      setError("グループ詳細の取得に失敗しました。");
+    }
+  };
+
+  const fetchGroupMembers = async () => {
+    if (!show || !groupId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
+        { withCredentials: true, credentials: "include" }
+      );
+
+      if (response.data && Array.isArray(response.data.users)) {
+        setMembers(
+          response.data.users.filter(
+            (user) => user !== null && user !== undefined
+          )
+        );
+      } else {
+        throw new Error("Unexpected API response format");
+      }
+    } catch (err) {
+      console.error("Error fetching group members:", err);
+      setError("Failed to load members. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchGroupMembers = async () => {
-      if (!show || !groupId) return;
-
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/group/${groupId}/user`,
-          {
-            withCredentials: true,
-            credentials: "include",
-          }
-        );
-        if (response.data && Array.isArray(response.data.users)) {
-          setMembers(response.data.users);
-        } else {
-          throw new Error("Unexpected API response format");
-        }
-      } catch (err) {
-        console.error("Error fetching group members:", err);
-        setError("Failed to load members. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGroupMembers();
+    if (show) {
+      fetchGroupDetails();
+      fetchGroupMembers();
+    }
   }, [show, groupId]);
 
   const handleEditClick = (member) => {
-    setEditingMember(member);
+    console.log("Admin:" + isAdmin);
+    console.log(member.userId);
+    console.log(currentUserId);
+
+    // 管理者かつ本人の場合の処理を追加
+    if (isAdmin && member.userId === currentUserId) {
+      setEditingMember(member);
+    } else if (isAdmin || member.userId === currentUserId) {
+      setEditingMember(member);
+    } else {
+      alert("編集権限がありません。");
+    }
   };
 
   const handleMemberUpdate = (updatedMember) => {
@@ -83,23 +117,21 @@ function GroupMemberModal({ groupId, show, onClose }) {
       );
 
       if (response.status === 200) {
-        setMembers((prev) =>
-          prev.filter((member) => member.groupUserId !== groupUserId)
-        );
-        setSuccessMessage("Member deleted successfully.");
+        await fetchGroupMembers();
+        setSuccessMessage("メンバーを削除しました。");
       } else {
         throw new Error("Failed to delete member.");
       }
     } catch (err) {
       console.error("Error deleting member:", err);
-      setError("Failed to delete member. Please try again later.");
+      setError("メンバーの削除に失敗しました。");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddUser = (newUser) => {
-    setMembers((prev) => [...prev, newUser]);
+  const handleAddUser = async (newUser) => {
+    await fetchGroupMembers();
     setShowAddUserModal(false);
   };
 
@@ -107,7 +139,9 @@ function GroupMemberModal({ groupId, show, onClose }) {
     <>
       <Modal show={show} onHide={onClose} centered>
         <Modal.Header closeButton className={styles.modalHeader}>
-          <Modal.Title className={styles.modalTitle}>Group Members</Modal.Title>
+          <Modal.Title className={styles.modalTitle}>
+            グループメンバー
+          </Modal.Title>
           <button
             className={styles.addUserButton}
             onClick={() => setShowAddUserModal(true)}
@@ -125,39 +159,43 @@ function GroupMemberModal({ groupId, show, onClose }) {
           )}
           {error && <Alert variant="danger">{error}</Alert>}
           {successMessage && <Alert variant="success">{successMessage}</Alert>}
-          {!loading && !error && members.length > 0 ? (
+          {members.length > 0 ? (
             <div className={styles.membersList}>
-              {members.map((member) => (
-                <div key={member.groupUserId} className={styles.memberItem}>
-                  <div className={styles.avatar}>
-                    {member.userName.charAt(0).toUpperCase()}
+              {members
+                .filter((member) => member && member.userName)
+                .map((member) => (
+                  <div key={member.groupUserId} className={styles.memberItem}>
+                    <div className={styles.avatar}>
+                      {member.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className={styles.bubble}>
+                      <div className={styles.userName}>
+                        {member.userName} <small>({member.nickName})</small>
+                      </div>
+                      <div className={styles.role}>
+                        連絡権限: {ROLE_DISPLAY_MAP[member.role]}
+                      </div>
+                      <div className={styles.permissions}>
+                        管理者権限: {member.isAdmin ? "Yes" : "No"}
+                        <br />
+                        下位グループ作成権限:{" "}
+                        {member.isSubGroupCreate ? "Yes" : "No"}
+                      </div>
+                    </div>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEditClick(member)}
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteClick(member.groupUserId)}
+                    >
+                      🗑
+                    </button>
                   </div>
-                  <div className={styles.bubble}>
-                    <div className={styles.userName}>
-                      {member.userName} <small>({member.nickName})</small>
-                    </div>
-                    <div className={styles.role}>
-                      Role: {ROLE_DISPLAY_MAP[member.role] || "未設定"}
-                    </div>
-                    <div className={styles.permissions}>
-                      Admin: {member.isAdmin ? "Yes" : "No"} | Sub-Group:{" "}
-                      {member.isSubGroupCreate ? "Yes" : "No"}
-                    </div>
-                  </div>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => handleEditClick(member)}
-                  >
-                    ✎
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteClick(member.groupUserId)}
-                  >
-                    🗑
-                  </button>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             !loading && (
@@ -179,6 +217,7 @@ function GroupMemberModal({ groupId, show, onClose }) {
           show={!!editingMember}
           onClose={() => setEditingMember(null)}
           onSave={handleMemberUpdate}
+          currentUserId={currentUserId}
         />
       )}
 
@@ -188,16 +227,11 @@ function GroupMemberModal({ groupId, show, onClose }) {
           show={showAddUserModal}
           onClose={() => setShowAddUserModal(false)}
           onAddUser={handleAddUser}
+          existingMembers={members}
         />
       )}
     </>
   );
 }
-
-GroupMemberModal.propTypes = {
-  groupId: PropTypes.string.isRequired,
-  show: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
 
 export default GroupMemberModal;

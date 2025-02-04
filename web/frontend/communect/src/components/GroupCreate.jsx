@@ -5,19 +5,40 @@ import axios from "axios";
 
 function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
   const [groupName, setGroupName] = useState("");
-  const [parentGroupId, setParentGroupId] = useState(
-    currentGroup?.groupId || null
-  );
+  const [parentGroupId, setParentGroupId] = useState(currentGroup?.groupId || null);
   const [addedUsers, setAddedUsers] = useState([]);
   const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // 現在のログインユーザー情報
 
   useEffect(() => {
     setParentGroupId(currentGroup?.groupId || null);
   }, [currentGroup]);
 
-  const handleUserSelect = useCallback((selectedUsers) => {
-    setAddedUsers(selectedUsers);
+  // ログイン中のユーザー情報を取得
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/user/login", {
+          withCredentials: true,
+          credentials: "include",
+        });
+        setCurrentUser(response.data); // 取得したユーザー情報を保存
+      } catch (error) {
+        console.error("現在のユーザー情報の取得に失敗しました:", error);
+        setCurrentUser(null);
+      }
+    };
+    fetchCurrentUser();
   }, []);
+
+  const handleUserSelect = (users) => {
+    if (!currentUser) return;
+  
+    // 自分自身を除外
+    const filteredUsers = users.filter(user => user.userId !== currentUser.userId);
+    
+    setAddedUsers(filteredUsers); // 追加されたユーザーを正しく更新
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,22 +48,31 @@ function GroupCreate({ onSubmit, currentGroup, toggleModal }) {
       return;
     }
 
+    if (!currentUser) {
+      setError("現在のユーザー情報を取得できませんでした。");
+      return;
+    }
+
+    // 自分自身の userId を除外
+    const filteredUsers = addedUsers
+      .filter(user => user.userId !== currentUser.userId)
+      .map(user => user.userId);
+
     const newGroup = {
       name: groupName.trim(),
       above: parentGroupId || null,
-      users: addedUsers.map((user) => user.userId),
+      users: filteredUsers, // 自分を除外したリストを送信
     };
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/group`, newGroup ,{
+        `${import.meta.env.VITE_API_URL}/group`, newGroup, {
           withCredentials: true,
           credentials: "include",
         }
       );
-      alert("グループが作成されました。再読み込みを行ってください。");
 
-      if (onSubmit) onSubmit(response.data);
+      if (onSubmit) onSubmit(response.data.group);
 
       setGroupName("");
       setParentGroupId(null);

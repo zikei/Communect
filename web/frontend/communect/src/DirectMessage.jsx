@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import Logout from "./Logout";
+import DirectMessageTalk from "./components/DirectMessageTalk";
 import "./css/sidebar.css";
 import "./css/main.css";
-import DirectMessageTalk from "./components/DirectMessageTalk";
 
 function DirectMessage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -35,15 +36,13 @@ function DirectMessage() {
                     }}
                   >
                     <nav className="nav flex-column">
-                      <button className="btn btn-primary mb-3" onClick={toggleModal}>
-                        グループ作成
-                      </button>
                       <h5  className="mt-3">
                         Direct Message
                       </h5>
                       <a href="/group" className ="nav-link">Groups</a>
                       <a href="/account" className="nav-link">Account</a>
                     </nav>
+                    <Logout />
                   </aside>
                   <div
                     className="resizer"

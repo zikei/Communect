@@ -1,8 +1,8 @@
 .talk-room {
-  margin: 0; /* 余分なマージンを削除 */
-  padding: 0; /* 余分なパディングを削除 */
-  height: 100%; /* 全体の高さを明確に定義 */
-  overflow: hidden; /* 必要な場合にのみスクロール */
+  margin: 0;
+  padding: 0; 
+  height: 100%; 
+  overflow: hidden; 
   height: calc(100vh - 70px);
 }
 

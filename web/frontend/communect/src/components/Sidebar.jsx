@@ -1,6 +1,6 @@
 import React from "react";
-import GroupTree from "./group/GroupTree";
 import Logout from "../Logout";
+import GroupTree from "./group/GroupTree";
 import "../css/sidebar.css";
 
 function Sidebar({
@@ -14,23 +14,23 @@ function Sidebar({
   toggleModal,
   error,
   currentGroup,
-  handleGroupDelete,
+  handleDeleteGroup,
   onEditGroup,
   onShowMembers,
   onOpenTalk,
 }) {
+
   return (
     <>
       <aside
-        className="bg-light p-3 border-end d-flex flex-column"
+        className="bg-light p-3 border-end"
         style={{
           width: `${sidebarWidth}px`,
           whiteSpace: "nowrap",
           display: sidebarOpen ? "block" : "none",
-          height: "100vh", // サイドバー全体の高さを確保
         }}
       >
-        <nav className="nav flex-column h-100">
+        <nav className="nav flex-column">
           <button className="btn btn-primary mb-3" onClick={toggleModal}>
             グループ作成
           </button>
@@ -49,7 +49,7 @@ function Sidebar({
                     toggleGroup={toggleGroup}
                     handleGroupClick={handleGroupClick}
                     currentGroup={currentGroup}
-                    onDeleteGroup={handleGroupDelete}
+                    onDeleteGroup={handleDeleteGroup}
                     onEditGroup={onEditGroup}
                     onShowMembers={onShowMembers}
                     onOpenTalk={onOpenTalk}
@@ -63,14 +63,9 @@ function Sidebar({
           <a href="/account" className="nav-link">
             Account
           </a>
-
-          {/* ログアウトボタンをナビゲーション内の最後に追加 */}
-          <div>
-            <Logout />
-          </div>
         </nav>
+        <Logout />
       </aside>
-
       <div
         className="resizer"
         onMouseDown={(e) => {

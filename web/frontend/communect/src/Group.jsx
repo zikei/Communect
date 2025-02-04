@@ -75,7 +75,6 @@ function Group() {
   };
 
   useEffect(() => {
-    // Fetch groups from the API
     const fetchGroups = async () => {
       try {
         const response = await axios.get(
@@ -113,71 +112,62 @@ function Group() {
     }));
   };
 
-  /* 削除機能 */
-  const handleGroupDelete = async (deletedGroupId) => {
-    try {
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/group/${deletedGroupId}`,
-        {
-          withCredentials: true,
-        }
-      );
-
-      // フロントエンド状態更新
-      const removeGroupFromHierarchy = (groups, groupIdToDelete) => {
-        return groups
-          .map((group) => {
-            if (group.children.length > 0) {
-              group.children = removeGroupFromHierarchy(
-                group.children,
-                groupIdToDelete
-              );
-            }
-            return group.groupId === groupIdToDelete ? null : group;
-          })
-          .filter((group) => group !== null);
-      };
-      const updatedGroups = removeGroupFromHierarchy(groups, deletedGroupId);
-      setGroups(updatedGroups);
-      // 現在選択されているグループが削除された場合、選択をリセット
-      if (currentGroup && currentGroup.groupId === deletedGroupId) {
-        setCurrentGroup(null);
-      }
-
-      // パンくずリストを更新（削除したグループが含まれている場合にリセット）
-      setBreadcrumb((prevBreadcrumb) =>
-        prevBreadcrumb.filter((b) => b.groupId !== deletedGroupId)
-      );
-
-      // 展開状態も削除されたグループに関連する部分をリセット
-      setExpandedGroups((prevExpandedGroups) => {
-        const updatedExpanded = { ...prevExpandedGroups };
-        delete updatedExpanded[deletedGroupId];
-        return updatedExpanded;
-      });
-    } catch (err) {
-      console.error("Error deleting group:", err);
-    }
-  };
+  /* 作成関連 */
+  const handleAddGroup = (newGroup) => {
+    setGroups((prevGroups) => {
+      const updatedGroups = [...prevGroups, newGroup]; 
+      return buildHierarchy(updatedGroups);
+    });
+  };  
 
   /* 編集関連 */
   const handleEditGroup = (group) => {
-    setEditModalGroup(group); // 編集するグループをセット
+    setEditModalGroup(group);
   };
 
   const handleCloseEditModal = () => {
-    setEditModalGroup(null); // モーダルを閉じる
+    setEditModalGroup(null); 
   };
 
-  const handleUpdateGroup = (groupId, updatedData) => {
+  const handleUpdateGroup = (groupId, newName) => {
     setGroups((prevGroups) =>
       prevGroups.map((group) =>
-        group.groupId === groupId ? { ...group, ...updatedData } : group
+        group.groupId === groupId ? { ...group, groupName: newName } : group
+      )
+    );
+  
+    if (currentGroup && currentGroup.groupId === groupId) {
+      setCurrentGroup((prev) => ({ ...prev, groupName: newName }));
+    }
+  
+    setBreadcrumb((prevBreadcrumb) =>
+      prevBreadcrumb.map((group) =>
+        group.groupId === groupId ? { ...group, groupName: newName } : group
       )
     );
   };
 
-  /* メンバー表示機能 */
+  // 削除関連
+  const handleDeleteGroup = (deletedGroupId) => {
+    setGroups((prevGroups) => {
+      const filterGroups = (groups) =>
+        groups
+          .filter((group) => group.groupId !== deletedGroupId)
+          .map((group) => ({
+            ...group,
+            children: filterGroups(group.children),
+          }));
+  
+      return filterGroups(prevGroups);
+    });
+  
+    if (currentGroup && currentGroup.groupId === deletedGroupId) {
+      setCurrentGroup(null);
+      setBreadcrumb([]);
+    }
+  };
+
+  /* メンバー関連 */
   const handleShowMembers = (groupId) => {
     setSelectedGroupId(groupId);
     setShowMembersModal(true);
@@ -188,6 +178,7 @@ function Group() {
     setSelectedGroupId(null);
   };
 
+  /* トーク関連 */
   const handleOpenTalk = (group) => {
     setTalkGroup(group);
     setIsGroupTalk(true);
@@ -219,12 +210,12 @@ function Group() {
           toggleModal={toggleModal}
           error={error}
           currentGroup={currentGroup}
-          handleGroupDelete={handleGroupDelete}
+          handleDeleteGroup={handleDeleteGroup}
           onEditGroup={handleEditGroup}
           onShowMembers={handleShowMembers}
-          onOpenTalk={handleOpenTalk} // 新しいプロパティを渡す
+          onOpenTalk={handleOpenTalk}
         />
-        <div className="maincontent flex-grow-1 ps-5 reset">
+        <div className="maincontent flex-grow-1 reset">
           {isGroupTalk && talkGroup ? (
             <GroupTalk group={talkGroup} onBack={handleBackFromTalk} currentGroup={currentGroup} />
           ) : (
@@ -244,7 +235,7 @@ function Group() {
                   />
                 </div>
               ) : (
-                <p>Select a group to see details.</p>
+                <p>グループが選択されていません。グループを選択してください。<br/>グループが無い場合は、グループ作成を行ってください。</p>
               )}
             </>
           )}
@@ -253,7 +244,7 @@ function Group() {
       {showModal && (
         <div className="modal-overlay">
           <GroupCreate
-            onSubmit={handleFormSubmit}
+            onSubmit={handleAddGroup}
             currentGroup={currentGroup}
             toggleModal={toggleModal}
           />

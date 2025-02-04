@@ -1,5 +1,4 @@
 import React from "react";
-import "./css/sidebar.css"; // 確実にCSSを読み込む
 
 function Logout() {
   const handleLogout = async () => {
